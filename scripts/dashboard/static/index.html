@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kodelyth ECC — Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23111a2e'/><stop offset='1' stop-color='%230b1220'/></linearGradient></defs><rect width='32' height='32' rx='7' fill='url(%23g)' stroke='%231f2a44' stroke-width='1'/><path d='M10.5 7.5 L10.5 24.5 M10.5 16 L21 7.5 M14 13.5 L21.5 24.5' stroke='%23e5e7eb' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round' fill='none'/><circle cx='25' cy='7' r='3' fill='%2334d399'/></svg>">
+<style>
+  /* ───── reset + base ───── */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #e5e7eb;
+    background: radial-gradient(1200px 600px at 0% 0%, #1e293b 0%, #0b1220 70%, #060912 100%) fixed;
+    min-height: 100vh;
+  }
+  a { color: #93c5fd; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code, pre, kbd, samp {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12.5px;
+  }
+  pre {
+    margin: 0;
+    padding: 12px 14px;
+    background: #0a0f1a;
+    border: 1px solid #1f2a44;
+    border-radius: 8px;
+    overflow: auto;
+    color: #cbd5e1;
+  }
+
+  /* ───── layout ───── */
+  .app { display: grid; grid-template-rows: auto 1fr; min-height: 100vh; }
+  header.top {
+    padding: 18px 28px;
+    border-bottom: 1px solid #1f2a44;
+    background: rgba(10,15,26,0.7);
+    backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    position: sticky; top: 0; z-index: 50;
+    flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .dot {
+    width: 10px; height: 10px; border-radius: 999px;
+    background: #34d399; box-shadow: 0 0 12px #34d399;
+    transition: background 300ms, box-shadow 300ms;
+  }
+  .brand h1 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: 0.2px; }
+  .brand .sub { font-size: 12px; color: #94a3b8; }
+
+  .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  nav.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav.tabs button {
+    background: transparent; color: #94a3b8;
+    border: 1px solid #1f2a44; border-radius: 8px;
+    padding: 8px 14px; font: inherit; cursor: pointer;
+    transition: 120ms;
+  }
+  nav.tabs button:hover { color: #e5e7eb; border-color: #334155; }
+  nav.tabs button.active {
+    color: #e5e7eb; background: #111a2e; border-color: #3b82f6;
+  }
+
+  .btn-ghost {
+    background: transparent; color: #94a3b8;
+    border: 1px solid #1f2a44; border-radius: 8px;
+    padding: 6px 12px; font: inherit; cursor: pointer; font-size: 12px;
+    transition: 120ms;
+  }
+  .btn-ghost:hover { color: #e5e7eb; border-color: #334155; }
+
+  main {
+    padding: 24px 28px 80px;
+    max-width: 1500px; width: 100%; margin: 0 auto;
+  }
+
+  /* ───── cards ───── */
+  .grid {
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+  .card {
+    background: rgba(15,23,42,0.7);
+    border: 1px solid #1f2a44;
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .card h2 {
+    margin: 0 0 14px; font-size: 13px; font-weight: 600;
+    color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .stat .num {
+    font-size: 32px; font-weight: 700; color: #e5e7eb; line-height: 1;
+  }
+  .stat .label { color: #94a3b8; margin-top: 4px; font-size: 13px; }
+  .stat .micro { color: #64748b; margin-top: 6px; font-size: 11.5px; }
+
+  /* ───── tables ───── */
+  .table-wrap { overflow: auto; border-radius: 10px; border: 1px solid #1f2a44; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td {
+    padding: 10px 12px; text-align: left; vertical-align: top;
+    border-bottom: 1px solid #1a2238; font-size: 13px;
+  }
+  th {
+    color: #94a3b8; background: #0a1322;
+    font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
+  }
+  tbody tr:hover { background: rgba(59,130,246,0.05); }
+  tbody tr:last-child td { border-bottom: 0; }
+
+  .pill {
+    display: inline-block; padding: 2px 8px; border-radius: 999px;
+    font-size: 11px; background: #1e293b; color: #cbd5e1;
+    border: 1px solid #334155;
+  }
+  .pill.ok       { background: rgba(34,197,94,0.12); color: #86efac; border-color: rgba(34,197,94,0.4); }
+  .pill.pending  { background: rgba(234,179,8,0.12); color: #fde68a; border-color: rgba(234,179,8,0.4); }
+  .pill.rejected { background: rgba(239,68,68,0.12); color: #fca5a5; border-color: rgba(239,68,68,0.4); }
+  .pill.applied  { background: rgba(168,85,247,0.12); color: #d8b4fe; border-color: rgba(168,85,247,0.4); }
+
+  /* ───── search ───── */
+  .search {
+    display: flex; gap: 8px; margin: 0 0 16px;
+  }
+  .search input, .search select {
+    flex: 1; min-width: 0;
+    padding: 10px 14px;
+    background: #0a1322; color: #e5e7eb;
+    border: 1px solid #1f2a44; border-radius: 8px;
+    font: inherit; outline: none;
+    transition: border-color 120ms, box-shadow 120ms;
+  }
+  .search input:focus, .search select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+  }
+
+  /* Custom select: kill native chevron, paint our own */
+  .search select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    flex: 0 0 180px;
+    padding-right: 38px;
+    cursor: pointer;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 14px 14px;
+  }
+  .search select:hover { border-color: #334155; }
+  .search select::-ms-expand { display: none; }
+  .search select option {
+    background: #0a1322;
+    color: #e5e7eb;
+    padding: 8px 12px;
+  }
+  .search select option:checked,
+  .search select option:hover {
+    background: #1e3a8a;
+    color: #ffffff;
+  }
+  .search button {
+    padding: 10px 16px;
+    background: #3b82f6; color: white; border: 0; border-radius: 8px;
+    cursor: pointer; font: inherit; font-weight: 600;
+  }
+  .search button:hover { background: #2563eb; }
+
+  /* ───── copy button ───── */
+  .copy-btn {
+    float: right; margin-left: 8px; font-size: 11px; padding: 2px 8px;
+    background: #1e293b; color: #93c5fd; border: 1px solid #334155;
+    border-radius: 6px; cursor: pointer; font-family: inherit; line-height: 1.4;
+    vertical-align: middle;
+  }
+  .copy-btn:hover { background: #1e3a5f; }
+
+  /* ───── small stuff ───── */
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .row > * { flex: 1 1 220px; }
+  .muted   { color: #94a3b8; }
+  .dim     { color: #64748b; }
+  .strong  { color: #e5e7eb; font-weight: 600; }
+
+  details { border: 1px solid #1f2a44; border-radius: 8px; padding: 8px 12px; background: #0a1322; }
+  details + details { margin-top: 8px; }
+  details summary { cursor: pointer; padding: 4px 0; }
+  details[open] summary { margin-bottom: 8px; color: #93c5fd; }
+
+  .empty {
+    padding: 32px; text-align: center; color: #64748b; border: 1px dashed #1f2a44; border-radius: 12px;
+  }
+
+  footer.bot {
+    padding: 16px 28px; border-top: 1px solid #1f2a44;
+    color: #64748b; font-size: 12px;
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+
+  hr.sep { border: 0; border-top: 1px solid #1f2a44; margin: 24px 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <span class="dot" id="liveDot"></span>
+      <h1>Kodelyth ECC</h1>
+      <span class="sub" id="hostLabel">— dashboard v1.7.4 · localhost</span>
+    </div>
+    <div class="header-right">
+      <span id="connBadge" class="pill ok" title="Real-time SSE connection status">LIVE</span>
+      <button id="refreshBtn" class="btn-ghost" title="Refresh active tab  (R key)">Refresh</button>
+      <nav class="tabs">
+        <button data-tab="overview" class="active">Overview</button>
+        <button data-tab="memory">Memory</button>
+        <button data-tab="evolve">Evolve</button>
+        <button data-tab="catalog">Catalog</button>
+        <button data-tab="sessions">Sessions</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ───────── OVERVIEW ───────── -->
+    <section data-panel="overview">
+      <div class="grid" id="overviewCards"></div>
+      <hr class="sep">
+      <div class="row">
+        <div class="card">
+          <h2>Storage</h2>
+          <pre id="storagePre">loading…</pre>
+        </div>
+        <div class="card">
+          <h2>Token budget snapshot</h2>
+          <div id="budgetSnapshot">loading…</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── MEMORY ───────── -->
+    <section data-panel="memory" hidden>
+      <div class="grid" id="memoryCards"></div>
+      <hr class="sep">
+      <div class="card">
+        <h2>BM25 search</h2>
+        <div class="search">
+          <input id="memQuery" placeholder='try "tailwind v4 migration"'>
+          <button id="memSearchBtn">Search</button>
+        </div>
+        <div id="memSearchResults" class="muted">Type a query and hit search.</div>
+      </div>
+      <hr class="sep">
+      <div class="card">
+        <h2>Recent memories</h2>
+        <div id="recentMemoriesTable">loading…</div>
+      </div>
+    </section>
+
+    <!-- ───────── EVOLVE ───────── -->
+    <section data-panel="evolve" hidden>
+      <div class="grid" id="evolveCards"></div>
+      <hr class="sep">
+      <div class="row">
+        <div class="card">
+          <h2>Top reused memories</h2>
+          <div id="reuseList">loading…</div>
+        </div>
+        <div class="card">
+          <h2>Top routing-miss clusters</h2>
+          <div id="missList">loading…</div>
+        </div>
+      </div>
+      <hr class="sep">
+      <div class="card">
+        <h2>Proposals</h2>
+        <div id="proposalsTable">loading…</div>
+        <p class="muted" style="margin-top: 12px; font-size: 12.5px;">
+          Run <code>kodelyth-ecc evolve accept &lt;id&gt;</code> in your terminal to write a draft to disk.
+          The dashboard NEVER auto-applies anything.
+        </p>
+      </div>
+    </section>
+
+    <!-- ───────── CATALOG ───────── -->
+    <section data-panel="catalog" hidden>
+      <div class="card">
+        <h2>Catalog browser</h2>
+        <div class="search">
+          <select id="catKind">
+            <option value="skills">skills</option>
+            <option value="agents">agents</option>
+            <option value="commands">commands</option>
+            <option value="rules">rules</option>
+            <option value="bundles">bundles</option>
+          </select>
+          <input id="catQuery" placeholder="filter by name, description, tag">
+          <button id="catRefreshBtn">Refresh</button>
+        </div>
+        <div id="catalogResults">loading…</div>
+      </div>
+    </section>
+
+    <!-- ───────── SESSIONS ───────── -->
+    <section data-panel="sessions" hidden>
+      <div class="card">
+        <h2>Live IDE activity</h2>
+        <p class="muted" style="margin-top:-4px;font-size:12.5px;">Most recently modified Claude Code / Windsurf / Antigravity session files. Updates every 3 seconds via SSE.</p>
+        <div id="ideSessionsList">loading…</div>
+      </div>
+      <hr class="sep">
+      <div class="card">
+        <h2>Orchestration / swarm sessions</h2>
+        <div id="sessionsList">loading…</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bot">
+    <div>
+      Localhost only · zero telemetry · all data stays on this machine.
+      &nbsp;|&nbsp; Keys <kbd>1</kbd>–<kbd>5</kbd> switch tabs · <kbd>R</kbd> to refresh.
+      &nbsp;|&nbsp; Built by <a href="https://github.com/sifxprime" target="_blank" rel="noopener">Shofiqul Islam</a>
+      &nbsp;·&nbsp; <a href="https://github.com/sifxprime/kodelyth-ecc" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;·&nbsp; <a href="https://www.npmjs.com/package/kodelyth-ecc" target="_blank" rel="noopener">npm</a>
+    </div>
+    <div id="lastUpdated">last refreshed: —</div>
+  </footer>
+</div>
+
+<script>
+  // ───── tiny helpers ─────
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+  const fmtDate = s => s ? new Date(s).toLocaleString() : '—';
+  const escapeHtml = s => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+  async function api(path) {
+    const r = await fetch(path, { headers: { Accept: 'application/json' } });
+    if (!r.ok) throw new Error(`${path} → ${r.status}`);
+    return r.json();
+  }
+
+  function setLastUpdated() {
+    $('#lastUpdated').textContent = `last refreshed: ${new Date().toLocaleTimeString()}`;
+  }
+
+  // ───── tab state + switching ─────
+  let currentTab = 'overview';
+
+  function switchTab(name) {
+    $$('.tabs button').forEach(x => x.classList.toggle('active', x.dataset.tab === name));
+    $$('section[data-panel]').forEach(s => s.hidden = s.dataset.panel !== name);
+    currentTab = name;
+    onTabShown(name);
+  }
+
+  $$('.tabs button').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+  // ───── overview ─────
+  function statCard(num, label, micro = '') {
+    return `<div class="card stat">
+      <div class="num">${num}</div>
+      <div class="label">${escapeHtml(label)}</div>
+      ${micro ? `<div class="micro">${escapeHtml(micro)}</div>` : ''}
+    </div>`;
+  }
+
+  async function loadOverview() {
+    try {
+      const o = await api('/api/overview');
+      $('#hostLabel').textContent = `— dashboard v1.7.4 · ${location.host} · ${o.package_root.split('/').slice(-2).join('/')}`;
+      $('#overviewCards').innerHTML = [
+        statCard(o.catalog.agents,   'Agents'),
+        statCard(o.catalog.skills,   'Skills'),
+        statCard(o.catalog.commands, 'Commands'),
+        statCard(o.catalog.rules,    'Rules'),
+        statCard(o.catalog.bundles,  'Bundles'),
+        statCard(o.memory.total,          'Memories captured', `${o.memory.projects} projects`),
+        statCard(o.evolve.surfaces_total, 'Memory surfaces',   'cumulative across sessions'),
+        statCard(o.evolve.routing_misses, 'Routing misses',    'substantive prompts w/ no recall'),
+        statCard(o.evolve.proposals.pending, 'Pending proposals', `${o.evolve.proposals.total} total tracked`),
+        statCard(o.swarm.sessions, 'Swarm sessions', 'in this repo'),
+      ].join('');
+      $('#storagePre').textContent = JSON.stringify(o.storage, null, 2);
+
+      const tb = await api('/api/token-budget');
+      if (!tb.sessions.length) {
+        $('#budgetSnapshot').innerHTML = `<div class="empty">No token-budget hook activity recorded yet.</div>`;
+      } else {
+        $('#budgetSnapshot').innerHTML = `
+          <div class="stat" style="display:flex;gap:12px;align-items:baseline;">
+            <span class="num">${tb.total_tokens.toLocaleString()}</span>
+            <span class="label">tokens across ${tb.sessions.length} sessions</span>
+          </div>
+          <div class="muted" style="margin-top:8px;font-size:12px;">
+            most-recent: ${escapeHtml(tb.sessions[0]?.session_id || '—')} · last seen ${fmtDate(tb.sessions[0]?.last_event)}
+          </div>`;
+      }
+      setLastUpdated();
+    } catch (e) {
+      $('#overviewCards').innerHTML = `<div class="empty">failed to load overview: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  // ───── memory ─────
+  async function loadMemory() {
+    try {
+      const m = await api('/api/memory');
+      $('#memoryCards').innerHTML = [
+        statCard(m.stats.total || 0,            'Total memories'),
+        statCard(m.stats.projects || 0,         'Projects'),
+        statCard(Object.keys(m.stats.byLanguage || {}).length, 'Languages'),
+        statCard((m.stats.topTags || []).length, 'Tag classes'),
+      ].join('');
+
+      if (!m.recent.length) {
+        $('#recentMemoriesTable').innerHTML = `<div class="empty">No captures yet. Use <code>/memory remember</code> or the MCP <code>capture_memory</code> tool.</div>`;
+      } else {
+        $('#recentMemoriesTable').innerHTML = `<div class="table-wrap"><table>
+          <thead><tr><th>Captured</th><th>Problem</th><th>Tags</th><th>Lang</th><th>Source</th></tr></thead>
+          <tbody>${m.recent.map(r => `<tr>
+            <td class="muted">${fmtDate(r.captured_at)}</td>
+            <td><div class="strong">${escapeHtml(r.problem)}</div><div class="dim" style="font-size:12px;margin-top:4px;">${escapeHtml(r.approach.slice(0,180))}${r.approach.length > 180 ? '…' : ''}</div></td>
+            <td>${(r.tags || []).map(t => `<span class="pill">${escapeHtml(t)}</span>`).join(' ')}</td>
+            <td>${escapeHtml(r.language || '—')}</td>
+            <td class="muted">${escapeHtml(r.source || '—')}</td>
+          </tr>`).join('')}</tbody></table></div>`;
+      }
+      setLastUpdated();
+    } catch (e) {
+      $('#memoryCards').innerHTML = `<div class="empty">failed to load memory: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  let _searchInFlight = false;
+  async function runMemorySearch() {
+    if (_searchInFlight) return; // prevent key-repeat burst
+    const q = $('#memQuery').value.trim();
+    if (!q) return;
+    _searchInFlight = true;
+    $('#memSearchResults').textContent = `searching for "${q}"…`;
+    try {
+      const r = await api('/api/memory/search?q=' + encodeURIComponent(q));
+      if (!r.results.length) {
+        $('#memSearchResults').innerHTML = `<div class="empty">No matches.</div>`;
+        return;
+      }
+      $('#memSearchResults').innerHTML = r.results.map(m => `
+        <details>
+          <summary>
+            <span class="pill">score ${m.score}</span> ${escapeHtml(m.problem)}
+            <button class="copy-btn" data-copy="${escapeHtml(JSON.stringify({ problem: m.problem, approach: m.approach, tags: m.tags }))}" onclick="event.stopPropagation();navigator.clipboard?.writeText(this.dataset.copy).then(()=>{this.textContent='copied';setTimeout(()=>this.textContent='copy',1500)})">copy</button>
+          </summary>
+          <pre>${escapeHtml(m.approach)}</pre>
+          <div class="muted" style="margin-top:6px;font-size:12px;">${(m.tags||[]).map(t=>`<span class="pill">${escapeHtml(t)}</span>`).join(' ')} · ${escapeHtml(m.language || '—')}</div>
+        </details>`).join('');
+    } catch (e) {
+      $('#memSearchResults').innerHTML = `<div class="empty">search failed: ${escapeHtml(e.message)}</div>`;
+    } finally {
+      _searchInFlight = false;
+    }
+  }
+
+  // ───── evolve ─────
+  async function loadEvolve() {
+    try {
+      const e = await api('/api/evolve');
+      $('#evolveCards').innerHTML = [
+        statCard(e.reuse.total_memories_tracked, 'Memories tracked'),
+        statCard(e.reuse.total_surfaces,         'Surfaces'),
+        statCard(e.miss.total_misses,            'Routing misses'),
+        statCard(e.miss.unique_prompts,          'Unique miss prompts'),
+        statCard(e.proposals.length,             'Proposals'),
+      ].join('');
+
+      $('#reuseList').innerHTML = e.reuse.entries.length
+        ? e.reuse.entries.slice(0, 10).map(r => `<div style="margin-bottom:10px;">
+            <div class="strong">${escapeHtml(r.id)}</div>
+            <div class="muted" style="font-size:12px;">${r.count} surfaces · ${(r.sessions||[]).length} sessions · last ${fmtDate(r.lastSurfaced)}</div>
+          </div>`).join('')
+        : `<div class="empty">No reuse signals yet.</div>`;
+
+      $('#missList').innerHTML = e.miss.entries.length
+        ? e.miss.entries.slice(0, 10).map(m => `<div style="margin-bottom:10px;">
+            <div class="strong">${(m.tokens || []).slice(0,4).map(t=>`<span class="pill">${escapeHtml(t)}</span>`).join(' ')}</div>
+            <div class="muted" style="font-size:12px;margin-top:4px;">${m.count} occurrence${m.count===1?'':'s'} · last ${fmtDate(m.lastSeen)}</div>
+            ${(m.samples || [])[0] ? `<div class="dim" style="font-size:12px;margin-top:4px;">"${escapeHtml(m.samples[0])}"</div>` : ''}
+          </div>`).join('')
+        : `<div class="empty">No routing-miss clusters yet.</div>`;
+
+      $('#proposalsTable').innerHTML = e.proposals.length
+        ? `<div class="table-wrap"><table>
+            <thead><tr><th>ID</th><th>Type</th><th>Status</th><th>Target</th><th>Why</th></tr></thead>
+            <tbody>${e.proposals.map(p => `<tr>
+              <td><code>${escapeHtml(p.id)}</code></td>
+              <td>${escapeHtml(p.type)}</td>
+              <td><span class="pill ${escapeHtml(p.status||'')}">${escapeHtml(p.status||'?')}</span></td>
+              <td class="muted">${escapeHtml(p.target_path || '—')}</td>
+              <td>${escapeHtml(p.rationale || '—')}</td>
+            </tr>`).join('')}</tbody></table></div>`
+        : `<div class="empty">No proposals yet. Run <code>kodelyth-ecc evolve analyze</code>.</div>`;
+      setLastUpdated();
+    } catch (err) {
+      $('#evolveCards').innerHTML = `<div class="empty">failed to load evolve: ${escapeHtml(err.message)}</div>`;
+    }
+  }
+
+  // ───── catalog ─────
+  async function loadCatalog() {
+    const kind = $('#catKind').value;
+    const q = $('#catQuery').value.trim();
+    $('#catalogResults').textContent = 'loading…';
+    try {
+      const r = await api(`/api/catalog?kind=${encodeURIComponent(kind)}&q=${encodeURIComponent(q)}&limit=200`);
+      if (!r.items.length) {
+        $('#catalogResults').innerHTML = `<div class="empty">no matches</div>`;
+        return;
+      }
+      $('#catalogResults').innerHTML = `<div class="muted" style="margin:8px 0 12px;">showing ${r.items.length} of ${r.counts[kind] || 0} ${kind}</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Name</th><th>Description</th><th>Tags</th></tr></thead>
+          <tbody>${r.items.map(it => `<tr>
+            <td><span class="strong">${escapeHtml(it.name || '')}</span></td>
+            <td>${escapeHtml(it.description || '')}</td>
+            <td>${(it.tags || []).slice(0, 6).map(t => `<span class="pill">${escapeHtml(t)}</span>`).join(' ')}</td>
+          </tr>`).join('')}</tbody></table></div>`;
+      setLastUpdated();
+    } catch (e) {
+      $('#catalogResults').innerHTML = `<div class="empty">failed: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  // ───── sessions ─────
+  async function loadSessions() {
+    try {
+      const r = await api('/api/sessions');
+      if (!r.sessions.length) {
+        $('#sessionsList').innerHTML = `<div class="empty">No swarm sessions in <code>.orchestration/</code>. Try <code>kodelyth-ecc swarm --task "…"</code>.</div>`;
+        return;
+      }
+      $('#sessionsList').innerHTML = r.sessions.map(s => `<details>
+        <summary><span class="strong">${escapeHtml(s.session)}</span> <span class="muted">· ${s.worker_count} workers · ${fmtDate(s.modified)}</span></summary>
+        <div class="muted" style="font-size:12px;margin-bottom:10px;">${escapeHtml(s.path)}</div>
+        <div>${s.workers.map(w => `<span class="pill" style="margin-right:6px;">${escapeHtml(w)}</span>`).join('')}</div>
+        <button data-session="${escapeHtml(s.session)}" class="loadDetail" style="margin-top:10px;background:#1f2937;color:#cbd5e1;border:1px solid #334155;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;">load detail</button>
+        <div class="detail-slot" style="margin-top:10px;"></div>
+      </details>`).join('');
+
+      $$('button.loadDetail').forEach(btn => btn.addEventListener('click', async () => {
+        const slot = btn.parentElement.querySelector('.detail-slot');
+        slot.textContent = 'loading…';
+        try {
+          const d = await api('/api/sessions/' + encodeURIComponent(btn.dataset.session));
+          slot.innerHTML = d.workers.map(w => `<details><summary><code>${escapeHtml(w.slug)}</code> · task=${w.has_task} handoff=${w.has_handoff} status=${w.has_status}</summary>
+            ${w.task_excerpt    ? `<h4 class="muted" style="margin:10px 0 4px;">task.md</h4><pre>${escapeHtml(w.task_excerpt.slice(0,800))}</pre>` : ''}
+            ${w.handoff_excerpt ? `<h4 class="muted" style="margin:10px 0 4px;">handoff.md</h4><pre>${escapeHtml(w.handoff_excerpt.slice(0,800))}</pre>` : ''}
+            ${w.status_excerpt  ? `<h4 class="muted" style="margin:10px 0 4px;">status.md</h4><pre>${escapeHtml(w.status_excerpt.slice(0,800))}</pre>`   : ''}
+          </details>`).join('');
+        } catch (e) {
+          slot.innerHTML = `<div class="empty">load failed: ${escapeHtml(e.message)}</div>`;
+        }
+      }));
+      setLastUpdated();
+    } catch (e) {
+      $('#sessionsList').innerHTML = `<div class="empty">failed: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  // ───── ide sessions (claude code / windsurf / antigravity) ─────
+  function formatBytes(n) {
+    if (!n || n < 0) return '—';
+    if (n < 1024) return n + ' B';
+    if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+    if (n < 1024 * 1024 * 1024) return (n / (1024 * 1024)).toFixed(1) + ' MB';
+    return (n / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+  }
+
+  function relativeTime(iso) {
+    if (!iso) return '—';
+    const ms = Date.now() - new Date(iso).getTime();
+    if (ms < 0) return 'just now';
+    const s = Math.floor(ms / 1000);
+    if (s < 60)    return s + 's ago';
+    if (s < 3600)  return Math.floor(s / 60) + 'm ago';
+    if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+    return Math.floor(s / 86400) + 'd ago';
+  }
+
+  async function loadIdeSessions() {
+    try {
+      const r = await api('/api/ide-sessions');
+      if (!r.sessions.length) {
+        $('#ideSessionsList').innerHTML = `<div class="empty">No active IDE sessions detected. Open Claude Code, Windsurf, Cursor, or an Antigravity workspace and check back. <br><span style="font-size:11px;">Add custom paths via <code>KODELYTH_EXTRA_IDE_WATCH</code> env var.</span></div>`;
+        return;
+      }
+      const rows = r.sessions.map(s => {
+        const platformColor = s.platform === 'claude-code'   ? '#a855f7'
+                            : s.platform === 'windsurf'      ? '#06b6d4'
+                            : s.platform === 'windsurf-next' ? '#0ea5e9'
+                            : s.platform === 'cursor'        ? '#f97316'
+                            : s.platform === 'antigravity'   ? '#10b981'
+                            : s.platform === 'custom'        ? '#94a3b8'
+                            : '#64748b';
+        const project = s.project ? `<code style="font-size:11px;color:#94a3b8;word-break:break-all;">${escapeHtml(s.project)}</code>` : '<span class="muted">—</span>';
+        return `<tr>
+          <td><span class="pill" style="background:${platformColor}22;color:${platformColor};border-color:${platformColor}55;">${escapeHtml(s.platform)}</span></td>
+          <td>${project}</td>
+          <td class="muted" title="${escapeHtml(s.modified)}">${escapeHtml(relativeTime(s.modified))}</td>
+          <td class="muted">${escapeHtml(formatBytes(s.size_bytes))}</td>
+          <td><code style="font-size:10.5px;color:#64748b;">${escapeHtml(s.session_id.slice(0, 8))}…</code></td>
+        </tr>`;
+      }).join('');
+      $('#ideSessionsList').innerHTML = `<table>
+        <thead><tr><th>Platform</th><th>Project</th><th>Last activity</th><th>Size</th><th>Session</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+      setLastUpdated();
+    } catch (e) {
+      $('#ideSessionsList').innerHTML = `<div class="empty">failed: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  // ───── tab dispatcher ─────
+  function onTabShown(tab) {
+    if (tab === 'overview') loadOverview();
+    if (tab === 'memory')   loadMemory();
+    if (tab === 'evolve')   loadEvolve();
+    if (tab === 'catalog')  loadCatalog();
+    if (tab === 'sessions') { loadIdeSessions(); loadSessions(); }
+  }
+
+  // ───── real-time: SSE connection ─────
+  function updateConnBadge(online) {
+    const badge = $('#connBadge');
+    const dot   = $('#liveDot');
+    if (online) {
+      badge.textContent    = 'LIVE';
+      badge.className      = 'pill ok';
+      dot.style.background = '#34d399';
+      dot.style.boxShadow  = '0 0 12px #34d399';
+    } else {
+      badge.textContent    = 'offline';
+      badge.className      = 'pill rejected';
+      dot.style.background = '#ef4444';
+      dot.style.boxShadow  = 'none';
+    }
+  }
+
+  let _es = null;
+  function connectSSE() {
+    if (_es) { try { _es.close(); } catch {} }
+    _es = new EventSource('/api/events');
+    _es.onopen = () => updateConnBadge(true);
+    _es.onmessage = evt => {
+      try {
+        const msg = JSON.parse(evt.data);
+        if (msg.type === 'connected') { updateConnBadge(true); return; }
+        // Only refresh on actual data changes. Heartbeat is a keepalive only —
+        // triggering a full reload on every heartbeat wastes 6 API calls/minute.
+        if (msg.type === 'data-changed') onTabShown(currentTab);
+      } catch { /* malformed event — ignore */ }
+    };
+    _es.onerror = () => {
+      updateConnBadge(false);
+      // EventSource auto-reconnects with back-off — no manual retry needed.
+    };
+  }
+
+  // ───── keyboard shortcuts ─────
+  // 1–5: switch to that tab  |  R: refresh active tab
+  document.addEventListener('keydown', e => {
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const TAB_KEYS = { '1': 'overview', '2': 'memory', '3': 'evolve', '4': 'catalog', '5': 'sessions' };
+    if (TAB_KEYS[e.key]) { switchTab(TAB_KEYS[e.key]); return; }
+    if (e.key === 'r' || e.key === 'R') onTabShown(currentTab);
+  });
+
+  // ───── boot ─────
+  $('#memSearchBtn').addEventListener('click', runMemorySearch);
+  $('#memQuery').addEventListener('keydown', e => { if (e.key === 'Enter') runMemorySearch(); });
+  $('#catRefreshBtn').addEventListener('click', loadCatalog);
+  let _catKindTimer = null;
+  $('#catKind').addEventListener('change', () => {
+    clearTimeout(_catKindTimer);
+    _catKindTimer = setTimeout(loadCatalog, 100);
+  });
+  $('#catQuery').addEventListener('keydown', e => { if (e.key === 'Enter') loadCatalog(); });
+  $('#refreshBtn').addEventListener('click', () => onTabShown(currentTab));
+
+  loadOverview();
+  connectSSE();
+</script>
+</body>
+</html>

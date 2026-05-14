@@ -1,0 +1,148 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050811"/>
+      <stop offset="100%" style="stop-color:#06080e"/>
+    </linearGradient>
+    <linearGradient id="purple" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#a78bfa"/>
+      <stop offset="100%" style="stop-color:#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#38bdf8"/>
+      <stop offset="100%" style="stop-color:#0284c7"/>
+    </linearGradient>
+    <linearGradient id="termBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0b0c16"/>
+      <stop offset="100%" style="stop-color:#080810"/>
+    </linearGradient>
+    <linearGradient id="accentFade" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#a78bfa" stop-opacity="0.8"/>
+      <stop offset="100%" style="stop-color:#a78bfa" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="connLine" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" style="stop-color:#a78bfa" stop-opacity="0.6"/>
+      <stop offset="100%" style="stop-color:#38bdf8" stop-opacity="0.3"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <radialGradient id="glowP" cx="20%" cy="20%" r="55%">
+    <stop offset="0%" style="stop-color:#a78bfa" stop-opacity="0.05"/>
+    <stop offset="100%" style="stop-color:#a78bfa" stop-opacity="0"/>
+  </radialGradient>
+  <rect width="1200" height="675" fill="url(#glowP)"/>
+  <rect x="0" y="0" width="3" height="675" fill="url(#purple)"/>
+
+  <!-- Badge -->
+  <rect x="56" y="40" width="168" height="28" rx="4" fill="#120a28" stroke="#a78bfa" stroke-opacity="0.5" stroke-width="1"/>
+  <text x="66" y="59" font-size="11" font-weight="700" fill="#a78bfa" letter-spacing="1.5">MCP SERVER</text>
+  <rect x="168" y="47" width="1" height="14" fill="#a78bfa" opacity="0.4"/>
+  <text x="176" y="59" font-size="11" font-weight="500" fill="#484f58">v1.8.0</text>
+
+  <!-- Headline -->
+  <text x="56" y="126" font-size="52" font-weight="900" letter-spacing="-2" fill="#ffffff">One server.</text>
+  <text x="56" y="184" font-size="52" font-weight="900" letter-spacing="-2" fill="url(#purple)">Every AI framework.</text>
+  <text x="56" y="222" font-size="16" fill="#8b949e">16 tools · 6 prompts · 377 resources. Runs locally. Bridges any MCP client.</text>
+
+  <rect x="56" y="244" width="460" height="1" fill="url(#accentFade)"/>
+
+  <!-- Terminal block -->
+  <rect x="56" y="260" width="540" height="280" rx="8" fill="url(#termBg)" stroke="#1a1a2e" stroke-width="1"/>
+  <rect x="56" y="260" width="540" height="32" rx="8" fill="#0f0f1a"/>
+  <rect x="56" y="280" width="540" height="12" fill="#0f0f1a"/>
+  <circle cx="80" cy="276" r="5" fill="#1a1020"/>
+  <circle cx="98" cy="276" r="5" fill="#14100a"/>
+  <circle cx="116" cy="276" r="5" fill="#0f1a10"/>
+  <text x="456" y="281" font-size="11" fill="#484f58" text-anchor="middle" font-family="'Consolas', 'SF Mono', monospace">bash — mcp server</text>
+
+  <!-- Command -->
+  <text x="80" y="316" font-size="13" font-family="'Consolas', 'SF Mono', monospace" fill="#a78bfa" font-weight="700">npx kodelyth-ecc mcp</text>
+
+  <text x="80" y="344" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">[INFO] Starting MCP server...</text>
+  <text x="80" y="364" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">[INFO] Listening on stdio (JSON-RPC 2.0)</text>
+  <text x="80" y="384" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#10b981">[INFO] Tools registered:</text>
+  <text x="100" y="404" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#a78bfa">agent_invoke, memory_search, skill_load</text>
+  <text x="100" y="422" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#a78bfa">swarm_run, cost_route, session_analyze</text>
+  <text x="100" y="440" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">+ 10 more tools</text>
+  <text x="80" y="464" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#10b981">[INFO] Resources:</text>
+  <text x="100" y="484" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#38bdf8">377 resources (agents + skills + commands)</text>
+  <text x="80" y="508" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#10b981" font-weight="600">[READY] Server ready. Connect your MCP client.</text>
+
+  <!-- Right panel — connection diagram -->
+  <!-- Center node: ECC MCP -->
+  <rect x="748" y="340" width="200" height="64" rx="8" fill="#120a28" stroke="#a78bfa" stroke-opacity="0.7" stroke-width="1.5"/>
+  <text x="848" y="366" font-size="13" font-weight="700" fill="#a78bfa" text-anchor="middle">Kodelyth ECC</text>
+  <text x="848" y="384" font-size="11" fill="#484f58" text-anchor="middle">MCP Server</text>
+  <text x="848" y="398" font-size="10" fill="#2d2040" text-anchor="middle">16 tools · 6 prompts · 377 res</text>
+
+  <!-- Connection lines from center to clients -->
+  <line x1="748" y1="358" x2="660" y2="290" stroke="#a78bfa" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="748" y1="372" x2="660" y2="440" stroke="#a78bfa" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="948" y1="358" x2="1044" y2="290" stroke="#38bdf8" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="948" y1="372" x2="1044" y2="440" stroke="#38bdf8" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="848" y1="340" x2="848" y2="272" stroke="#a78bfa" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="848" y1="404" x2="848" y2="472" stroke="#38bdf8" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- Client boxes -->
+  <!-- Claude Desktop -->
+  <rect x="604" y="256" width="148" height="50" rx="6" fill="#0d0d18" stroke="#21262d" stroke-width="1"/>
+  <text x="678" y="279" font-size="11" font-weight="700" fill="#e6edf3" text-anchor="middle">Claude Desktop</text>
+  <text x="678" y="296" font-size="10" fill="#484f58" text-anchor="middle">native MCP client</text>
+
+  <!-- Claude Code -->
+  <rect x="766" y="256" width="164" height="50" rx="6" fill="#0d0d18" stroke="#21262d" stroke-width="1"/>
+  <text x="848" y="279" font-size="11" font-weight="700" fill="#e6edf3" text-anchor="middle">Claude Code</text>
+  <text x="848" y="296" font-size="10" fill="#484f58" text-anchor="middle">CLI + IDE extension</text>
+
+  <!-- LangGraph -->
+  <rect x="960" y="256" width="148" height="50" rx="6" fill="#0d0d18" stroke="#21262d" stroke-width="1"/>
+  <text x="1034" y="279" font-size="11" font-weight="700" fill="#e6edf3" text-anchor="middle">LangGraph</text>
+  <text x="1034" y="296" font-size="10" fill="#484f58" text-anchor="middle">agent framework</text>
+
+  <!-- AutoGen -->
+  <rect x="604" y="422" width="148" height="50" rx="6" fill="#0d0d18" stroke="#21262d" stroke-width="1"/>
+  <text x="678" y="445" font-size="11" font-weight="700" fill="#e6edf3" text-anchor="middle">AutoGen</text>
+  <text x="678" y="462" font-size="10" fill="#484f58" text-anchor="middle">multi-agent</text>
+
+  <!-- CrewAI -->
+  <rect x="766" y="472" width="164" height="50" rx="6" fill="#0d0d18" stroke="#21262d" stroke-width="1"/>
+  <text x="848" y="495" font-size="11" font-weight="700" fill="#e6edf3" text-anchor="middle">CrewAI</text>
+  <text x="848" y="512" font-size="10" fill="#484f58" text-anchor="middle">crew orchestration</text>
+
+  <!-- OpenAI Agents -->
+  <rect x="960" y="422" width="148" height="50" rx="6" fill="#0d0d18" stroke="#21262d" stroke-width="1"/>
+  <text x="1034" y="445" font-size="11" font-weight="700" fill="#e6edf3" text-anchor="middle">OpenAI Agents</text>
+  <text x="1034" y="462" font-size="10" fill="#484f58" text-anchor="middle">SDK bridge</text>
+
+  <!-- Stats row at bottom right -->
+  <text x="770" y="565" font-size="32" font-weight="900" fill="#a78bfa">16</text>
+  <text x="770" y="582" font-size="10" fill="#484f58" letter-spacing="1">TOOLS</text>
+
+  <text x="880" y="565" font-size="32" font-weight="900" fill="#38bdf8">6</text>
+  <text x="880" y="582" font-size="10" fill="#484f58" letter-spacing="1">PROMPTS</text>
+
+  <text x="980" y="565" font-size="32" font-weight="900" fill="#10b981">377</text>
+  <text x="980" y="582" font-size="10" fill="#484f58" letter-spacing="1">RESOURCES</text>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="629" width="1200" height="38" fill="#07080f"/>
+  <line x1="0" y1="629" x2="1200" y2="629" stroke="#1e1e2e" stroke-width="1"/>
+  <text x="56" y="653" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#a78bfa" font-weight="600">npx kodelyth-ecc mcp</text>
+  <text x="240" y="653" font-size="12" fill="#2d3340">&#xB7;</text>
+  <text x="256" y="653" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">github.com/sifxprime/kodelyth-ecc</text>
+  <text x="596" y="653" font-size="12" fill="#2d3340">&#xB7;</text>
+  <text x="612" y="653" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">localhost only · zero telemetry</text>
+
+  <!-- Ghost Depth Mark — brand stamp (scale 0.55×) -->
+  <g transform="translate(1044, 282) scale(0.55)" opacity="0.16">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+</svg>

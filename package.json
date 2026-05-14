@@ -1,0 +1,71 @@
+{
+  "name": "kodelyth-ecc",
+  "version": "1.8.0",
+  "description": "Production-grade AI coding toolkit — 70 agents (incl. devil-mode adversarial crew), 194 skills, 97 commands, parallel multi-agent commands, semantic intent routing, self-learning memory, and a built-in MCP server (16 tools / 6 prompts / 377 resources) that bridges to Claude Desktop, LangGraph, AutoGen, CrewAI, and OpenAI Agents SDK. Works with Claude Code, Windsurf, Cursor, Codex, Antigravity, OpenCode, Cline, RooCode, Aider, Kimi, and Gemini CLI.",
+  "author": "Kodelyth <github.com/sifxprime>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sifxprime/kodelyth-ecc.git"
+  },
+  "homepage": "https://github.com/sifxprime/kodelyth-ecc",
+  "bugs": {
+    "url": "https://github.com/sifxprime/kodelyth-ecc/issues"
+  },
+  "keywords": [
+    "claude-code",
+    "windsurf",
+    "cursor",
+    "codex",
+    "antigravity",
+    "opencode",
+    "cline",
+    "roocode",
+    "aider",
+    "gemini-cli",
+    "ai-agents",
+    "ai-coding",
+    "coding-toolkit",
+    "developer-tools",
+    "llm",
+    "llm-tools",
+    "memory",
+    "self-learning",
+    "auto-recall",
+    "intent-routing",
+    "semantic-routing",
+    "agent-orchestration",
+    "incident-response",
+    "load-testing",
+    "kodelyth",
+    "image-generation",
+    "parallel-agents",
+    "multi-agent",
+    "project-launch",
+    "mcp",
+    "model-context-protocol",
+    "devil-mode",
+    "red-team",
+    "adversarial",
+    "dashboard",
+    "observability",
+    "bm25",
+    "local-memory",
+    "hooks",
+    "slash-commands",
+    "productivity"
+  ],
+  "bin": {
+    "kodelyth-ecc": "bin/kodelyth-ecc.js"
+  },
+  "scripts": {
+    "test": "node tests/run-all.js",
+    "mcp": "node scripts/mcp/server.js"
+  },
+  "optionalDependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

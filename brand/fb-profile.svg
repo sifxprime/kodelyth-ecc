@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+
+  <!-- Facebook Page Profile Picture — 400×400 -->
+  <!-- Facebook crops to circle — mark centered within circular safe zone -->
+
+  <rect width="400" height="400" fill="#0a0a0a"/>
+
+  <!-- Kodelyth Mark — Ghost Depth (white on dark) -->
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#ffffff">
+
+    <!-- ghost — trails left, recedes behind solid -->
+    <polyline points="128,104 184,200 128,296"
+              stroke-width="10" stroke-opacity="0.22"/>
+
+    <!-- solid — primary mark -->
+    <polyline points="172,100 260,200 172,300"
+              stroke-width="32"/>
+
+  </g>
+
+</svg>

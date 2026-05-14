@@ -1,0 +1,162 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050811"/>
+      <stop offset="100%" style="stop-color:#0d0a03"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f59e0b"/>
+      <stop offset="100%" style="stop-color:#d97706"/>
+    </linearGradient>
+    <linearGradient id="termBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0c0c10"/>
+      <stop offset="100%" style="stop-color:#080810"/>
+    </linearGradient>
+    <linearGradient id="slowBar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#374151"/>
+      <stop offset="100%" style="stop-color:#1f2937"/>
+    </linearGradient>
+    <linearGradient id="fastBar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f59e0b"/>
+      <stop offset="100%" style="stop-color:#10b981"/>
+    </linearGradient>
+    <linearGradient id="accentFade" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f59e0b" stop-opacity="0.8"/>
+      <stop offset="100%" style="stop-color:#f59e0b" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <!-- Ambient glow -->
+  <radialGradient id="glowA" cx="15%" cy="15%" r="50%">
+    <stop offset="0%" style="stop-color:#f59e0b" stop-opacity="0.05"/>
+    <stop offset="100%" style="stop-color:#f59e0b" stop-opacity="0"/>
+  </radialGradient>
+  <rect width="1200" height="675" fill="url(#glowA)"/>
+  <!-- Left border -->
+  <rect x="0" y="0" width="3" height="675" fill="url(#amber)"/>
+
+  <!-- Badge -->
+  <rect x="56" y="40" width="200" height="28" rx="4" fill="#1a1200" stroke="#f59e0b" stroke-opacity="0.5" stroke-width="1"/>
+  <text x="66" y="59" font-size="11" font-weight="700" fill="#f59e0b" letter-spacing="1.5">PARALLEL AGENTS</text>
+  <rect x="198" y="47" width="1" height="14" fill="#f59e0b" opacity="0.4"/>
+  <text x="206" y="59" font-size="11" font-weight="500" fill="#484f58">v1.8.0</text>
+
+  <!-- Headline -->
+  <text x="56" y="126" font-size="52" font-weight="900" letter-spacing="-2" fill="#ffffff">4 specialists, 15 minutes.</text>
+  <text x="56" y="184" font-size="52" font-weight="900" letter-spacing="-2" fill="url(#amber)">Not 60.</text>
+  <text x="56" y="222" font-size="16" fill="#8b949e">Fire code, security, performance, and API reviewers simultaneously with /team-review.</text>
+
+  <rect x="56" y="244" width="480" height="1" fill="url(#accentFade)"/>
+
+  <!-- Terminal block -->
+  <rect x="56" y="260" width="660" height="330" rx="8" fill="url(#termBg)" stroke="#1e1e2e" stroke-width="1"/>
+  <rect x="56" y="260" width="660" height="32" rx="8" fill="#0f0f18"/>
+  <rect x="56" y="280" width="660" height="12" fill="#0f0f18"/>
+  <circle cx="80" cy="276" r="5" fill="#1a1a10"/>
+  <circle cx="98" cy="276" r="5" fill="#1a1208"/>
+  <circle cx="116" cy="276" r="5" fill="#0f1a10"/>
+  <text x="576" y="281" font-size="11" fill="#484f58" text-anchor="middle" font-family="'Consolas', 'SF Mono', monospace">bash — /team-review</text>
+
+  <!-- Command -->
+  <text x="80" y="316" font-size="13" font-family="'Consolas', 'SF Mono', monospace" fill="#f59e0b" font-weight="700">/team-review</text>
+  <text x="222" y="316" font-size="13" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">  # spawning 4 agents in parallel</text>
+
+  <!-- Agent launch rows -->
+  <text x="80" y="346" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">&#x2192;</text>
+  <text x="100" y="346" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#e6edf3">code-reviewer</text>
+  <text x="290" y="346" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">launching...</text>
+  <rect x="404" y="336" width="80" height="8" rx="2" fill="#1a2010"/>
+  <rect x="404" y="336" width="80" height="8" rx="2" fill="#10b981" opacity="0.8"/>
+  <text x="494" y="346" font-size="11" font-family="'Consolas', 'SF Mono', monospace" fill="#10b981">  running</text>
+
+  <text x="80" y="372" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">&#x2192;</text>
+  <text x="100" y="372" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#e6edf3">security-reviewer</text>
+  <text x="290" y="372" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">launching...</text>
+  <rect x="404" y="362" width="80" height="8" rx="2" fill="#1a2010"/>
+  <rect x="404" y="362" width="80" height="8" rx="2" fill="#10b981" opacity="0.8"/>
+  <text x="494" y="372" font-size="11" font-family="'Consolas', 'SF Mono', monospace" fill="#10b981">  running</text>
+
+  <text x="80" y="398" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">&#x2192;</text>
+  <text x="100" y="398" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#e6edf3">performance-optimizer</text>
+  <text x="340" y="398" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">launching...</text>
+  <rect x="454" y="388" width="80" height="8" rx="2" fill="#1a2010"/>
+  <rect x="454" y="388" width="80" height="8" rx="2" fill="#10b981" opacity="0.8"/>
+  <text x="544" y="398" font-size="11" font-family="'Consolas', 'SF Mono', monospace" fill="#10b981">  running</text>
+
+  <text x="80" y="424" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">&#x2192;</text>
+  <text x="100" y="424" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#e6edf3">api-guardian</text>
+  <text x="256" y="424" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">launching...</text>
+  <rect x="404" y="414" width="80" height="8" rx="2" fill="#1a2010"/>
+  <rect x="404" y="414" width="80" height="8" rx="2" fill="#10b981" opacity="0.8"/>
+  <text x="494" y="424" font-size="11" font-family="'Consolas', 'SF Mono', monospace" fill="#10b981">  running</text>
+
+  <!-- Done line -->
+  <line x1="80" y1="442" x2="690" y2="442" stroke="#1e1e2e" stroke-width="1"/>
+  <text x="80" y="462" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">all 4 agents running</text>
+  <text x="264" y="462" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#f59e0b" font-weight="700">  simultaneously</text>
+  <text x="80" y="484" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">report ready in ~15 min  (was 60 min sequential)</text>
+
+  <!-- Time comparison visual -->
+  <text x="80" y="534" font-size="11" fill="#484f58" font-weight="700" letter-spacing="1">SEQUENTIAL</text>
+  <rect x="80" y="542" width="540" height="14" rx="3" fill="url(#slowBar)"/>
+  <text x="628" y="554" font-size="11" fill="#6e7681" font-family="'Consolas', 'SF Mono', monospace">60 min</text>
+
+  <text x="80" y="576" font-size="11" fill="#f59e0b" font-weight="700" letter-spacing="1">PARALLEL</text>
+  <rect x="80" y="584" width="135" height="14" rx="3" fill="url(#fastBar)"/>
+  <text x="224" y="596" font-size="11" fill="#10b981" font-family="'Consolas', 'SF Mono', monospace">15 min</text>
+
+  <!-- Right panel -->
+  <!-- Card 1 -->
+  <rect x="748" y="260" width="400" height="90" rx="8" fill="#0d0d16" stroke="#1e2030" stroke-width="1"/>
+  <rect x="748" y="260" width="3" height="90" rx="1" fill="url(#amber)"/>
+  <text x="770" y="288" font-size="11" font-weight="700" fill="#f59e0b" letter-spacing="1">CODE QUALITY</text>
+  <text x="770" y="308" font-size="13" fill="#8b949e">Patterns, dead code, naming,</text>
+  <text x="770" y="326" font-size="13" fill="#8b949e">complexity, maintainability</text>
+  <text x="770" y="342" font-size="11" fill="#484f58">code-reviewer agent</text>
+
+  <!-- Card 2 -->
+  <rect x="748" y="366" width="400" height="90" rx="8" fill="#0d0d16" stroke="#1e2030" stroke-width="1"/>
+  <rect x="748" y="366" width="3" height="90" rx="1" fill="#ef4444"/>
+  <text x="770" y="394" font-size="11" font-weight="700" fill="#ef4444" letter-spacing="1">SECURITY</text>
+  <text x="770" y="414" font-size="13" fill="#8b949e">OWASP Top 10, secrets, injection,</text>
+  <text x="770" y="432" font-size="13" fill="#8b949e">auth gaps, CVEs in deps</text>
+  <text x="770" y="448" font-size="11" fill="#484f58">security-reviewer agent</text>
+
+  <!-- Card 3 -->
+  <rect x="748" y="472" width="192" height="90" rx="8" fill="#0d0d16" stroke="#1e2030" stroke-width="1"/>
+  <rect x="748" y="472" width="3" height="90" rx="1" fill="#38bdf8"/>
+  <text x="770" y="498" font-size="11" font-weight="700" fill="#38bdf8" letter-spacing="1">PERFORMANCE</text>
+  <text x="770" y="518" font-size="12" fill="#8b949e">N+1, memory,</text>
+  <text x="770" y="536" font-size="12" fill="#8b949e">bundle, slow queries</text>
+  <text x="770" y="554" font-size="11" fill="#484f58">perf-optimizer</text>
+
+  <!-- Card 4 -->
+  <rect x="956" y="472" width="192" height="90" rx="8" fill="#0d0d16" stroke="#1e2030" stroke-width="1"/>
+  <rect x="956" y="472" width="3" height="90" rx="1" fill="#a78bfa"/>
+  <text x="978" y="498" font-size="11" font-weight="700" fill="#a78bfa" letter-spacing="1">API CONTRACTS</text>
+  <text x="978" y="518" font-size="12" fill="#8b949e">Breaking changes,</text>
+  <text x="978" y="536" font-size="12" fill="#8b949e">contract drift</text>
+  <text x="978" y="554" font-size="11" fill="#484f58">api-guardian</text>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="629" width="1200" height="38" fill="#07080f"/>
+  <line x1="0" y1="629" x2="1200" y2="629" stroke="#1e1e2e" stroke-width="1"/>
+  <text x="56" y="653" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#f59e0b" font-weight="600">npx kodelyth-ecc</text>
+  <text x="206" y="653" font-size="12" fill="#2d3340">&#xB7;</text>
+  <text x="222" y="653" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">github.com/sifxprime/kodelyth-ecc</text>
+  <text x="562" y="653" font-size="12" fill="#2d3340">&#xB7;</text>
+  <text x="578" y="653" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">MIT · free forever</text>
+
+  <!-- Ghost Depth Mark — brand stamp (scale 0.55×) -->
+  <g transform="translate(1044, 282) scale(0.55)" opacity="0.16">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+</svg>

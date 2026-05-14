@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" width="600" height="320" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050811"/>
+      <stop offset="100%" style="stop-color:#0d1117"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#a78bfa"/>
+      <stop offset="100%" style="stop-color:#38bdf8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="600" height="320" fill="url(#bg)" rx="12"/>
+  <rect width="600" height="320" fill="none" stroke="#21262d" stroke-width="1" rx="12"/>
+  <circle cx="520" cy="280" r="160" fill="#059669" opacity="0.04"/>
+  <circle cx="80" cy="60" r="100" fill="#a78bfa" opacity="0.04"/>
+
+  <!-- Badge -->
+  <rect x="28" y="24" width="72" height="20" rx="10" fill="#a78bfa" fill-opacity="0.15" stroke="#a78bfa" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="64" y="38" font-size="9" fill="#a78bfa" text-anchor="middle" font-weight="700" letter-spacing="0.5">v1.8.0</text>
+
+  <!-- Title -->
+  <text x="28" y="88" font-size="38" font-weight="900" letter-spacing="-1.5" fill="#ffffff">Kodelyth</text>
+  <text x="28" y="126" font-size="38" font-weight="900" letter-spacing="-1.5" fill="url(#accent)">ECC</text>
+
+  <!-- Tagline -->
+  <text x="28" y="156" font-size="13" fill="#6e7681">AI coding toolkit. Smarter every session.</text>
+
+  <line x1="28" y1="172" x2="572" y2="172" stroke="#21262d" stroke-width="1"/>
+
+  <!-- Feature list -->
+  <text x="28" y="196" font-size="12" fill="#e6edf3">→  70 specialist agents, auto-routed by intent</text>
+  <text x="28" y="216" font-size="12" fill="#e6edf3">→  Compound learning — corrections encoded permanently</text>
+  <text x="28" y="236" font-size="12" fill="#e6edf3">→  Parallel commands — 5 agents, 10 min</text>
+  <text x="28" y="256" font-size="12" fill="#e6edf3">→  AI image gen — Gemini / DALL-E / SVG fallback</text>
+
+  <line x1="28" y1="272" x2="572" y2="272" stroke="#21262d" stroke-width="1"/>
+
+  <!-- Footer -->
+  <text x="28" y="296" font-size="11" fill="#484f58">npx kodelyth-ecc</text>
+  <text x="572" y="296" font-size="11" fill="#484f58" text-anchor="end">github.com/sifxprime/kodelyth-ecc</text>
+
+  <!-- Ghost Depth Mark — brand stamp (scale 0.35×) -->
+  <g transform="translate(505, 80) scale(0.35)" opacity="0.16">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+</svg>

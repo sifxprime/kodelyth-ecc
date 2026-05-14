@@ -1,0 +1,71 @@
+<svg viewBox="0 0 900 190" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#38bdf8"/>
+      <stop offset="100%" style="stop-color:#06b6d4"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="190" fill="url(#bg)" rx="12"/>
+  <rect width="900" height="190" fill="none" stroke="#21262d" stroke-width="1" rx="12"/>
+
+  <!-- Label -->
+  <rect x="32" y="20" width="174" height="22" rx="11" fill="#06b6d4" fill-opacity="0.12" stroke="#06b6d4" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="119" y="35" font-size="10" fill="#38bdf8" text-anchor="middle" font-weight="700" letter-spacing="1">OBSERVABILITY DASHBOARD</text>
+
+  <text x="32" y="72" font-size="22" font-weight="800" fill="#ffffff">Your AI workspace — one glance, zero telemetry</text>
+  <text x="32" y="94" font-size="12" fill="#6e7681">localhost:5747 · SSE real-time push · GET-only · hardened headers · no external calls</text>
+
+  <!-- Mini browser chrome -->
+  <rect x="32" y="108" width="480" height="68" rx="7" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <!-- browser bar -->
+  <rect x="32" y="108" width="480" height="22" rx="7" fill="#21262d"/>
+  <rect x="32" y="119" width="480" height="11" fill="#21262d"/>
+  <circle cx="50" cy="119" r="4" fill="#ef4444" opacity="0.7"/>
+  <circle cx="64" cy="119" r="4" fill="#f59e0b" opacity="0.7"/>
+  <circle cx="78" cy="119" r="4" fill="#22c55e" opacity="0.7"/>
+  <rect x="96" y="113" width="200" height="12" rx="3" fill="#0d1117"/>
+  <text x="196" y="122" font-size="7.5" fill="#6e7681" text-anchor="middle">http://127.0.0.1:5747</text>
+  <!-- green dot -->
+  <circle cx="468" cy="119" r="4" fill="#22c55e"/>
+
+  <!-- Tab bar -->
+  <rect x="38" y="130" width="58" height="16" rx="3" fill="#38bdf8" fill-opacity="0.2" stroke="#38bdf8" stroke-opacity="0.5" stroke-width="0.5"/>
+  <text x="67" y="141" font-size="7.5" fill="#38bdf8" text-anchor="middle" font-weight="700">Overview</text>
+  <text x="115" y="141" font-size="7.5" fill="#6e7681" text-anchor="middle">Memory</text>
+  <text x="152" y="141" font-size="7.5" fill="#6e7681" text-anchor="middle">Evolve</text>
+  <text x="188" y="141" font-size="7.5" fill="#6e7681" text-anchor="middle">Catalog</text>
+  <text x="225" y="141" font-size="7.5" fill="#6e7681" text-anchor="middle">Sessions</text>
+
+  <!-- Stat cards -->
+  <rect x="38" y="152" width="50" height="18" rx="3" fill="#a78bfa" fill-opacity="0.12" stroke="#a78bfa" stroke-opacity="0.3" stroke-width="0.5"/>
+  <text x="63" y="164" font-size="8" fill="#a78bfa" text-anchor="middle">70 agents</text>
+  <rect x="95" y="152" width="50" height="18" rx="3" fill="#2563eb" fill-opacity="0.12" stroke="#2563eb" stroke-opacity="0.3" stroke-width="0.5"/>
+  <text x="120" y="164" font-size="8" fill="#60a5fa" text-anchor="middle">194 skills</text>
+  <rect x="152" y="152" width="50" height="18" rx="3" fill="#059669" fill-opacity="0.12" stroke="#059669" stroke-opacity="0.3" stroke-width="0.5"/>
+  <text x="177" y="164" font-size="8" fill="#34d399" text-anchor="middle">memory ✓</text>
+  <rect x="209" y="152" width="60" height="18" rx="3" fill="#f59e0b" fill-opacity="0.12" stroke="#f59e0b" stroke-opacity="0.3" stroke-width="0.5"/>
+  <text x="239" y="164" font-size="8" fill="#fbbf24" text-anchor="middle">SSE live ●</text>
+
+  <!-- Right: launch command -->
+  <rect x="540" y="110" width="328" height="66" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="556" y="130" font-size="9.5" fill="#6e7681">Launch the dashboard</text>
+  <rect x="556" y="138" width="295" height="26" rx="5" fill="#0d1117"/>
+  <text x="570" y="153" font-size="11" fill="#34d399" font-family="'Courier New', monospace">$ npx kodelyth-ecc dashboard</text>
+  <text x="556" y="172" font-size="9" fill="#6e7681">Opens automatically at http://127.0.0.1:5747</text>
+
+  <!-- Ghost Depth Mark — brand stamp (scale 0.25×) -->
+  <g transform="translate(810, 28) scale(0.25)" opacity="0.14">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+</svg>

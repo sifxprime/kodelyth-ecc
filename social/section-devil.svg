@@ -1,0 +1,66 @@
+<svg viewBox="0 0 900 170" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#1a0a0a"/>
+    </linearGradient>
+    <linearGradient id="redgrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ef4444"/>
+      <stop offset="100%" style="stop-color:#dc2626"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="170" fill="url(#bg)" rx="12"/>
+  <rect width="900" height="170" fill="none" stroke="#2d1515" stroke-width="1" rx="12"/>
+  <!-- subtle red glow top -->
+  <ellipse cx="450" cy="-10" rx="420" ry="60" fill="#ef4444" fill-opacity="0.04"/>
+
+  <!-- Label -->
+  <rect x="32" y="20" width="130" height="22" rx="11" fill="#ef4444" fill-opacity="0.15" stroke="#ef4444" stroke-opacity="0.5" stroke-width="1"/>
+  <text x="97" y="35" font-size="10" fill="#f87171" text-anchor="middle" font-weight="700" letter-spacing="1">DEVIL MODE</text>
+
+  <text x="32" y="70" font-size="22" font-weight="800" fill="#ffffff">8 adversarial agents. Red-team your own code.</text>
+  <text x="32" y="92" font-size="12" fill="#9ca3af">Before you go public — full secret, license, supply-chain, prompt-injection sweep in parallel.</text>
+
+  <!-- 8 agent pills in 2 rows -->
+  <rect x="32"  y="110" width="148" height="22" rx="6" fill="#ef4444" fill-opacity="0.1" stroke="#ef4444" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="106" y="124" font-size="9" fill="#f87171" text-anchor="middle" font-weight="600">prompt-injection-hunter</text>
+
+  <rect x="188" y="110" width="130" height="22" rx="6" fill="#ef4444" fill-opacity="0.1" stroke="#ef4444" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="253" y="124" font-size="9" fill="#f87171" text-anchor="middle" font-weight="600">supply-chain-auditor</text>
+
+  <rect x="326" y="110" width="110" height="22" rx="6" fill="#ef4444" fill-opacity="0.1" stroke="#ef4444" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="381" y="124" font-size="9" fill="#f87171" text-anchor="middle" font-weight="600">secret-hunter</text>
+
+  <rect x="444" y="110" width="148" height="22" rx="6" fill="#ef4444" fill-opacity="0.1" stroke="#ef4444" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="518" y="124" font-size="9" fill="#f87171" text-anchor="middle" font-weight="600">license-violation-finder</text>
+
+  <rect x="32"  y="138" width="110" height="22" rx="6" fill="#dc2626" fill-opacity="0.1" stroke="#dc2626" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="87"  y="152" font-size="9" fill="#fca5a5" text-anchor="middle" font-weight="600">jailbreak-tester</text>
+
+  <rect x="150" y="138" width="138" height="22" rx="6" fill="#dc2626" fill-opacity="0.1" stroke="#dc2626" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="219" y="152" font-size="9" fill="#fca5a5" text-anchor="middle" font-weight="600">code-stealer-detector</text>
+
+  <rect x="296" y="138" width="120" height="22" rx="6" fill="#dc2626" fill-opacity="0.1" stroke="#dc2626" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="356" y="152" font-size="9" fill="#fca5a5" text-anchor="middle" font-weight="600">backdoor-hunter</text>
+
+  <rect x="424" y="138" width="116" height="22" rx="6" fill="#dc2626" fill-opacity="0.1" stroke="#dc2626" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="482" y="152" font-size="9" fill="#fca5a5" text-anchor="middle" font-weight="600">chaos-engineer</text>
+
+  <!-- Command right -->
+  <rect x="620" y="108" width="248" height="54" rx="8" fill="#1a0505" stroke="#2d1515" stroke-width="1"/>
+  <text x="636" y="126" font-size="9" fill="#6b7280"># before open-sourcing</text>
+  <text x="636" y="141" font-size="11" fill="#f87171" font-family="'Courier New', monospace">/devil-mode --pre-public</text>
+  <text x="636" y="157" font-size="9" fill="#6b7280"># all 8 at once</text>
+
+  <!-- Ghost Depth Mark — brand stamp (scale 0.23×) -->
+  <g transform="translate(810, 28) scale(0.23)" opacity="0.14">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+</svg>

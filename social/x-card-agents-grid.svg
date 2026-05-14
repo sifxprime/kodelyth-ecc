@@ -1,0 +1,120 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050811"/>
+      <stop offset="100%" style="stop-color:#0d1117"/>
+    </linearGradient>
+    <linearGradient id="mem" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#059669"/>
+      <stop offset="100%" style="stop-color:#065f46"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#161b22"/>
+      <stop offset="100%" style="stop-color:#0d1117"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <circle cx="1100" cy="600" r="300" fill="#059669" opacity="0.04"/>
+  <circle cx="100" cy="100" r="200" fill="#a78bfa" opacity="0.03"/>
+
+  <!-- Header -->
+  <text x="80" y="72" font-size="48" font-weight="900" letter-spacing="-2" fill="#ffffff">70 agents. One install.</text>
+  <text x="80" y="110" font-size="18" fill="#6e7681">Semantic routing picks the right one — you never need to know their names.</text>
+
+  <!-- Left column — agent cards -->
+  <!-- Card 1 -->
+  <rect x="80" y="140" width="360" height="120" rx="8" fill="url(#card)" stroke="#21262d" stroke-width="1"/>
+  <rect x="80" y="140" width="4" height="120" rx="2" fill="#a78bfa"/>
+  <text x="100" y="166" font-size="13" font-weight="700" fill="#ffffff">kodelyth-advisor</text>
+  <text x="100" y="185" font-size="12" fill="#8b949e">"I'm stuck, no idea where to start"</text>
+  <text x="100" y="201" font-size="12" fill="#8b949e">"I'm overwhelmed, any advice?"</text>
+  <text x="100" y="220" font-size="11" fill="#484f58">→ strategic direction + right specialist</text>
+  <text x="100" y="237" font-size="11" fill="#484f58">→ priority 1 — fires on confusion/emotion</text>
+
+  <!-- Card 2 -->
+  <rect x="80" y="280" width="360" height="120" rx="8" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+  <rect x="80" y="280" width="4" height="120" rx="2" fill="#f59e0b"/>
+  <text x="100" y="306" font-size="13" font-weight="700" fill="#ffffff">debug-detective</text>
+  <text x="100" y="325" font-size="12" fill="#8b949e">"nothing works, driving me crazy"</text>
+  <text x="100" y="341" font-size="12" fill="#8b949e">[paste stack trace with no text]</text>
+  <text x="100" y="360" font-size="11" fill="#484f58">→ root cause, never guesses</text>
+  <text x="100" y="377" font-size="11" fill="#484f58">→ auto-detects naked paste</text>
+
+  <!-- Card 3 — memory / ECC exclusive -->
+  <rect x="80" y="420" width="360" height="120" rx="8" fill="#0d2b1d" stroke="#059669" stroke-opacity="0.4" stroke-width="1"/>
+  <rect x="80" y="420" width="4" height="120" rx="2" fill="url(#mem)"/>
+  <rect x="246" y="426" width="46" height="18" rx="9" fill="#059669" fill-opacity="0.3" stroke="#059669" stroke-opacity="0.5" stroke-width="1"/>
+  <text x="269" y="439" font-size="9" fill="#10b981" text-anchor="middle" font-weight="700">ECC only</text>
+  <text x="100" y="448" font-size="13" font-weight="700" fill="#ffffff">kodelyth-memory</text>
+  <text x="100" y="467" font-size="12" fill="#8b949e">BM25 local memory — past solutions</text>
+  <text x="100" y="483" font-size="12" fill="#8b949e">injected before you ask</text>
+  <text x="100" y="502" font-size="11" fill="#484f58">→ capture-correction · read-lessons</text>
+  <text x="100" y="519" font-size="11" fill="#484f58">→ ~/.kodelyth/memory/ — zero cloud</text>
+
+  <!-- Middle separator -->
+  <line x1="460" y1="130" x2="460" y2="560" stroke="#21262d" stroke-width="1"/>
+
+  <!-- Right column — more agents -->
+  <!-- Card 4 -->
+  <rect x="480" y="140" width="360" height="120" rx="8" fill="url(#card)" stroke="#21262d" stroke-width="1"/>
+  <rect x="480" y="140" width="4" height="120" rx="2" fill="#22d3ee"/>
+  <text x="500" y="166" font-size="13" font-weight="700" fill="#ffffff">code-reviewer</text>
+  <text x="500" y="185" font-size="12" fill="#8b949e">"take a look at this"</text>
+  <text x="500" y="201" font-size="12" fill="#8b949e">[paste code with no text]</text>
+  <text x="500" y="220" font-size="11" fill="#484f58">→ auto-detects naked code paste</text>
+  <text x="500" y="237" font-size="11" fill="#484f58">→ 12 language-specific variants</text>
+
+  <!-- Card 5 -->
+  <rect x="480" y="280" width="360" height="120" rx="8" fill="#0d2b1d" stroke="#059669" stroke-opacity="0.4" stroke-width="1"/>
+  <rect x="480" y="280" width="4" height="120" rx="2" fill="url(#mem)"/>
+  <rect x="646" y="286" width="78" height="18" rx="9" fill="#059669" fill-opacity="0.25" stroke="#059669" stroke-opacity="0.5" stroke-width="1"/>
+  <text x="685" y="299" font-size="9" fill="#10b981" text-anchor="middle" font-weight="700">v1.8.0</text>
+  <text x="500" y="306" font-size="13" font-weight="700" fill="#ffffff">image-architect</text>
+  <text x="500" y="325" font-size="12" fill="#8b949e">"my site looks plain / boring"</text>
+  <text x="500" y="341" font-size="12" fill="#8b949e">"I need an OG image / social card"</text>
+  <text x="500" y="360" font-size="11" fill="#484f58">→ Gemini Imagen 3 / DALL-E 3 / SVG</text>
+  <text x="500" y="377" font-size="11" fill="#484f58">→ platform-aware, always free via SVG</text>
+
+  <!-- Card 6 -->
+  <rect x="480" y="420" width="360" height="120" rx="8" fill="url(#card)" stroke="#21262d" stroke-width="1"/>
+  <rect x="480" y="420" width="4" height="120" rx="2" fill="#38bdf8"/>
+  <text x="500" y="448" font-size="13" font-weight="700" fill="#ffffff">more agents</text>
+  <text x="500" y="467" font-size="12" fill="#8b949e">security-reviewer · ux-reviewer</text>
+  <text x="500" y="483" font-size="12" fill="#8b949e">incident-commander · load-tester</text>
+  <text x="500" y="502" font-size="11" fill="#484f58">performance-optimizer · migration-guide</text>
+  <text x="500" y="519" font-size="11" fill="#484f58">tdd-guide · git-rescue · release-captain</text>
+
+  <!-- Install bar -->
+  <rect x="80" y="568" width="760" height="52" rx="8" fill="#0d1117" stroke="#21262d" stroke-width="1"/>
+  <text x="460" y="590" font-size="13" fill="#10b981" text-anchor="middle" font-weight="700">$ npx kodelyth-ecc</text>
+  <text x="460" y="608" font-size="12" fill="#484f58" text-anchor="middle">Works with Claude Code · Windsurf · Cursor · Codex · Antigravity · OpenCode</text>
+
+  <!-- Stats -->
+  <text x="920" y="200" font-size="72" font-weight="900" fill="#ffffff" text-anchor="middle">70</text>
+  <text x="920" y="228" font-size="10" fill="#484f58" text-anchor="middle" letter-spacing="3">AGENTS</text>
+  <line x1="860" y1="248" x2="980" y2="248" stroke="#21262d" stroke-width="1"/>
+  <text x="920" y="280" font-size="32" font-weight="800" fill="#ffffff" text-anchor="middle">194</text>
+  <text x="920" y="302" font-size="10" fill="#484f58" text-anchor="middle" letter-spacing="2">SKILLS</text>
+  <line x1="860" y1="320" x2="980" y2="320" stroke="#21262d" stroke-width="1"/>
+  <text x="920" y="352" font-size="32" font-weight="800" fill="#ffffff" text-anchor="middle">22+</text>
+  <text x="920" y="374" font-size="10" fill="#484f58" text-anchor="middle" letter-spacing="2">HOOKS</text>
+  <line x1="860" y1="392" x2="980" y2="392" stroke="#21262d" stroke-width="1"/>
+  <text x="920" y="424" font-size="32" font-weight="800" fill="#ffffff" text-anchor="middle">12</text>
+  <text x="920" y="446" font-size="10" fill="#484f58" text-anchor="middle" letter-spacing="2">PLATFORMS</text>
+  <line x1="860" y1="464" x2="980" y2="464" stroke="#21262d" stroke-width="1"/>
+  <text x="920" y="496" font-size="20" font-weight="800" fill="#ffffff" text-anchor="middle">v1.8.0</text>
+  <text x="920" y="516" font-size="10" fill="#484f58" text-anchor="middle" letter-spacing="2">LATEST</text>
+
+  <!-- Ghost Depth Mark — brand stamp (scale 0.55×) -->
+  <g transform="translate(1044, 282) scale(0.55)" opacity="0.16">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+</svg>

@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test (Node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        node: [18, 20, 22]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Verify install script syntax (bash)
+        if: runner.os != 'Windows'
+        run: bash -n install.sh
+
+      - name: Verify bin entry point syntax
+        run: node --check bin/kodelyth-ecc.js
+
+      - name: Run test suite
+        run: node tests/run-all.js
+
+      - name: Verify memory module syntax
+        run: |
+          node --check scripts/memory/store.js
+          node --check scripts/memory/inject.js
+          node --check scripts/memory/extract.js
+          node --check scripts/memory/cli.js
+          node --check hooks/memory/inject-start.js
+          node --check hooks/memory/capture-stop.js
+        shell: bash

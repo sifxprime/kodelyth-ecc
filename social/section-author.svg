@@ -1,0 +1,66 @@
+<svg viewBox="0 0 900 160" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <linearGradient id="acc" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#a78bfa"/>
+      <stop offset="100%" style="stop-color:#38bdf8"/>
+    </linearGradient>
+    <clipPath id="avatar">
+      <circle cx="76" cy="90" r="36"/>
+    </clipPath>
+  </defs>
+  <rect width="900" height="160" fill="url(#bg)" rx="12"/>
+  <rect width="900" height="160" fill="none" stroke="#21262d" stroke-width="1" rx="12"/>
+  <!-- accent top line -->
+  <rect x="0" y="0" width="900" height="3" rx="1" fill="url(#acc)"/>
+
+  <!-- Avatar circle -->
+  <circle cx="76" cy="90" r="38" fill="#21262d" stroke="#a78bfa" stroke-opacity="0.4" stroke-width="1.5"/>
+  <!-- Stylised "SI" initials -->
+  <text x="76" y="98" font-size="26" font-weight="900" fill="url(#acc)" text-anchor="middle">SI</text>
+
+  <!-- Name + role -->
+  <text x="132" y="68" font-size="22" font-weight="800" fill="#ffffff">Shofiqul Islam</text>
+  <text x="132" y="88" font-size="12" fill="#6e7681">Creator of Kodelyth ECC · Full-stack engineer · AI tooling</text>
+
+  <!-- Divider -->
+  <line x1="132" y1="98" x2="500" y2="98" stroke="#21262d" stroke-width="1"/>
+
+  <!-- Social links as pill badges -->
+  <rect x="132" y="108" width="72" height="26" rx="13" fill="#1877f2" fill-opacity="0.15" stroke="#1877f2" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="168" y="124" font-size="10" fill="#60a5fa" text-anchor="middle" font-weight="700">Facebook</text>
+
+  <rect x="214" y="108" width="80" height="26" rx="13" fill="#e1306c" fill-opacity="0.12" stroke="#e1306c" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="254" y="124" font-size="10" fill="#f472b6" text-anchor="middle" font-weight="700">Instagram</text>
+
+  <rect x="304" y="108" width="72" height="26" rx="13" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.2" stroke-width="1"/>
+  <text x="340" y="124" font-size="10" fill="#e6edf3" text-anchor="middle" font-weight="700">GitHub</text>
+
+  <rect x="386" y="108" width="86" height="26" rx="13" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.2" stroke-width="1"/>
+  <text x="429" y="124" font-size="10" fill="#e6edf3" text-anchor="middle" font-weight="700">X / Twitter</text>
+
+  <!-- Handle -->
+  <text x="132" y="150" font-size="10" fill="#6e7681">@sifxprime  on all platforms</text>
+
+  <!-- Right: project links -->
+  <rect x="600" y="60" width="268" height="80" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="616" y="82" font-size="10" fill="#6e7681" font-weight="600">PROJECT LINKS</text>
+  <text x="616" y="100" font-size="10" fill="#a78bfa">github.com/sifxprime/kodelyth-ecc</text>
+  <text x="616" y="116" font-size="10" fill="#38bdf8">npmjs.com/package/kodelyth-ecc</text>
+  <text x="616" y="132" font-size="10" fill="#34d399">kodelyth.com</text>
+
+  <!-- Ghost Depth Mark — brand stamp (scale 0.22×) -->
+  <g transform="translate(810, 28) scale(0.22)" opacity="0.14">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+</svg>

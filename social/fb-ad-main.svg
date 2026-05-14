@@ -1,0 +1,128 @@
+<svg width="1200" height="628" viewBox="0 0 1200 628" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050811"/>
+      <stop offset="100%" style="stop-color:#0d1117"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#a78bfa"/>
+      <stop offset="100%" style="stop-color:#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="ctaGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#7c3aed"/>
+      <stop offset="100%" style="stop-color:#0891b2"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="628" fill="url(#bg)"/>
+
+  <!-- Ambient glow -->
+  <circle cx="1100" cy="80" r="280" fill="#a78bfa" opacity="0.04"/>
+  <circle cx="100" cy="550" r="220" fill="#38bdf8" opacity="0.03"/>
+
+  <!-- Ghost Depth Mark — right-side watermark, scale 0.55, op=0.17 -->
+  <g transform="translate(1044, 213) scale(0.55)" opacity="0.17">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+
+  <!-- Left vertical accent bar -->
+  <rect x="80" y="80" width="4" height="468" rx="2" fill="url(#accent)" opacity="0.6"/>
+
+  <!-- Category badge -->
+  <rect x="102" y="80" width="160" height="26" rx="13" fill="#a78bfa" fill-opacity="0.12" stroke="#a78bfa" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="182" y="97" font-size="10" fill="#a78bfa" text-anchor="middle" font-weight="700" letter-spacing="1.5">AI CODING TOOLKIT</text>
+
+  <!-- Main headline -->
+  <text x="102" y="175" font-size="64" font-weight="900" letter-spacing="-2.5" fill="#ffffff">Build 10x faster</text>
+  <text x="102" y="250" font-size="64" font-weight="900" letter-spacing="-2.5" fill="url(#accent)">with every session.</text>
+
+  <!-- Sub-headline -->
+  <text x="102" y="305" font-size="20" font-weight="400" fill="#9ca3af">70 specialist AI agents that learn how you work.</text>
+  <text x="102" y="332" font-size="20" font-weight="400" fill="#9ca3af">Runs on 11 platforms. Completely free.</text>
+
+  <!-- Divider -->
+  <line x1="102" y1="365" x2="680" y2="365" stroke="#ffffff" stroke-width="1" opacity="0.10"/>
+
+  <!-- Feature bullets -->
+  <circle cx="112" cy="395" r="4" fill="#10b981"/>
+  <text x="126" y="400" font-size="15" fill="#e6edf3">Compound learning — improves with every correction you make</text>
+
+  <circle cx="112" cy="425" r="4" fill="#38bdf8"/>
+  <text x="126" y="430" font-size="15" fill="#e6edf3">Semantic routing — paste code or an error, the right agent fires</text>
+
+  <circle cx="112" cy="455" r="4" fill="#a78bfa"/>
+  <text x="126" y="460" font-size="15" fill="#e6edf3">Parallel agents — /team-review runs 4 specialists simultaneously</text>
+
+  <circle cx="112" cy="485" r="4" fill="#f59e0b"/>
+  <text x="126" y="490" font-size="15" fill="#e6edf3">Zero cloud — 100% local files, zero vendor lock-in</text>
+
+  <!-- CTA Section -->
+  <rect x="102" y="526" width="260" height="52" rx="26" fill="url(#ctaGrad)"/>
+  <text x="232" y="558" font-size="16" font-weight="700" text-anchor="middle" fill="#ffffff">Get it free — npm</text>
+
+  <text x="384" y="548" font-size="14" fill="#6b7280">npx kodelyth-ecc</text>
+  <text x="384" y="568" font-size="14" fill="#6b7280">github.com/sifxprime/kodelyth-ecc</text>
+
+  <!-- Right panel — terminal mockup -->
+  <rect x="720" y="60" width="440" height="508" rx="12" fill="#0d1117" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="720" y="60" width="440" height="34" rx="12" fill="#161b22"/>
+  <rect x="720" y="84" width="440" height="10" fill="#161b22"/>
+  <circle cx="744" cy="77" r="5" fill="#ff5f57"/>
+  <circle cx="760" cy="77" r="5" fill="#febc2e"/>
+  <circle cx="776" cy="77" r="5" fill="#28c840"/>
+  <text x="940" y="81" font-size="11" fill="#484f58" text-anchor="middle">kodelyth-ecc — terminal</text>
+
+  <!-- Terminal content -->
+  <text x="748" y="122" font-family="'Courier New', Courier, monospace" font-size="12" fill="#10b981">$</text>
+  <text x="762" y="122" font-family="'Courier New', Courier, monospace" font-size="12" fill="#e6edf3"> npx kodelyth-ecc</text>
+
+  <text x="748" y="144" font-family="'Courier New', Courier, monospace" font-size="12" fill="#484f58">Installing v1.8.0...</text>
+
+  <text x="748" y="176" font-family="'Courier New', Courier, monospace" font-size="12" fill="#e6edf3">  Agents (70)     </text>
+  <text x="890" y="176" font-family="'Courier New', Courier, monospace" font-size="12" fill="#484f58">→ installed</text>
+
+  <text x="748" y="198" font-family="'Courier New', Courier, monospace" font-size="12" fill="#e6edf3">  Skills (194)    </text>
+  <text x="890" y="198" font-family="'Courier New', Courier, monospace" font-size="12" fill="#484f58">→ installed</text>
+
+  <text x="748" y="220" font-family="'Courier New', Courier, monospace" font-size="12" fill="#e6edf3">  Commands (97)   </text>
+  <text x="890" y="220" font-family="'Courier New', Courier, monospace" font-size="12" fill="#484f58">→ installed</text>
+
+  <text x="748" y="242" font-family="'Courier New', Courier, monospace" font-size="12" fill="#e6edf3">  Hooks (22+)     </text>
+  <text x="890" y="242" font-family="'Courier New', Courier, monospace" font-size="12" fill="#484f58">→ installed</text>
+
+  <line x1="748" y1="262" x2="1140" y2="262" stroke="#21262d" stroke-width="1"/>
+
+  <!-- Session simulation -->
+  <text x="748" y="286" font-family="'Courier New', Courier, monospace" font-size="11" fill="#10b981">$</text>
+  <text x="762" y="286" font-family="'Courier New', Courier, monospace" font-size="11" fill="#e6edf3"> [paste stack trace]</text>
+
+  <text x="748" y="306" font-family="'Courier New', Courier, monospace" font-size="11" fill="#a78bfa">→ Routing to debug-detective</text>
+
+  <text x="748" y="326" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58">Root cause: null reference in</text>
+  <text x="748" y="342" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58">getUserById() line 47.</text>
+  <text x="748" y="358" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58">Fix: add optional chaining.</text>
+
+  <line x1="748" y1="376" x2="1140" y2="376" stroke="#21262d" stroke-width="1"/>
+
+  <text x="748" y="400" font-family="'Courier New', Courier, monospace" font-size="11" fill="#10b981">$</text>
+  <text x="762" y="400" font-family="'Courier New', Courier, monospace" font-size="11" fill="#e6edf3"> /team-review</text>
+
+  <text x="748" y="420" font-family="'Courier New', Courier, monospace" font-size="11" fill="#a78bfa">Spawning 4 agents in parallel...</text>
+  <text x="748" y="438" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58"> code-reviewer · security-reviewer</text>
+  <text x="748" y="454" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58"> performance-optimizer · api-guardian</text>
+
+  <rect x="748" y="470" width="396" height="34" rx="6" fill="#0d2b1d" stroke="#059669" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="768" y="484" font-size="9" font-weight="700" fill="#10b981" letter-spacing="1">REVIEW COMPLETE — 0 critical · 1 high · 3 medium</text>
+  <text x="768" y="498" font-size="10" fill="#6b7280">15 min parallel vs 60 min sequential</text>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="590" width="1200" height="38" fill="#0d1117" stroke="#21262d" stroke-width="0"/>
+  <text x="600" y="613" font-size="12" fill="#30363d" text-anchor="middle">kodelyth.com · Works with Claude Code · Windsurf · Cursor · Codex CLI · Antigravity · OpenCode · and 5 more</text>
+</svg>

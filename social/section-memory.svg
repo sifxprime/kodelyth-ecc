@@ -1,0 +1,69 @@
+<svg viewBox="0 0 900 175" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#34d399"/>
+      <stop offset="100%" style="stop-color:#059669"/>
+    </linearGradient>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#34d399" opacity="0.8"/>
+    </marker>
+  </defs>
+  <rect width="900" height="175" fill="url(#bg)" rx="12"/>
+  <rect width="900" height="175" fill="none" stroke="#21262d" stroke-width="1" rx="12"/>
+
+  <!-- Label — widened to fit text properly -->
+  <rect x="32" y="20" width="226" height="22" rx="11" fill="#059669" fill-opacity="0.15" stroke="#059669" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="145" y="35" font-size="10" fill="#34d399" text-anchor="middle" font-weight="700" letter-spacing="1">LOCAL SELF-LEARNING MEMORY</text>
+
+  <text x="32" y="72" font-size="22" font-weight="800" fill="#ffffff">Solve once. Remember forever. Zero cloud.</text>
+  <text x="32" y="94" font-size="12" fill="#6e7681">BM25 keyword recall · ~/.kodelyth/memory/ · auto-inject on every session · prompt-cache friendly</text>
+
+  <!-- 4-box flow -->
+  <!-- Box 1: Capture -->
+  <rect x="32" y="112" width="140" height="44" rx="7" fill="#059669" fill-opacity="0.12" stroke="#059669" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="102" y="130" font-size="10" fill="#34d399" text-anchor="middle" font-weight="700">1 · Capture</text>
+  <text x="102" y="145" font-size="9" fill="#34d399" text-anchor="middle" opacity="0.75">Stop hook</text>
+  <text x="102" y="156" font-size="9" fill="#34d399" text-anchor="middle" opacity="0.75">you confirm</text>
+
+  <line x1="175" y1="134" x2="210" y2="134" stroke="#34d399" stroke-width="1.5" marker-end="url(#arr)" opacity="0.7"/>
+
+  <!-- Box 2: BM25 Store -->
+  <rect x="213" y="112" width="152" height="44" rx="7" fill="#2563eb" fill-opacity="0.1" stroke="#2563eb" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="289" y="130" font-size="10" fill="#60a5fa" text-anchor="middle" font-weight="700">2 · BM25 Store</text>
+  <text x="289" y="145" font-size="9" fill="#60a5fa" text-anchor="middle" opacity="0.75">memories.jsonl</text>
+  <text x="289" y="156" font-size="9" fill="#60a5fa" text-anchor="middle" opacity="0.75">zero deps · your disk</text>
+
+  <line x1="368" y1="134" x2="403" y2="134" stroke="#34d399" stroke-width="1.5" marker-end="url(#arr)" opacity="0.7"/>
+
+  <!-- Box 3: Auto-Inject — text shortened to fit 152px -->
+  <rect x="406" y="112" width="152" height="44" rx="7" fill="#a78bfa" fill-opacity="0.1" stroke="#a78bfa" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="482" y="130" font-size="10" fill="#a78bfa" text-anchor="middle" font-weight="700">3 · Auto-Inject</text>
+  <text x="482" y="145" font-size="9" fill="#a78bfa" text-anchor="middle" opacity="0.75">SessionStart hook</text>
+  <text x="482" y="156" font-size="9" fill="#a78bfa" text-anchor="middle" opacity="0.75">before AI responds</text>
+
+  <line x1="561" y1="134" x2="596" y2="134" stroke="#34d399" stroke-width="1.5" marker-end="url(#arr)" opacity="0.7"/>
+
+  <!-- Box 4: Result -->
+  <rect x="599" y="112" width="152" height="44" rx="7" fill="#f59e0b" fill-opacity="0.1" stroke="#f59e0b" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="675" y="130" font-size="10" fill="#fbbf24" text-anchor="middle" font-weight="700">4 · 10× faster</text>
+  <text x="675" y="145" font-size="9" fill="#fbbf24" text-anchor="middle" opacity="0.75">past solution</text>
+  <text x="675" y="156" font-size="9" fill="#fbbf24" text-anchor="middle" opacity="0.75">surfaced in 3 s</text>
+
+  <text x="868" y="156" font-size="9" fill="#6e7681" text-anchor="end">cost: 10% on cached tokens (Anthropic / OpenAI)</text>
+
+  <!-- Ghost Depth Mark — brand stamp (scale 0.24×) -->
+  <g transform="translate(810, 28) scale(0.24)" opacity="0.14">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+</svg>

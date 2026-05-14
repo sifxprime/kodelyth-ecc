@@ -1,0 +1,58 @@
+<svg viewBox="0 0 900 170" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L5,3 L0,6 Z" fill="#38bdf8" opacity="0.8"/>
+    </marker>
+  </defs>
+  <rect width="900" height="170" fill="url(#bg)" rx="12"/>
+  <rect width="900" height="170" fill="none" stroke="#21262d" stroke-width="1" rx="12"/>
+
+  <!-- Label -->
+  <rect x="32" y="20" width="138" height="22" rx="11" fill="#38bdf8" fill-opacity="0.12" stroke="#38bdf8" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="101" y="35" font-size="10" fill="#38bdf8" text-anchor="middle" font-weight="700" letter-spacing="1">MCP SERVER  v1.8.0</text>
+
+  <text x="32" y="70" font-size="22" font-weight="800" fill="#ffffff">Universal adapter — any agent framework speaks ECC</text>
+  <text x="32" y="92" font-size="12" fill="#6e7681">16 tools · 6 prompts · 365 resources · stdio JSON-RPC · zero telemetry</text>
+
+  <!-- Center hub -->
+  <rect x="340" y="108" width="140" height="48" rx="8" fill="#38bdf8" fill-opacity="0.1" stroke="#38bdf8" stroke-opacity="0.5" stroke-width="1.5"/>
+  <text x="410" y="129" font-size="11" fill="#38bdf8" text-anchor="middle" font-weight="800">kodelyth-ecc mcp</text>
+  <text x="410" y="145" font-size="8.5" fill="#38bdf8" text-anchor="middle" opacity="0.7">npx kodelyth-ecc mcp</text>
+
+  <!-- Left consumers -->
+  <rect x="32"  y="108" width="110" height="22" rx="5" fill="#a78bfa" fill-opacity="0.1" stroke="#a78bfa" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="87"  y="122" font-size="9" fill="#a78bfa" text-anchor="middle" font-weight="600">Claude Desktop</text>
+  <rect x="32"  y="136" width="110" height="22" rx="5" fill="#2563eb" fill-opacity="0.1" stroke="#2563eb" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="87"  y="150" font-size="9" fill="#60a5fa" text-anchor="middle" font-weight="600">LangGraph</text>
+
+  <line x1="144" y1="119" x2="337" y2="125" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)" opacity="0.5"/>
+  <line x1="144" y1="147" x2="337" y2="140" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)" opacity="0.5"/>
+
+  <!-- Right consumers -->
+  <rect x="684" y="108" width="110" height="22" rx="5" fill="#059669" fill-opacity="0.1" stroke="#059669" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="739" y="122" font-size="9" fill="#34d399" text-anchor="middle" font-weight="600">AutoGen / CrewAI</text>
+  <rect x="684" y="136" width="110" height="22" rx="5" fill="#f59e0b" fill-opacity="0.1" stroke="#f59e0b" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="739" y="150" font-size="9" fill="#fbbf24" text-anchor="middle" font-weight="600">OpenAI Agents SDK</text>
+
+  <line x1="483" y1="125" x2="681" y2="119" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)" opacity="0.5"/>
+  <line x1="483" y1="140" x2="681" y2="147" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)" opacity="0.5"/>
+
+  <!-- Resource counts below hub -->
+  <text x="350" y="164" font-size="8" fill="#6e7681">16 tools  ·  6 prompts  ·  365 resources</text>
+
+  <!-- Ghost Depth Mark — brand stamp (scale 0.23×) -->
+  <g transform="translate(810, 28) scale(0.23)" opacity="0.14">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+</svg>

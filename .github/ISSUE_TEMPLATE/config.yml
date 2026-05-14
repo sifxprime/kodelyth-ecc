@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question / discuss
+    url: https://github.com/sifxprime/kodelyth-ecc/discussions
+    about: Use GitHub Discussions for questions, show & tell, and ideas.
+  - name: Read the docs
+    url: https://github.com/sifxprime/kodelyth-ecc/wiki
+    about: Check the wiki first — FAQ, installation guide, agent reference.

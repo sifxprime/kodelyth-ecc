@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 312" width="820" height="312"
+     font-family="'Space Grotesk','Inter',system-ui,-apple-system,sans-serif">
+
+  <!-- Facebook Page Cover Photo — 820×312px -->
+  <!-- Safe zone for mobile: center 640×312 — all content within 90px left/right margins -->
+
+  <rect width="820" height="312" fill="#0a0a0a"/>
+
+  <!-- Ghost Depth mark — centered, optically balanced in 312px height -->
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#ffffff">
+
+    <!-- ghost — trails left, recedes behind -->
+    <polyline points="370,67 401,120 370,173"
+              stroke-width="5.5" stroke-opacity="0.22"/>
+
+    <!-- solid — primary mark -->
+    <polyline points="395,65 443,120 395,175"
+              stroke-width="18"/>
+
+  </g>
+
+  <!-- Wordmark -->
+  <text x="410" y="232"
+        text-anchor="middle"
+        font-size="44" font-weight="700" fill="#ffffff"
+        letter-spacing="3.5">KODELYTH</text>
+
+  <!-- Tagline -->
+  <text x="410" y="257"
+        text-anchor="middle"
+        font-size="18" font-weight="400" fill="#ffffff" fill-opacity="0.58"
+        letter-spacing="3">Build everything.</text>
+
+</svg>

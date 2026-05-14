@@ -1,0 +1,240 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050811"/>
+      <stop offset="60%" style="stop-color:#0a0508"/>
+      <stop offset="100%" style="stop-color:#060309"/>
+    </linearGradient>
+    <linearGradient id="redGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ef4444"/>
+      <stop offset="100%" style="stop-color:#dc2626"/>
+    </linearGradient>
+    <linearGradient id="termBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0c0c14"/>
+      <stop offset="100%" style="stop-color:#080810"/>
+    </linearGradient>
+    <linearGradient id="badgeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2d0a0a"/>
+      <stop offset="100%" style="stop-color:#1a0505"/>
+    </linearGradient>
+    <linearGradient id="barCrit" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ef4444"/>
+      <stop offset="100%" style="stop-color:#b91c1c"/>
+    </linearGradient>
+    <linearGradient id="barHigh" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f97316"/>
+      <stop offset="100%" style="stop-color:#ea580c"/>
+    </linearGradient>
+    <linearGradient id="barClear" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#16a34a"/>
+    </linearGradient>
+    <linearGradient id="accentLine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ef4444" stop-opacity="0.8"/>
+      <stop offset="50%" style="stop-color:#dc2626" stop-opacity="0.4"/>
+      <stop offset="100%" style="stop-color:#ef4444" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="675" fill="url(#bgGrad)"/>
+
+  <!-- Subtle background texture — faint grid lines -->
+  <line x1="0" y1="225" x2="1200" y2="225" stroke="#ef4444" stroke-opacity="0.025" stroke-width="1"/>
+  <line x1="0" y1="450" x2="1200" y2="450" stroke="#ef4444" stroke-opacity="0.025" stroke-width="1"/>
+  <line x1="400" y1="0" x2="400" y2="675" stroke="#ef4444" stroke-opacity="0.02" stroke-width="1"/>
+  <line x1="800" y1="0" x2="800" y2="675" stroke="#ef4444" stroke-opacity="0.02" stroke-width="1"/>
+
+  <!-- Ambient red glow — top-left corner, very subtle -->
+  <radialGradient id="glowTL" cx="0%" cy="0%" r="60%">
+    <stop offset="0%" style="stop-color:#ef4444" stop-opacity="0.07"/>
+    <stop offset="100%" style="stop-color:#ef4444" stop-opacity="0"/>
+  </radialGradient>
+  <rect width="1200" height="675" fill="url(#glowTL)"/>
+
+  <!-- Left border accent line -->
+  <rect x="0" y="0" width="3" height="675" fill="url(#redGrad)"/>
+
+  <!-- ============================================================ -->
+  <!-- TOP BADGE -->
+  <!-- ============================================================ -->
+  <rect x="56" y="40" width="198" height="28" rx="4" fill="url(#badgeGrad)" stroke="#ef4444" stroke-opacity="0.5" stroke-width="1"/>
+  <text x="66" y="59" font-size="11" font-weight="700" fill="#ef4444" letter-spacing="1.5">DEVIL MODE</text>
+  <rect x="164" y="47" width="1" height="14" fill="#ef4444" opacity="0.4"/>
+  <text x="172" y="59" font-size="11" font-weight="500" fill="#484f58" letter-spacing="0.5">v1.8.0</text>
+
+  <!-- ============================================================ -->
+  <!-- MAIN HEADLINE -->
+  <!-- ============================================================ -->
+  <text x="56" y="126" font-size="52" font-weight="900" letter-spacing="-2" fill="#ffffff">8 agents read your code</text>
+  <text x="56" y="184" font-size="52" font-weight="900" letter-spacing="-2" fill="url(#redGrad)">like an attacker.</text>
+
+  <!-- Subline -->
+  <text x="56" y="220" font-size="16" font-weight="400" fill="#8b949e" letter-spacing="0.2">Prompt injection. Supply chain. Secrets. Backdoors. Jailbreaks. All parallel.</text>
+
+  <!-- Separator line -->
+  <rect x="56" y="242" width="500" height="1" fill="url(#accentLine)"/>
+
+  <!-- ============================================================ -->
+  <!-- TERMINAL BLOCK — left panel -->
+  <!-- ============================================================ -->
+  <rect x="56" y="258" width="680" height="348" rx="8" fill="url(#termBg)" stroke="#1e1e2e" stroke-width="1"/>
+  <!-- Terminal top bar -->
+  <rect x="56" y="258" width="680" height="32" rx="8" fill="#0f0f1a"/>
+  <rect x="56" y="278" width="680" height="12" fill="#0f0f1a"/>
+  <!-- Traffic lights -->
+  <circle cx="80" cy="274" r="5" fill="#2d1b1b"/>
+  <circle cx="98" cy="274" r="5" fill="#2a1a10"/>
+  <circle cx="116" cy="274" r="5" fill="#0f1a10"/>
+  <!-- Terminal title -->
+  <text x="600" y="279" font-size="11" fill="#484f58" text-anchor="middle" font-family="'Consolas', 'SF Mono', monospace">bash — devil-mode</text>
+
+  <!-- Command line -->
+  <text x="80" y="314" font-size="13" font-family="'Consolas', 'SF Mono', 'Courier New', monospace" fill="#ef4444" font-weight="700">/devil-mode --all</text>
+
+  <!-- Agent rows — each row: arrow + name + progress bar + status label -->
+  <!-- Row 1: prompt-injection-hunter  CRITICAL: 2 -->
+  <text x="80" y="343" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">&#x2192;</text>
+  <text x="100" y="343" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#e6edf3">prompt-injection-hunter</text>
+  <rect x="330" y="331" width="186" height="9" rx="2" fill="#1a1a2a"/>
+  <rect x="330" y="331" width="186" height="9" rx="2" fill="url(#barCrit)"/>
+  <text x="526" y="342" font-size="11" font-family="'Consolas', 'SF Mono', monospace" fill="#ef4444" font-weight="700">  CRITICAL: 2</text>
+
+  <!-- Row 2: supply-chain-auditor  HIGH: 1 -->
+  <text x="80" y="368" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">&#x2192;</text>
+  <text x="100" y="368" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#e6edf3">supply-chain-auditor</text>
+  <rect x="330" y="356" width="186" height="9" rx="2" fill="#1a1a2a"/>
+  <rect x="330" y="356" width="186" height="9" rx="2" fill="url(#barHigh)"/>
+  <text x="526" y="367" font-size="11" font-family="'Consolas', 'SF Mono', monospace" fill="#f97316" font-weight="700">  HIGH: 1</text>
+
+  <!-- Row 3: secret-hunter  CLEAR -->
+  <text x="80" y="393" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">&#x2192;</text>
+  <text x="100" y="393" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#e6edf3">secret-hunter</text>
+  <rect x="330" y="381" width="186" height="9" rx="2" fill="#1a1a2a"/>
+  <rect x="330" y="381" width="186" height="9" rx="2" fill="url(#barClear)"/>
+  <text x="526" y="392" font-size="11" font-family="'Consolas', 'SF Mono', monospace" fill="#22c55e" font-weight="700">  CLEAR</text>
+
+  <!-- Row 4: backdoor-hunter  CLEAR -->
+  <text x="80" y="418" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">&#x2192;</text>
+  <text x="100" y="418" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#e6edf3">backdoor-hunter</text>
+  <rect x="330" y="406" width="186" height="9" rx="2" fill="#1a1a2a"/>
+  <rect x="330" y="406" width="186" height="9" rx="2" fill="url(#barClear)"/>
+  <text x="526" y="417" font-size="11" font-family="'Consolas', 'SF Mono', monospace" fill="#22c55e" font-weight="700">  CLEAR</text>
+
+  <!-- Row 5: jailbreak-tester  HIGH: 1 -->
+  <text x="80" y="443" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">&#x2192;</text>
+  <text x="100" y="443" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#e6edf3">jailbreak-tester</text>
+  <rect x="330" y="431" width="186" height="9" rx="2" fill="#1a1a2a"/>
+  <rect x="330" y="431" width="186" height="9" rx="2" fill="url(#barHigh)"/>
+  <text x="526" y="442" font-size="11" font-family="'Consolas', 'SF Mono', monospace" fill="#f97316" font-weight="700">  HIGH: 1</text>
+
+  <!-- Row 6: license-violation-finder  CLEAR -->
+  <text x="80" y="468" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">&#x2192;</text>
+  <text x="100" y="468" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#e6edf3">license-violation-finder</text>
+  <rect x="330" y="456" width="186" height="9" rx="2" fill="#1a1a2a"/>
+  <rect x="330" y="456" width="186" height="9" rx="2" fill="url(#barClear)"/>
+  <text x="526" y="467" font-size="11" font-family="'Consolas', 'SF Mono', monospace" fill="#22c55e" font-weight="700">  CLEAR</text>
+
+  <!-- Row 7: code-stealer-detector  CLEAR -->
+  <text x="80" y="493" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">&#x2192;</text>
+  <text x="100" y="493" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#e6edf3">code-stealer-detector</text>
+  <rect x="330" y="481" width="186" height="9" rx="2" fill="#1a1a2a"/>
+  <rect x="330" y="481" width="186" height="9" rx="2" fill="url(#barClear)"/>
+  <text x="526" y="492" font-size="11" font-family="'Consolas', 'SF Mono', monospace" fill="#22c55e" font-weight="700">  CLEAR</text>
+
+  <!-- Row 8: chaos-engineer  HIGH: 3 -->
+  <text x="80" y="518" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">&#x2192;</text>
+  <text x="100" y="518" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#e6edf3">chaos-engineer</text>
+  <rect x="330" y="506" width="186" height="9" rx="2" fill="#1a1a2a"/>
+  <rect x="330" y="506" width="186" height="9" rx="2" fill="url(#barHigh)"/>
+  <text x="526" y="517" font-size="11" font-family="'Consolas', 'SF Mono', monospace" fill="#f97316" font-weight="700">  HIGH: 3</text>
+
+  <!-- Summary line -->
+  <line x1="80" y1="536" x2="710" y2="536" stroke="#1e1e2e" stroke-width="1"/>
+  <text x="80" y="556" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">60 min</text>
+  <text x="138" y="556" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#ef4444" font-weight="700">&#x2192;</text>
+  <text x="158" y="556" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#22c55e" font-weight="700">8 min</text>
+  <text x="214" y="556" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">  &#xB7;  3 issues need your attention</text>
+
+  <!-- ============================================================ -->
+  <!-- RIGHT PANEL — stats / context -->
+  <!-- ============================================================ -->
+
+  <!-- Stat box 1: Agents -->
+  <rect x="768" y="258" width="392" height="100" rx="8" fill="#0c0c16" stroke="#1e1a28" stroke-width="1"/>
+  <rect x="768" y="258" width="3" height="100" rx="1" fill="url(#redGrad)"/>
+  <text x="788" y="292" font-size="40" font-weight="900" fill="#ef4444" letter-spacing="-1">8</text>
+  <text x="836" y="292" font-size="15" font-weight="700" fill="#e6edf3">adversarial agents</text>
+  <text x="836" y="314" font-size="12" fill="#484f58">firing simultaneously in parallel</text>
+  <text x="836" y="332" font-size="12" fill="#484f58">— no sequential bottleneck</text>
+
+  <!-- Stat box 2: Time -->
+  <rect x="768" y="374" width="392" height="100" rx="8" fill="#0c0c16" stroke="#1e1a28" stroke-width="1"/>
+  <rect x="768" y="374" width="3" height="100" rx="1" fill="url(#redGrad)"/>
+  <text x="788" y="408" font-size="40" font-weight="900" fill="#ef4444" letter-spacing="-1">7x</text>
+  <text x="850" y="408" font-size="15" font-weight="700" fill="#e6edf3">faster than sequential</text>
+  <text x="788" y="430" font-size="12" fill="#484f58">8 min full adversarial sweep</text>
+  <text x="788" y="448" font-size="12" fill="#484f58">vs. 60 min doing each by hand</text>
+
+  <!-- Stat box 3: Coverage -->
+  <rect x="768" y="490" width="392" height="116" rx="8" fill="#0c0c16" stroke="#1e1a28" stroke-width="1"/>
+  <rect x="768" y="490" width="3" height="116" rx="1" fill="url(#redGrad)"/>
+  <text x="788" y="520" font-size="13" font-weight="700" fill="#e6edf3">Attack surface covered</text>
+  <!-- Tag pills -->
+  <rect x="788" y="530" width="78" height="20" rx="3" fill="#2d0a0a" stroke="#ef4444" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="796" y="544" font-size="10" fill="#ef4444">AI injection</text>
+
+  <rect x="874" y="530" width="92" height="20" rx="3" fill="#2d0a0a" stroke="#ef4444" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="882" y="544" font-size="10" fill="#ef4444">supply chain</text>
+
+  <rect x="974" y="530" width="62" height="20" rx="3" fill="#2d0a0a" stroke="#ef4444" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="982" y="544" font-size="10" fill="#ef4444">secrets</text>
+
+  <rect x="788" y="558" width="72" height="20" rx="3" fill="#2d0a0a" stroke="#ef4444" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="796" y="572" font-size="10" fill="#ef4444">backdoors</text>
+
+  <rect x="868" y="558" width="80" height="20" rx="3" fill="#2d0a0a" stroke="#ef4444" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="876" y="572" font-size="10" fill="#ef4444">jailbreaks</text>
+
+  <rect x="956" y="558" width="60" height="20" rx="3" fill="#2d0a0a" stroke="#ef4444" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="964" y="572" font-size="10" fill="#ef4444">licenses</text>
+
+  <rect x="788" y="586" width="94" height="20" rx="3" fill="#2d0a0a" stroke="#ef4444" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="796" y="600" font-size="10" fill="#ef4444">code provenance</text>
+
+  <rect x="890" y="586" width="56" height="20" rx="3" fill="#2d0a0a" stroke="#ef4444" stroke-opacity="0.35" stroke-width="1"/>
+  <text x="898" y="600" font-size="10" fill="#ef4444">chaos</text>
+
+  <!-- ============================================================ -->
+  <!-- BOTTOM BAR -->
+  <!-- ============================================================ -->
+  <rect x="0" y="629" width="1200" height="38" fill="#07080f"/>
+  <line x1="0" y1="629" x2="1200" y2="629" stroke="#1e1e2e" stroke-width="1"/>
+
+  <!-- Left: npx install command -->
+  <text x="56" y="653" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#ef4444" font-weight="600">npx kodelyth-ecc</text>
+
+  <!-- Dot separator -->
+  <text x="206" y="653" font-size="12" fill="#2d3340">&#xB7;</text>
+
+  <!-- GitHub URL -->
+  <text x="222" y="653" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">github.com/sifxprime/kodelyth-ecc</text>
+
+  <!-- Dot separator -->
+  <text x="562" y="653" font-size="12" fill="#2d3340">&#xB7;</text>
+
+  <!-- MIT license -->
+  <text x="578" y="653" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">MIT</text>
+
+  <!-- Ghost Depth Mark — brand stamp (scale 0.55×) -->
+  <g transform="translate(1044, 282) scale(0.55)" opacity="0.16">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+</svg>

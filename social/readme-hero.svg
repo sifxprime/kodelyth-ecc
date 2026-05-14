@@ -1,0 +1,102 @@
+<svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#a78bfa"/>
+      <stop offset="100%" style="stop-color:#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="termGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#161b22"/>
+      <stop offset="100%" style="stop-color:#0d1117"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="260" fill="url(#bg)" rx="12"/>
+  <rect width="900" height="260" fill="none" stroke="#21262d" stroke-width="1" rx="12"/>
+
+  <!-- Ghost Depth Mark — scale 0.45×, right-edge brand stamp (90px tall), op=0.20 -->
+  <!-- Solid left arm x=844, apex x=883, vertically centered at y=130 (card mid) -->
+  <g transform="translate(844, 85) scale(0.45)" opacity="0.20">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+
+  <!-- LEFT — Brand block -->
+  <!-- Version badge -->
+  <rect x="32" y="22" width="72" height="20" rx="10" fill="#a78bfa" fill-opacity="0.15" stroke="#a78bfa" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="68" y="36" font-size="9" fill="#a78bfa" text-anchor="middle" font-weight="700" letter-spacing="0.5">v1.8.0</text>
+
+  <!-- Title -->
+  <text x="32" y="78" font-size="36" font-weight="900" letter-spacing="-1.5" fill="#ffffff">Kodelyth</text>
+  <text x="32" y="118" font-size="36" font-weight="900" letter-spacing="-1.5" fill="url(#accent)">ECC</text>
+
+  <!-- Tagline -->
+  <text x="32" y="148" font-size="12" fill="#6e7681" font-weight="400">AI coding toolkit. 11 platforms. Zero cloud.</text>
+
+  <!-- Separator -->
+  <line x1="32" y1="165" x2="290" y2="165" stroke="#21262d" stroke-width="1"/>
+
+  <!-- Stats row -->
+  <rect x="32" y="178" width="56" height="54" rx="8" fill="#ffffff" fill-opacity="0.04" stroke="#a78bfa" stroke-opacity="0.25" stroke-width="1"/>
+  <text x="60" y="202" font-size="20" font-weight="800" fill="#ffffff" text-anchor="middle">70</text>
+  <text x="60" y="220" font-size="8" fill="#6b7280" text-anchor="middle" letter-spacing="1.5">AGENTS</text>
+
+  <rect x="96" y="178" width="56" height="54" rx="8" fill="#ffffff" fill-opacity="0.04" stroke="#2563eb" stroke-opacity="0.25" stroke-width="1"/>
+  <text x="124" y="202" font-size="20" font-weight="800" fill="#ffffff" text-anchor="middle">194</text>
+  <text x="124" y="220" font-size="8" fill="#6b7280" text-anchor="middle" letter-spacing="1.5">SKILLS</text>
+
+  <rect x="160" y="178" width="56" height="54" rx="8" fill="#ffffff" fill-opacity="0.04" stroke="#059669" stroke-opacity="0.25" stroke-width="1"/>
+  <text x="188" y="202" font-size="20" font-weight="800" fill="#ffffff" text-anchor="middle">97</text>
+  <text x="188" y="220" font-size="8" fill="#6b7280" text-anchor="middle" letter-spacing="1.5">COMMANDS</text>
+
+  <rect x="224" y="178" width="56" height="54" rx="8" fill="#ffffff" fill-opacity="0.04" stroke="#0891b2" stroke-opacity="0.25" stroke-width="1"/>
+  <text x="252" y="202" font-size="20" font-weight="800" fill="#ffffff" text-anchor="middle">22+</text>
+  <text x="252" y="220" font-size="8" fill="#6b7280" text-anchor="middle" letter-spacing="1.5">HOOKS</text>
+
+  <!-- RIGHT — Terminal -->
+  <rect x="320" y="16" width="564" height="232" rx="10" fill="url(#termGrad)" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="320" y="16" width="564" height="30" rx="10" fill="#161b22"/>
+  <rect x="320" y="36" width="564" height="10" fill="#161b22"/>
+  <circle cx="344" cy="31" r="5" fill="#ff5f57"/>
+  <circle cx="360" cy="31" r="5" fill="#febc2e"/>
+  <circle cx="376" cy="31" r="5" fill="#28c840"/>
+  <text x="612" y="35" font-size="11" fill="#484f58" text-anchor="middle">kodelyth-ecc v1.8.0</text>
+
+  <text x="348" y="66" font-family="'Courier New', Courier, monospace" font-size="11" fill="#10b981">$</text>
+  <text x="360" y="66" font-family="'Courier New', Courier, monospace" font-size="11" fill="#e6edf3"> npx kodelyth-ecc</text>
+
+  <text x="348" y="84" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58">Installing Kodelyth ECC v1.8.0...</text>
+
+  <text x="348" y="108" font-family="'Courier New', Courier, monospace" font-size="11" fill="#e6edf3"> Agents (70)         </text>
+  <text x="494" y="108" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58">→ ~/.claude/agents/</text>
+
+  <text x="348" y="126" font-family="'Courier New', Courier, monospace" font-size="11" fill="#e6edf3"> Skills (194)        </text>
+  <text x="494" y="126" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58">→ ~/.claude/skills/</text>
+
+  <text x="348" y="144" font-family="'Courier New', Courier, monospace" font-size="11" fill="#e6edf3"> Compound learning   </text>
+  <text x="494" y="144" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58">→ tasks/lessons.md</text>
+
+  <text x="348" y="162" font-family="'Courier New', Courier, monospace" font-size="11" fill="#e6edf3"> Semantic routing    </text>
+  <text x="494" y="162" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58">→ intent, not keywords</text>
+
+  <text x="348" y="180" font-family="'Courier New', Courier, monospace" font-size="11" fill="#e6edf3"> Memory hooks        </text>
+  <text x="494" y="180" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58">→ ~/.kodelyth/memory/</text>
+
+  <rect x="348" y="196" width="500" height="36" rx="6" fill="#0d2b1d" stroke="#059669" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="368" y="212" font-size="9" font-weight="700" fill="#10b981" letter-spacing="1">v1.8.0 — SEMANTIC INTENT ROUTING</text>
+  <text x="368" y="226" font-size="10" fill="#6b7280">Paste code or a stack trace — AI routes you automatically, no command needed</text>
+</svg>

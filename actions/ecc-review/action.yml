@@ -1,0 +1,158 @@
+name: 'Kodelyth ECC PR Review'
+description: 'Run Kodelyth ECC adversarial agents against a PR diff. Posts findings as a PR comment, optionally fails CI on critical issues.'
+author: 'Kodelyth <github.com/sifxprime>'
+branding:
+  icon: 'shield'
+  color: 'red'
+
+inputs:
+  bundle:
+    description: 'Which ECC bundle to use: indie-hacker, red-team, enterprise'
+    required: false
+    default: 'red-team'
+  agents:
+    description: 'Comma-separated agent names to run. Overrides bundle if set. Examples: prompt-injection-hunter,supply-chain-auditor,secret-hunter'
+    required: false
+    default: ''
+  fail-on:
+    description: 'Severity threshold that fails CI: critical | high | medium | none'
+    required: false
+    default: 'critical'
+  api-key:
+    description: 'Anthropic API key (recommended). Falls back to OPENAI_API_KEY if not set.'
+    required: false
+    default: ''
+  model:
+    description: 'Claude model to use'
+    required: false
+    default: 'claude-sonnet-4-5-20250929'
+  comment:
+    description: 'Post findings as a PR comment'
+    required: false
+    default: 'true'
+  max-files:
+    description: 'Max number of changed files to review per run (cost guard)'
+    required: false
+    default: '20'
+  ecc-version:
+    description: 'Pin to a specific ECC version (default: latest from npm)'
+    required: false
+    default: 'latest'
+
+outputs:
+  critical-count:
+    description: 'Number of CRITICAL findings'
+    value: ${{ steps.review.outputs.critical-count }}
+  high-count:
+    description: 'Number of HIGH findings'
+    value: ${{ steps.review.outputs.high-count }}
+  medium-count:
+    description: 'Number of MEDIUM findings'
+    value: ${{ steps.review.outputs.medium-count }}
+  report-path:
+    description: 'Filesystem path of the JSON findings report'
+    value: ${{ steps.review.outputs.report-path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install Kodelyth ECC
+      shell: bash
+      run: |
+        echo "::group::Install Kodelyth ECC"
+        npx --yes kodelyth-ecc@${{ inputs.ecc-version }} \
+          --target claude-home \
+          --bundle ${{ inputs.bundle }}
+        echo "::endgroup::"
+
+    - name: Resolve PR diff
+      id: diff
+      shell: bash
+      run: |
+        echo "::group::Resolve PR diff"
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+        else
+          # push event — diff against previous commit
+          BASE_SHA="${{ github.event.before }}"
+          HEAD_SHA="${{ github.sha }}"
+        fi
+        echo "base-sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+        echo "head-sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+        git fetch origin "$BASE_SHA" --depth=1 2>/dev/null || true
+        git diff --name-only "$BASE_SHA" "$HEAD_SHA" > /tmp/ecc-changed-files.txt || \
+          git diff --name-only "$HEAD_SHA~1" "$HEAD_SHA" > /tmp/ecc-changed-files.txt
+        echo "Changed files:"
+        cat /tmp/ecc-changed-files.txt
+        echo "::endgroup::"
+
+    - name: Run ECC review
+      id: review
+      shell: bash
+      env:
+        ANTHROPIC_API_KEY: ${{ inputs.api-key }}
+        ECC_BUNDLE: ${{ inputs.bundle }}
+        ECC_AGENTS: ${{ inputs.agents }}
+        ECC_MODEL: ${{ inputs.model }}
+        ECC_FAIL_ON: ${{ inputs.fail-on }}
+        ECC_MAX_FILES: ${{ inputs.max-files }}
+        ECC_BASE_SHA: ${{ steps.diff.outputs.base-sha }}
+        ECC_HEAD_SHA: ${{ steps.diff.outputs.head-sha }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_TOKEN: ${{ github.token }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+      run: |
+        node ${{ github.action_path }}/run-review.js
+
+    - name: Post PR comment
+      if: ${{ inputs.comment == 'true' && github.event_name == 'pull_request' && steps.review.outputs.report-path != '' }}
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        REPORT_PATH: ${{ steps.review.outputs.report-path }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        REPO: ${{ github.repository }}
+      run: |
+        node ${{ github.action_path }}/post-comment.js
+
+    - name: Enforce fail-on threshold
+      shell: bash
+      env:
+        FAIL_ON: ${{ inputs.fail-on }}
+        CRITICAL: ${{ steps.review.outputs.critical-count }}
+        HIGH: ${{ steps.review.outputs.high-count }}
+        MEDIUM: ${{ steps.review.outputs.medium-count }}
+      run: |
+        critical=${CRITICAL:-0}
+        high=${HIGH:-0}
+        medium=${MEDIUM:-0}
+        case "$FAIL_ON" in
+          critical)
+            if [[ "$critical" -gt 0 ]]; then
+              echo "::error::Found $critical CRITICAL issues. Failing build (fail-on=critical)."
+              exit 1
+            fi ;;
+          high)
+            if [[ "$critical" -gt 0 ]] || [[ "$high" -gt 0 ]]; then
+              echo "::error::Found $critical CRITICAL + $high HIGH issues. Failing build (fail-on=high)."
+              exit 1
+            fi ;;
+          medium)
+            if [[ "$critical" -gt 0 ]] || [[ "$high" -gt 0 ]] || [[ "$medium" -gt 0 ]]; then
+              echo "::error::Found $critical CRITICAL + $high HIGH + $medium MEDIUM issues. Failing build (fail-on=medium)."
+              exit 1
+            fi ;;
+          none)
+            echo "::notice::Review complete. fail-on=none — never blocking."
+            ;;
+          *)
+            echo "::warning::Unknown fail-on value: $FAIL_ON. Treating as 'none'."
+            ;;
+        esac
+        echo "::notice::ECC review complete: $critical CRITICAL, $high HIGH, $medium MEDIUM."

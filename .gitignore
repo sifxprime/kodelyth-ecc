@@ -1,0 +1,14 @@
+node_modules/
+.DS_Store
+*.log
+.env
+.env.*
+kodelyth-ecc-install-state.json
+
+# Generated social/brand image renders (project policy: SVG only, regenerate with: node brand/convert.js)
+social/**/*.png
+brand/**/*.png
+
+# Brand tool dependencies
+brand/node_modules/
+brand/package-lock.json

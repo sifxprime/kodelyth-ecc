@@ -1,0 +1,71 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050811"/>
+      <stop offset="100%" style="stop-color:#0d1117"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#a78bfa"/>
+      <stop offset="100%" style="stop-color:#38bdf8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <circle cx="1100" cy="580" r="320" fill="#059669" opacity="0.04"/>
+  <circle cx="100" cy="120" r="200" fill="#a78bfa" opacity="0.03"/>
+
+  <!-- Main headline -->
+  <text x="80" y="120" font-size="72" font-weight="900" letter-spacing="-3" fill="#ffffff">100% free.</text>
+  <text x="80" y="200" font-size="72" font-weight="900" letter-spacing="-3" fill="url(#accent)">100% local.</text>
+  <text x="80" y="272" font-size="24" fill="#6e7681" font-weight="400">No dashboard. No telemetry. No cloud. No account.</text>
+  <text x="80" y="306" font-size="24" fill="#6e7681">Just files on your disk that make your AI smarter.</text>
+
+  <line x1="80" y1="340" x2="1120" y2="340" stroke="#21262d" stroke-width="1"/>
+
+  <!-- Three pillars -->
+  <!-- Pillar 1 -->
+  <rect x="80" y="364" width="320" height="180" rx="10" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+  <rect x="80" y="364" width="4" height="180" rx="2" fill="#a78bfa"/>
+  <text x="100" y="396" font-size="32" font-weight="900" fill="#ffffff">Zero cost</text>
+  <text x="100" y="426" font-size="14" fill="#8b949e">No API keys. No subscriptions.</text>
+  <text x="100" y="446" font-size="14" fill="#8b949e">No usage limits. No vendor lock-in.</text>
+  <text x="100" y="476" font-size="12" fill="#484f58">Install once. Works forever.</text>
+  <text x="100" y="494" font-size="12" fill="#484f58">Fork it, edit it, own it.</text>
+  <text x="100" y="528" font-size="11" fill="#30363d">npx kodelyth-ecc</text>
+
+  <!-- Pillar 2 -->
+  <rect x="430" y="364" width="320" height="180" rx="10" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+  <rect x="430" y="364" width="4" height="180" rx="2" fill="#059669"/>
+  <text x="450" y="396" font-size="32" font-weight="900" fill="#ffffff">Zero cloud</text>
+  <text x="450" y="426" font-size="14" fill="#8b949e">Memory at ~/.kodelyth/memory/</text>
+  <text x="450" y="446" font-size="14" fill="#8b949e">Lessons at tasks/lessons.md</text>
+  <text x="450" y="476" font-size="12" fill="#484f58">Your data never leaves your machine.</text>
+  <text x="450" y="494" font-size="12" fill="#484f58">BM25 search — no embeddings needed.</text>
+  <text x="450" y="528" font-size="11" fill="#30363d">ls ~/.kodelyth/memory/</text>
+
+  <!-- Pillar 3 -->
+  <rect x="780" y="364" width="340" height="180" rx="10" fill="#161b22" stroke="#21262d" stroke-width="1"/>
+  <rect x="780" y="364" width="4" height="180" rx="2" fill="#38bdf8"/>
+  <text x="800" y="396" font-size="32" font-weight="900" fill="#ffffff">Gets smarter</text>
+  <text x="800" y="426" font-size="14" fill="#8b949e">Every correction → lessons.md</text>
+  <text x="800" y="446" font-size="14" fill="#8b949e">Every session → better context</text>
+  <text x="800" y="476" font-size="12" fill="#484f58">Month 1: knows your style.</text>
+  <text x="800" y="494" font-size="12" fill="#484f58">Month 3: works like it's been here years.</text>
+  <text x="800" y="528" font-size="11" fill="#30363d">Compound learning — v1.8.0</text>
+
+  <!-- Footer CTA -->
+  <text x="80" y="606" font-size="20" fill="#484f58">$ npx kodelyth-ecc</text>
+  <text x="1120" y="606" font-size="16" fill="#484f58" text-anchor="end">v1.8.0 · github.com/sifxprime/kodelyth-ecc</text>
+
+  <!-- Ghost Depth Mark — brand stamp (scale 0.55×) -->
+  <g transform="translate(1044, 282) scale(0.55)" opacity="0.16">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+</svg>

@@ -1,0 +1,20 @@
+{
+  "name": "openclaw-twitter",
+  "version": "1.0.0",
+  "description": "OpenClaw autonomous Twitter agent for @sifxprime / kodelyth-ecc",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "setup":   "node setup.js",
+    "start":   "node index.js",
+    "post":    "node index.js --once",
+    "engage":  "node engagement.js --once",
+    "preview": "node index.js --preview"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.52.0",
+    "node-cron":         "^3.0.3",
+    "playwright":        "^1.52.0",
+    "dotenv":            "^16.4.5"
+  }
+}

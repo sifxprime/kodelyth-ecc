@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 120" width="460" height="120"
+     font-family="'Space Grotesk','Inter',system-ui,-apple-system,sans-serif">
+
+  <rect width="460" height="120" fill="#0a0a0a"/>
+
+  <!-- Kodelyth Mark — Ghost Depth (white on dark) -->
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#ffffff">
+
+    <!-- ghost — reduced arm span, tighter stroke, optical depth layer -->
+    <polyline points="49,38 68,60 49,82"
+              stroke-width="3.5" stroke-opacity="0.2"/>
+
+    <!-- solid — reduced arm to balance mark:cap ratio 2.4:1 -->
+    <polyline points="64,35 95,60 64,85"
+              stroke-width="11"/>
+
+  </g>
+
+  <!-- Wordmark — baseline lifted to optically align with mark center y=60 -->
+  <text x="125" y="73"
+        font-size="36" font-weight="700" fill="#ffffff"
+        letter-spacing="3">KODELYTH</text>
+
+</svg>

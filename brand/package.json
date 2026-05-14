@@ -1,0 +1,12 @@
+{
+  "name": "kodelyth-brand",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Brand asset conversion tools for Kodelyth",
+  "scripts": {
+    "convert": "node convert.js"
+  },
+  "dependencies": {
+    "puppeteer-core": "^24.43.1"
+  }
+}

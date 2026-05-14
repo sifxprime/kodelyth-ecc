@@ -1,0 +1,135 @@
+<svg width="1080" height="1080" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050811"/>
+      <stop offset="100%" style="stop-color:#0d1117"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#a78bfa"/>
+      <stop offset="100%" style="stop-color:#38bdf8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1080" height="1080" fill="url(#bg)"/>
+
+  <!-- Ambient glow -->
+  <circle cx="540" cy="540" r="500" fill="#2563eb" opacity="0.025"/>
+  <circle cx="900" cy="180" r="300" fill="#a78bfa" opacity="0.04"/>
+
+  <!-- Ghost Depth Mark — scale 1.6, right bottom, op=0.09 -->
+  <g transform="translate(900, 380) scale(1.6)" opacity="0.09">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+
+  <!-- Header badge -->
+  <rect x="390" y="60" width="300" height="32" rx="16" fill="#a78bfa" fill-opacity="0.12" stroke="#a78bfa" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="540" y="81" font-size="11" fill="#a78bfa" text-anchor="middle" font-weight="700" letter-spacing="2">11 PLATFORMS SUPPORTED</text>
+
+  <!-- Main headline -->
+  <text x="540" y="148" font-size="54" font-weight="900" letter-spacing="-2" fill="#ffffff" text-anchor="middle">One install.</text>
+  <text x="540" y="208" font-size="54" font-weight="900" letter-spacing="-2" fill="url(#accent)" text-anchor="middle">Every AI editor you use.</text>
+
+  <text x="540" y="252" font-size="18" font-weight="400" fill="#6e7681" text-anchor="middle">npx kodelyth-ecc installs to all of them automatically.</text>
+
+  <!-- Divider -->
+  <line x1="80" y1="280" x2="1000" y2="280" stroke="#ffffff" stroke-width="1" opacity="0.08"/>
+
+  <!-- Platform cards — 3 columns, 4 rows (last row has 2 cards + install card) -->
+  <!-- Row 1 -->
+  <rect x="80" y="304" width="284" height="96" rx="10" fill="#0d1117" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="80" y="304" width="4" height="96" rx="2" fill="#a78bfa"/>
+  <text x="102" y="346" font-size="20" font-weight="700" fill="#ffffff">Claude Code</text>
+  <text x="102" y="370" font-size="12" fill="#484f58">Anthropic · Full hooks + memory</text>
+  <text x="356" y="366" font-size="10" fill="#10b981" font-weight="600" text-anchor="end">PRIMARY</text>
+
+  <rect x="398" y="304" width="284" height="96" rx="10" fill="#0d1117" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="398" y="304" width="4" height="96" rx="2" fill="#38bdf8"/>
+  <text x="420" y="346" font-size="20" font-weight="700" fill="#ffffff">Windsurf</text>
+  <text x="420" y="370" font-size="12" fill="#484f58">Codeium · Cascade + agent support</text>
+
+  <rect x="716" y="304" width="284" height="96" rx="10" fill="#0d1117" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="716" y="304" width="4" height="96" rx="2" fill="#f59e0b"/>
+  <text x="738" y="346" font-size="20" font-weight="700" fill="#ffffff">Cursor</text>
+  <text x="738" y="370" font-size="12" fill="#484f58">Composer agent workflows</text>
+
+  <!-- Row 2 -->
+  <rect x="80" y="416" width="284" height="96" rx="10" fill="#0d1117" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="80" y="416" width="4" height="96" rx="2" fill="#10b981"/>
+  <text x="102" y="458" font-size="20" font-weight="700" fill="#ffffff">Codex CLI</text>
+  <text x="102" y="482" font-size="12" fill="#484f58">OpenAI · DALL-E image gen built-in</text>
+
+  <rect x="398" y="416" width="284" height="96" rx="10" fill="#0d1117" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="398" y="416" width="4" height="96" rx="2" fill="#4f8ef0"/>
+  <text x="420" y="458" font-size="20" font-weight="700" fill="#ffffff">Antigravity</text>
+  <text x="420" y="482" font-size="12" fill="#484f58">Google · Gemini Imagen 3 native</text>
+
+  <rect x="716" y="416" width="284" height="96" rx="10" fill="#0d1117" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="716" y="416" width="4" height="96" rx="2" fill="#7c3aed"/>
+  <text x="738" y="458" font-size="20" font-weight="700" fill="#ffffff">OpenCode</text>
+  <text x="738" y="482" font-size="12" fill="#484f58">Terminal-native multi-model</text>
+
+  <!-- Row 3 -->
+  <rect x="80" y="528" width="284" height="96" rx="10" fill="#0d1117" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="80" y="528" width="4" height="96" rx="2" fill="#ec4899"/>
+  <text x="102" y="570" font-size="20" font-weight="700" fill="#ffffff">Cline</text>
+  <text x="102" y="594" font-size="12" fill="#484f58">VS Code · Autonomous file ops</text>
+
+  <rect x="398" y="528" width="284" height="96" rx="10" fill="#0d1117" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="398" y="528" width="4" height="96" rx="2" fill="#06b6d4"/>
+  <text x="420" y="570" font-size="20" font-weight="700" fill="#ffffff">Roo Code</text>
+  <text x="420" y="594" font-size="12" fill="#484f58">VS Code fork · Boomerang tasks</text>
+
+  <rect x="716" y="528" width="284" height="96" rx="10" fill="#0d1117" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="716" y="528" width="4" height="96" rx="2" fill="#d97706"/>
+  <text x="738" y="570" font-size="20" font-weight="700" fill="#ffffff">Aider</text>
+  <text x="738" y="594" font-size="12" fill="#484f58">Terminal · Git-native pair coding</text>
+
+  <!-- Row 4 -->
+  <rect x="80" y="640" width="284" height="96" rx="10" fill="#0d1117" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="80" y="640" width="4" height="96" rx="2" fill="#3b82f6"/>
+  <text x="102" y="682" font-size="20" font-weight="700" fill="#ffffff">Kimi</text>
+  <text x="102" y="706" font-size="12" fill="#484f58">Moonshot AI · Long context</text>
+
+  <rect x="398" y="640" width="284" height="96" rx="10" fill="#0d1117" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="398" y="640" width="4" height="96" rx="2" fill="#34d399"/>
+  <text x="420" y="682" font-size="20" font-weight="700" fill="#ffffff">Gemini CLI</text>
+  <text x="420" y="706" font-size="12" fill="#484f58">Google · Gemini model family</text>
+
+  <!-- Install card -->
+  <rect x="716" y="640" width="284" height="96" rx="10" fill="#0d2b1d" stroke="#059669" stroke-opacity="0.5" stroke-width="1.5"/>
+  <text x="858" y="678" font-size="13" font-weight="700" fill="#10b981" text-anchor="middle" letter-spacing="1">ONE COMMAND</text>
+  <text x="858" y="706" font-family="'Courier New', Courier, monospace" font-size="14" fill="#ffffff" text-anchor="middle">npx kodelyth-ecc</text>
+
+  <!-- Bottom divider -->
+  <line x1="80" y1="760" x2="1000" y2="760" stroke="#ffffff" stroke-width="1" opacity="0.08"/>
+
+  <!-- Stats row -->
+  <text x="270" y="814" font-size="48" font-weight="900" fill="#ffffff" text-anchor="middle">70</text>
+  <text x="270" y="840" font-size="11" fill="#484f58" text-anchor="middle" letter-spacing="2">AGENTS</text>
+
+  <line x1="430" y1="790" x2="430" y2="852" stroke="#ffffff" stroke-width="1" opacity="0.10"/>
+
+  <text x="540" y="814" font-size="48" font-weight="900" fill="#ffffff" text-anchor="middle">194</text>
+  <text x="540" y="840" font-size="11" fill="#484f58" text-anchor="middle" letter-spacing="2">SKILLS</text>
+
+  <line x1="650" y1="790" x2="650" y2="852" stroke="#ffffff" stroke-width="1" opacity="0.10"/>
+
+  <text x="810" y="814" font-size="48" font-weight="900" fill="#ffffff" text-anchor="middle">97</text>
+  <text x="810" y="840" font-size="11" fill="#484f58" text-anchor="middle" letter-spacing="2">COMMANDS</text>
+
+  <!-- Bottom CTA -->
+  <line x1="80" y1="880" x2="1000" y2="880" stroke="#ffffff" stroke-width="1" opacity="0.08"/>
+
+  <rect x="290" y="904" width="500" height="58" rx="29" fill="#ffffff"/>
+  <text x="540" y="939" font-size="18" font-weight="700" text-anchor="middle" fill="#0a0a0a">kodelyth.com — Free forever</text>
+
+  <text x="540" y="1014" font-size="14" fill="#484f58" text-anchor="middle">github.com/sifxprime/kodelyth-ecc</text>
+  <text x="540" y="1046" font-size="12" fill="#30363d" text-anchor="middle">Open-source · MIT License · 373 tests</text>
+</svg>

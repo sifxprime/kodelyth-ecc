@@ -1,0 +1,118 @@
+<svg width="1080" height="1080" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050811"/>
+      <stop offset="100%" style="stop-color:#0d1117"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#a78bfa"/>
+      <stop offset="100%" style="stop-color:#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d2b1d"/>
+      <stop offset="100%" style="stop-color:#081a11"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#13203a"/>
+      <stop offset="100%" style="stop-color:#0a1628"/>
+    </linearGradient>
+    <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e1228"/>
+      <stop offset="100%" style="stop-color:#120b1c"/>
+    </linearGradient>
+    <linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1c1408"/>
+      <stop offset="100%" style="stop-color:#120d04"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1080" height="1080" fill="url(#bg)"/>
+
+  <!-- Ambient glows -->
+  <circle cx="540" cy="200" r="400" fill="#a78bfa" opacity="0.03"/>
+  <circle cx="900" cy="900" r="300" fill="#38bdf8" opacity="0.03"/>
+
+  <!-- Ghost Depth Mark — scale 1.6, right edge stamp, op=0.12 -->
+  <g transform="translate(920, 360) scale(1.6)" opacity="0.10">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+
+  <!-- Header -->
+  <text x="540" y="82" font-size="13" font-weight="700" fill="#a78bfa" text-anchor="middle" letter-spacing="3">KODELYTH ECC v1.8.0</text>
+  <text x="540" y="138" font-size="52" font-weight="900" letter-spacing="-2" fill="#ffffff" text-anchor="middle">What's inside the toolkit</text>
+  <text x="540" y="178" font-size="20" font-weight="400" fill="#6e7681" text-anchor="middle">4 capabilities that change how you code every day</text>
+
+  <!-- Divider -->
+  <line x1="80" y1="210" x2="1000" y2="210" stroke="#21262d" stroke-width="1"/>
+
+  <!-- Card grid: 2x2 -->
+
+  <!-- Card 1 — Compound Learning (top-left) -->
+  <rect x="80" y="236" width="440" height="360" rx="12" fill="url(#g1)" stroke="#059669" stroke-opacity="0.3" stroke-width="1.5"/>
+  <rect x="80" y="236" width="440" height="6" rx="12" fill="#059669" opacity="0.8"/>
+  <text x="100" y="278" font-size="11" font-weight="700" fill="#10b981" letter-spacing="2">COMPOUND LEARNING</text>
+  <text x="100" y="318" font-size="32" font-weight="800" fill="#ffffff">Gets smarter</text>
+  <text x="100" y="356" font-size="32" font-weight="800" fill="#ffffff">every session.</text>
+  <text x="100" y="406" font-size="14" fill="#6e7681" letter-spacing="0">Corrections you make are written to</text>
+  <text x="100" y="426" font-size="14" fill="#6e7681">tasks/lessons.md automatically.</text>
+  <text x="100" y="446" font-size="14" fill="#6e7681">Next session: the mistake never repeats.</text>
+  <line x1="100" y1="472" x2="500" y2="472" stroke="#059669" stroke-width="1" opacity="0.25"/>
+  <text x="100" y="494" font-family="'Courier New', Courier, monospace" font-size="11" fill="#10b981">capture-correction.js</text>
+  <text x="240" y="494" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58">→ Stop hook</text>
+  <text x="100" y="514" font-family="'Courier New', Courier, monospace" font-size="11" fill="#10b981">read-lessons.js</text>
+  <text x="240" y="514" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58">→ SessionStart hook</text>
+  <text x="100" y="574" font-size="28" font-weight="800" fill="#10b981">3</text>
+  <text x="100" y="592" font-size="10" fill="#484f58" letter-spacing="1.5">MEMORY LAYERS</text>
+
+  <!-- Card 2 — Semantic Routing (top-right) -->
+  <rect x="560" y="236" width="440" height="360" rx="12" fill="url(#g2)" stroke="#38bdf8" stroke-opacity="0.3" stroke-width="1.5"/>
+  <rect x="560" y="236" width="440" height="6" rx="12" fill="#38bdf8" opacity="0.8"/>
+  <text x="580" y="278" font-size="11" font-weight="700" fill="#38bdf8" letter-spacing="2">SEMANTIC ROUTING</text>
+  <text x="580" y="318" font-size="32" font-weight="800" fill="#ffffff">Right agent,</text>
+  <text x="580" y="356" font-size="32" font-weight="800" fill="#ffffff">automatically.</text>
+  <text x="580" y="406" font-size="14" fill="#6e7681">Paste code → code-reviewer fires.</text>
+  <text x="580" y="426" font-size="14" fill="#6e7681">Paste a stack trace → debug-detective fires.</text>
+  <text x="580" y="446" font-size="14" fill="#6e7681">No commands. Just describe the problem.</text>
+  <line x1="580" y1="472" x2="980" y2="472" stroke="#38bdf8" stroke-width="1" opacity="0.25"/>
+  <text x="580" y="494" font-size="12" fill="#9ca3af">70 patterns across 10 priority tiers</text>
+  <text x="580" y="514" font-size="12" fill="#9ca3af">Emotion-aware signal detection</text>
+  <text x="580" y="574" font-size="28" font-weight="800" fill="#38bdf8">70</text>
+  <text x="580" y="592" font-size="10" fill="#484f58" letter-spacing="1.5">SPECIALIST AGENTS</text>
+
+  <!-- Card 3 — Parallel Agents (bottom-left) -->
+  <rect x="80" y="628" width="440" height="360" rx="12" fill="url(#g3)" stroke="#a78bfa" stroke-opacity="0.3" stroke-width="1.5"/>
+  <rect x="80" y="628" width="440" height="6" rx="12" fill="#a78bfa" opacity="0.8"/>
+  <text x="100" y="670" font-size="11" font-weight="700" fill="#a78bfa" letter-spacing="2">PARALLEL AGENTS</text>
+  <text x="100" y="710" font-size="32" font-weight="800" fill="#ffffff">4 reviews,</text>
+  <text x="100" y="748" font-size="32" font-weight="800" fill="#ffffff">15 minutes.</text>
+  <text x="100" y="798" font-size="14" fill="#6e7681">/team-review fires code, security,</text>
+  <text x="100" y="818" font-size="14" fill="#6e7681">performance, and API agents at once.</text>
+  <text x="100" y="838" font-size="14" fill="#6e7681">Sequential alternative: 60 minutes.</text>
+  <line x1="100" y1="864" x2="500" y2="864" stroke="#a78bfa" stroke-width="1" opacity="0.25"/>
+  <text x="100" y="886" font-size="12" fill="#9ca3af">8 parallel commands available</text>
+  <text x="100" y="906" font-size="12" fill="#9ca3af">Git worktree isolation per agent</text>
+  <text x="100" y="966" font-size="28" font-weight="800" fill="#a78bfa">10×</text>
+  <text x="100" y="984" font-size="10" fill="#484f58" letter-spacing="1.5">FASTER REVIEWS</text>
+
+  <!-- Card 4 — Zero Cloud (bottom-right) -->
+  <rect x="560" y="628" width="440" height="360" rx="12" fill="url(#g4)" stroke="#f59e0b" stroke-opacity="0.3" stroke-width="1.5"/>
+  <rect x="560" y="628" width="440" height="6" rx="12" fill="#f59e0b" opacity="0.8"/>
+  <text x="580" y="670" font-size="11" font-weight="700" fill="#f59e0b" letter-spacing="2">ZERO CLOUD</text>
+  <text x="580" y="710" font-size="32" font-weight="800" fill="#ffffff">Your machine.</text>
+  <text x="580" y="748" font-size="32" font-weight="800" fill="#ffffff">Your data.</text>
+  <text x="580" y="798" font-size="14" fill="#6e7681">All agents, skills, memory, and hooks</text>
+  <text x="580" y="818" font-size="14" fill="#6e7681">live as plain files on your disk.</text>
+  <text x="580" y="838" font-size="14" fill="#6e7681">No subscription. No vendor. Just code.</text>
+  <line x1="580" y1="864" x2="980" y2="864" stroke="#f59e0b" stroke-width="1" opacity="0.25"/>
+  <text x="580" y="886" font-size="12" fill="#9ca3af">Works with 11 AI coding platforms</text>
+  <text x="580" y="906" font-size="12" fill="#9ca3af">npx install — zero config required</text>
+  <text x="580" y="966" font-size="28" font-weight="800" fill="#f59e0b">$0</text>
+  <text x="580" y="984" font-size="10" fill="#484f58" letter-spacing="1.5">FOREVER FREE</text>
+</svg>

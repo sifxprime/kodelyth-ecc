@@ -1,0 +1,129 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050811"/>
+      <stop offset="100%" style="stop-color:#020d08"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#10b981"/>
+      <stop offset="100%" style="stop-color:#059669"/>
+    </linearGradient>
+    <linearGradient id="termBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#060d07"/>
+      <stop offset="100%" style="stop-color:#040808"/>
+    </linearGradient>
+    <linearGradient id="accentFade" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#10b981" stop-opacity="0.8"/>
+      <stop offset="100%" style="stop-color:#10b981" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="layerPurple" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#a78bfa"/>
+      <stop offset="100%" style="stop-color:#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="layerBlue" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#38bdf8"/>
+      <stop offset="100%" style="stop-color:#0284c7"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <radialGradient id="glowG" cx="10%" cy="10%" r="50%">
+    <stop offset="0%" style="stop-color:#10b981" stop-opacity="0.06"/>
+    <stop offset="100%" style="stop-color:#10b981" stop-opacity="0"/>
+  </radialGradient>
+  <rect width="1200" height="675" fill="url(#glowG)"/>
+  <rect x="0" y="0" width="3" height="675" fill="url(#green)"/>
+
+  <!-- Badge -->
+  <rect x="56" y="40" width="228" height="28" rx="4" fill="#0a1a0a" stroke="#10b981" stroke-opacity="0.5" stroke-width="1"/>
+  <text x="66" y="59" font-size="11" font-weight="700" fill="#10b981" letter-spacing="1.5">COMPOUND LEARNING</text>
+  <rect x="228" y="47" width="1" height="14" fill="#10b981" opacity="0.4"/>
+  <text x="236" y="59" font-size="11" font-weight="500" fill="#484f58">v1.8.0</text>
+
+  <!-- Headline -->
+  <text x="56" y="126" font-size="52" font-weight="900" letter-spacing="-2" fill="#ffffff">Gets smarter</text>
+  <text x="56" y="184" font-size="52" font-weight="900" letter-spacing="-2" fill="url(#green)">every session.</text>
+  <text x="56" y="222" font-size="16" fill="#8b949e">Three layers that stack. Corrections become rules. Rules become instinct.</text>
+
+  <rect x="56" y="244" width="480" height="1" fill="url(#accentFade)"/>
+
+  <!-- Session flow diagram -->
+  <rect x="56" y="260" width="660" height="340" rx="8" fill="url(#termBg)" stroke="#0d1f0d" stroke-width="1"/>
+  <rect x="56" y="260" width="660" height="32" rx="8" fill="#07100a"/>
+  <rect x="56" y="280" width="660" height="12" fill="#07100a"/>
+  <circle cx="80" cy="276" r="5" fill="#0a180a"/>
+  <circle cx="98" cy="276" r="5" fill="#0a1208"/>
+  <circle cx="116" cy="276" r="5" fill="#0a1a0a"/>
+  <text x="576" y="281" font-size="11" fill="#484f58" text-anchor="middle" font-family="'Consolas', 'SF Mono', monospace">compound learning flow</text>
+
+  <!-- Session 1 -->
+  <text x="80" y="316" font-size="11" fill="#484f58" font-weight="700" letter-spacing="1" font-family="'Consolas', 'SF Mono', monospace">SESSION 1</text>
+  <text x="80" y="338" font-size="13" font-family="'Consolas', 'SF Mono', monospace" fill="#8b949e">User: "use pnpm not npm"</text>
+  <text x="80" y="358" font-size="13" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">&#x2192; capture-correction.js writes to</text>
+  <text x="80" y="374" font-size="13" font-family="'Consolas', 'SF Mono', monospace" fill="#10b981" font-weight="600">  tasks/lessons.md</text>
+
+  <line x1="80" y1="390" x2="690" y2="390" stroke="#0d2010" stroke-width="1"/>
+
+  <!-- Session 2 -->
+  <text x="80" y="410" font-size="11" fill="#484f58" font-weight="700" letter-spacing="1" font-family="'Consolas', 'SF Mono', monospace">SESSION 2  (next day)</text>
+  <text x="80" y="432" font-size="13" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">&#x2192; read-lessons.js fires at start</text>
+  <text x="80" y="452" font-size="13" font-family="'Consolas', 'SF Mono', monospace" fill="#10b981" font-weight="600">&#x2192; "PROJECT LESSONS — use pnpm not npm"</text>
+  <text x="80" y="472" font-size="13" font-family="'Consolas', 'SF Mono', monospace" fill="#8b949e">Claude uses pnpm. Always. Without being told.</text>
+
+  <line x1="80" y1="488" x2="690" y2="488" stroke="#0d2010" stroke-width="1"/>
+
+  <!-- Month 3 -->
+  <text x="80" y="508" font-size="11" fill="#10b981" font-weight="700" letter-spacing="1" font-family="'Consolas', 'SF Mono', monospace">MONTH 3  (compounding)</text>
+  <text x="80" y="530" font-size="13" font-family="'Consolas', 'SF Mono', monospace" fill="#8b949e">Lessons stack. Memory recalls cross-project solutions.</text>
+  <text x="80" y="550" font-size="13" font-family="'Consolas', 'SF Mono', monospace" fill="#10b981" font-weight="600">Claude works like a teammate who has been here for years.</text>
+  <text x="80" y="580" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">Zero cloud. Zero telemetry. Everything stays on your machine.</text>
+
+  <!-- Right panel — 3 layers -->
+  <!-- Layer 1 -->
+  <rect x="748" y="260" width="400" height="104" rx="8" fill="#0a1a0a" stroke="#10b981" stroke-opacity="0.3" stroke-width="1"/>
+  <rect x="748" y="260" width="3" height="104" rx="1" fill="url(#green)"/>
+  <text x="770" y="285" font-size="10" font-weight="700" fill="#10b981" letter-spacing="1.5">LAYER 1  —  PROJECT LESSONS</text>
+  <text x="770" y="306" font-size="13" fill="#8b949e">tasks/lessons.md · per-project</text>
+  <text x="770" y="324" font-size="12" fill="#484f58">Corrections encoded as hard rules.</text>
+  <text x="770" y="340" font-size="12" fill="#484f58">Injected at session start. Always.</text>
+  <text x="770" y="356" font-size="11" fill="#2d5a2d">capture-correction.js · read-lessons.js</text>
+
+  <!-- Layer 2 -->
+  <rect x="748" y="378" width="400" height="104" rx="8" fill="#0c0c1a" stroke="#a78bfa" stroke-opacity="0.3" stroke-width="1"/>
+  <rect x="748" y="378" width="3" height="104" rx="1" fill="url(#layerPurple)"/>
+  <text x="770" y="403" font-size="10" font-weight="700" fill="#a78bfa" letter-spacing="1.5">LAYER 2  —  GLOBAL MEMORY</text>
+  <text x="770" y="424" font-size="13" fill="#8b949e">~/.kodelyth/memory/ · cross-project</text>
+  <text x="770" y="442" font-size="12" fill="#484f58">BM25 recall of past solutions.</text>
+  <text x="770" y="460" font-size="12" fill="#484f58">Auto-recalled on every prompt you type.</text>
+  <text x="770" y="474" font-size="11" fill="#2a1e4a">memory-capture.js · auto-recall.js</text>
+
+  <!-- Layer 3 -->
+  <rect x="748" y="496" width="400" height="104" rx="8" fill="#091520" stroke="#38bdf8" stroke-opacity="0.3" stroke-width="1"/>
+  <rect x="748" y="496" width="3" height="104" rx="1" fill="url(#layerBlue)"/>
+  <text x="770" y="521" font-size="10" font-weight="700" fill="#38bdf8" letter-spacing="1.5">LAYER 3  —  SEMANTIC ROUTING</text>
+  <text x="770" y="542" font-size="13" fill="#8b949e">70 specialist agents · always-on</text>
+  <text x="770" y="560" font-size="12" fill="#484f58">Routes every message to the right expert.</text>
+  <text x="770" y="578" font-size="12" fill="#484f58">No agent names needed — just describe it.</text>
+  <text x="770" y="592" font-size="11" fill="#0a2030">agent-intent-routing.md</text>
+
+  <!-- Bottom bar — shifted up 8px so text has breathing room from canvas edge -->
+  <rect x="0" y="629" width="1200" height="38" fill="#07080f"/>
+  <line x1="0" y1="629" x2="1200" y2="629" stroke="#1e1e2e" stroke-width="1"/>
+  <text x="56" y="653" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#10b981" font-weight="600">npx kodelyth-ecc</text>
+  <text x="206" y="653" font-size="12" fill="#2d3340">&#xB7;</text>
+  <text x="222" y="653" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">github.com/sifxprime/kodelyth-ecc</text>
+  <text x="562" y="653" font-size="12" fill="#2d3340">&#xB7;</text>
+  <text x="578" y="653" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">MIT · zero cloud · zero telemetry</text>
+
+  <!-- Ghost Depth Mark — brand stamp (scale 0.55×) -->
+  <g transform="translate(1044, 282) scale(0.55)" opacity="0.16">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+</svg>

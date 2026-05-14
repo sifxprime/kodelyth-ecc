@@ -1,0 +1,110 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#050811"/>
+      <stop offset="100%" style="stop-color:#0d1117"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#a78bfa"/>
+      <stop offset="100%" style="stop-color:#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="card1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d2b1d"/>
+      <stop offset="100%" style="stop-color:#0a1a12"/>
+    </linearGradient>
+    <linearGradient id="card2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#13203a"/>
+      <stop offset="100%" style="stop-color:#0d1628"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1050" cy="460" r="240" fill="#059669" opacity="0.05"/>
+  <circle cx="600" cy="315" r="350" fill="#2563eb" opacity="0.03"/>
+  <circle cx="100" cy="100" r="180" fill="#a78bfa" opacity="0.04"/>
+
+  <!-- Ghost Depth Mark — scale 0.55×, right-side watermark (110px tall), op=0.18 -->
+  <!-- Placed right edge so it doesn't conflict with left content -->
+  <g transform="translate(1044, 260) scale(0.55)" opacity="0.18">
+    <polyline points="-44,4 12,100 -44,196"
+              stroke="#ffffff" stroke-width="10"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+    <polyline points="0,0 88,100 0,200"
+              stroke="#ffffff" stroke-width="32"
+              stroke-linecap="round" stroke-linejoin="round"
+              fill="none"/>
+  </g>
+
+  <!-- Version + NEW badges -->
+  <rect x="80" y="28" width="76" height="24" rx="12" fill="#a78bfa" fill-opacity="0.15" stroke="#a78bfa" stroke-opacity="0.5" stroke-width="1"/>
+  <text x="118" y="44" font-size="11" fill="#a78bfa" text-anchor="middle" font-weight="700" letter-spacing="0.5">v1.8.0</text>
+
+  <!-- Title -->
+  <text x="80" y="120" font-size="52" font-weight="900" letter-spacing="-2" fill="#ffffff">Kodelyth ECC</text>
+  <text x="80" y="175" font-size="22" font-weight="400" fill="url(#accent)">The AI coding toolkit that learns how you work.</text>
+  <text x="80" y="212" font-size="15" fill="#6e7681">70 agents. 11 platforms. Semantic routing. Compound learning. Zero cloud.</text>
+
+  <line x1="80" y1="236" x2="1120" y2="236" stroke="#21262d" stroke-width="1"/>
+
+  <!-- Card 1: Compound Learning -->
+  <rect x="80" y="250" width="315" height="120" rx="10" fill="url(#card1)" stroke="#059669" stroke-opacity="0.35" stroke-width="1"/>
+  <rect x="80" y="250" width="4" height="120" rx="2" fill="#059669"/>
+  <text x="100" y="275" font-size="10" font-weight="700" fill="#10b981" letter-spacing="1">COMPOUND LEARNING  v1.8.0</text>
+  <text x="100" y="296" font-size="13" fill="#e6edf3">Corrections → tasks/lessons.md</text>
+  <text x="100" y="313" font-size="13" fill="#e6edf3">Next session: never repeats the mistake</text>
+  <text x="100" y="334" font-size="11" fill="#484f58">capture-correction.js · read-lessons.js</text>
+  <text x="100" y="352" font-size="11" fill="#484f58">Works on all 11 platforms via /lessons</text>
+
+  <!-- Card 2: Parallel Agents -->
+  <rect x="410" y="250" width="315" height="120" rx="10" fill="#161b22" stroke="#f59e0b" stroke-opacity="0.35" stroke-width="1"/>
+  <rect x="410" y="250" width="4" height="120" rx="2" fill="#f59e0b"/>
+  <text x="430" y="275" font-size="10" font-weight="700" fill="#f59e0b" letter-spacing="1">PARALLEL AGENTS  v1.8.0</text>
+  <text x="430" y="296" font-size="13" fill="#e6edf3">/project-launch → 5 agents, 10 min</text>
+  <text x="430" y="313" font-size="13" fill="#e6edf3">/team-review → 4 agents, 15 min</text>
+  <text x="430" y="334" font-size="11" fill="#484f58">image-architect: Gemini / DALL-E / SVG</text>
+  <text x="430" y="352" font-size="11" fill="#484f58">/lessons: cross-platform lesson loading</text>
+
+  <!-- Card 3: Semantic Routing -->
+  <rect x="740" y="250" width="380" height="120" rx="10" fill="url(#card2)" stroke="#38bdf8" stroke-opacity="0.4" stroke-width="1"/>
+  <rect x="740" y="250" width="4" height="120" rx="2" fill="#38bdf8"/>
+  <text x="760" y="275" font-size="10" font-weight="700" fill="#38bdf8" letter-spacing="1">SEMANTIC ROUTING  v1.8.0</text>
+  <text x="760" y="296" font-size="13" fill="#e6edf3">Paste code → auto-routes to code-reviewer</text>
+  <text x="760" y="313" font-size="13" fill="#e6edf3">Paste error → auto-routes to debug-detective</text>
+  <text x="760" y="334" font-size="11" fill="#484f58">Emotion as signal · 2–3× more patterns</text>
+  <text x="760" y="352" font-size="11" fill="#484f58">"help me build X" → /project-launch instantly</text>
+
+  <line x1="80" y1="392" x2="1120" y2="392" stroke="#21262d" stroke-width="1"/>
+
+  <!-- Stats — "70" baseline lowered so cap-top sits below the separator line -->
+  <text x="540" y="447" font-size="68" font-weight="900" fill="#ffffff" text-anchor="middle">70</text>
+  <text x="540" y="468" font-size="10" fill="#484f58" text-anchor="middle" letter-spacing="3">SPECIALIST AGENTS</text>
+  <!-- Divider lines extended up to y=394 to fully contain the tall "70" numeral -->
+  <line x1="456" y1="394" x2="456" y2="474" stroke="#21262d" stroke-width="1"/>
+  <line x1="624" y1="394" x2="624" y2="474" stroke="#21262d" stroke-width="1"/>
+  <text x="368" y="444" font-size="34" font-weight="800" fill="#ffffff" text-anchor="middle">194</text>
+  <text x="368" y="464" font-size="10" fill="#484f58" text-anchor="middle" letter-spacing="2">SKILLS</text>
+  <text x="712" y="444" font-size="34" font-weight="800" fill="#ffffff" text-anchor="middle">97</text>
+  <text x="712" y="464" font-size="10" fill="#484f58" text-anchor="middle" letter-spacing="2">COMMANDS</text>
+
+  <!-- Benefit pills -->
+  <rect x="80" y="490" width="220" height="50" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="190" y="512" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">Zero Cost</text>
+  <text x="190" y="530" font-size="11" fill="#484f58" text-anchor="middle">100% local files</text>
+
+  <rect x="316" y="490" width="220" height="50" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="426" y="512" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">10× Faster</text>
+  <text x="426" y="530" font-size="11" fill="#484f58" text-anchor="middle">parallel multi-agent</text>
+
+  <rect x="552" y="490" width="220" height="50" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+  <text x="662" y="512" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">Self-Learning</text>
+  <text x="662" y="530" font-size="11" fill="#484f58" text-anchor="middle">compound memory</text>
+
+  <rect x="788" y="490" width="332" height="50" rx="8" fill="#0d2b1d" stroke="#059669" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="954" y="510" font-size="11" fill="#10b981" text-anchor="middle" font-weight="700">npx kodelyth-ecc</text>
+  <text x="954" y="528" font-size="11" fill="#484f58" text-anchor="middle">github.com/sifxprime/kodelyth-ecc</text>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="560" width="1200" height="36" fill="#0d1117" stroke="#21262d" stroke-width="0"/>
+  <text x="600" y="582" font-size="12" fill="#30363d" text-anchor="middle">Kodelyth ECC — Works with Claude Code · Windsurf · Cursor · Codex CLI · Google Antigravity · OpenCode</text>
+</svg>

@@ -401,89 +401,60 @@ Trigger when the user wants a **detailed implementation blueprint for one specif
 
 Trigger for non-code workflow tasks: drafting emails, scheduling, status updates, multi-channel coordination.
 
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| Communication | "draft an email", "write a message", "reply to this", "how should I say this", "slack message" |
+| Communication | "draft an email", "write a message", "reply to this", "slack message" |
 | Status | "status update", "what do I tell the team", "write the incident update" |
 
 ### `seo-specialist` — SEO / metadata / search
 
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| SEO | "SEO", "meta tags", "schema.org", "structured data", "Core Web Vitals", "sitemap", "my page doesn't rank", "Google isn't indexing" |
+| SEO | "SEO", "meta tags", "schema.org", "structured data", "Core Web Vitals", "sitemap", "my page doesn't rank" |
 
 ### `opensource-forker` + `opensource-sanitizer` + `opensource-packager` — Open-sourcing a project
 
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| OSS prep | "open source this", "make this public", "publish to GitHub", "strip secrets", "remove credentials", "I want to release this as open source" |
+| OSS prep | "open source this", "make this public", "strip secrets", "remove credentials", "release as open source" |
 
 Use the chain: `forker` → `sanitizer` → `packager`.
 
 ### `/dashboard` — Local observability dashboard
 
-Trigger when the user wants to inspect ECC's live data — memory store, session history, agent catalog, token budget, or evolve proposals — through a browser UI.
-
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| Open dashboard | "open the dashboard", "launch the dashboard", "show me the dashboard", "start the dashboard" |
-| Inspect memory | "show me what's in my memory", "browse my sessions", "see my memory store", "view past solutions" |
-| View catalog | "show me the agent catalog", "list my agents in the UI", "see all skills in a browser" |
-| Token budget | "what's my token budget", "see budget snapshot", "token usage overview" |
-| Evolve tab | "show evolve proposals", "see what skills ECC proposed", "evolve tab", "review memory proposals" |
-
-**How:** run `npx kodelyth-ecc dashboard` — opens `http://localhost:3141` in the default browser. GET-only, localhost-only, zero telemetry.
+| Open dashboard | "open the dashboard", "show me the dashboard", "start the dashboard" |
+| Inspect memory | "show me what's in my memory", "browse my sessions", "see my memory store" |
+| Token / evolve | "what's my token budget", "show evolve proposals", "evolve tab" |
 
 ### `/swarm` — Parallel agent swarm in git worktrees
 
-Trigger when the user wants to run a task across multiple parallel agents simultaneously, each in an isolated git worktree — the maximum-throughput execution mode.
-
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| Swarm request | "use the swarm", "run a swarm", "swarm this", "parallel swarm on this task", "launch swarm" |
-| Parallel worktrees | "run agents in parallel", "use git worktrees", "spawn multiple agents at once", "parallel execution" |
-| Scale a task | "give me maximum throughput on this", "throw all agents at this", "run this with maximum agents" |
-| Speed concern | "how do I run this as fast as possible", "I want to parallelize this analysis", "fastest path" |
-
-**How:** `npx kodelyth-ecc swarm --task "<description>"` — spawns parallel agents in isolated git worktrees, aggregates results.
+| Swarm request | "use the swarm", "run a swarm", "swarm this", "parallel swarm" |
+| Parallel worktrees | "run agents in parallel", "spawn multiple agents", "maximum throughput" |
 
 ### `/route-model` — Cost-aware model selection
 
-Trigger when the user is unsure which model tier to use for a task, wants to minimize cost, or is asking about the right model for a specific job.
-
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| Model choice | "which model should I use", "what model for this task", "haiku or sonnet?", "should I use opus here" |
-| Cost concern | "cheapest model for this", "save tokens on this", "what's the cost-efficient choice", "not worth opus" |
-| Tier question | "is this a trivial or complex task tier", "which tier for X", "model selection", "right model tier" |
-| Route a task | "route this task", "what does the router say", "model router", "cost-aware routing" |
-
-**How:** `npx kodelyth-ecc route "<task description>"` — returns the recommended model tier with reasoning.
+| Model choice | "which model should I use", "haiku or sonnet?", "should I use opus here" |
+| Cost concern | "cheapest model for this", "save tokens", "cost-aware routing" |
 
 ### `/memory-evolve` — Self-evolving memory proposals
 
-Trigger when the user wants to see what patterns ECC has learned from their usage and review proposals for new skills or routing rules derived from that data.
-
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| Evolve proposals | "show evolve proposals", "what has ECC learned", "memory evolution", "evolve my toolkit" |
-| Skill upgrades | "suggest new skills from usage", "what skills should I add", "my memory patterns", "recurring solutions" |
-| Routing additions | "suggest routing improvements", "what routing misses happened", "improve my intent routing from usage" |
-| Review proposals | "review pending proposals", "accept or reject proposals", "what did the analyzer find" |
-
-**How:** `npx kodelyth-ecc evolve analyze` — analyzes BM25 memory surface data + routing misses, outputs proposals. Nothing auto-applies — the user reviews, accepts, and commits.
+| Evolve proposals | "show evolve proposals", "what has ECC learned", "memory evolution" |
+| Routing additions | "suggest routing improvements", "what routing misses happened" |
 
 ### `/replay` — Session replay
 
-Trigger when the user wants to re-run or review a past session bundle — reproducing a past agent workflow exactly.
-
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| Replay request | "replay a session", "re-run that session", "session replay", "run the session bundle again" |
-| Review past work | "what happened in that session", "reproduce that workflow", "play back the session" |
-| Bundle | "session bundle", "kodelyth.session-bundle", "export and replay", "portable session" |
-
-**How:** `npx kodelyth-ecc replay <bundle-name>` — re-runs the session bundle, restoring agent context and workflow.
+| Replay request | "replay a session", "re-run that session", "session replay" |
+| Bundle | "session bundle", "export and replay", "portable session" |
 
 ---
 
@@ -497,94 +468,71 @@ Trigger when the user wants to re-run or review a past session bundle — reprod
 | `debug-detective` (root cause found) | `tdd-guide` to add a regression test |
 | `code-reviewer` (issues found) | `refactor-cleaner` to fix |
 | `security-reviewer` (vuln found) | `tdd-guide` to add a security test |
-| `migration-guide` (plan made) | `pr-test-analyzer` after PR is up |
 | `architect` (design done) | `code-architect` for the first feature |
 | `performance-optimizer` (bottleneck found) | `tdd-guide` for a perf regression test |
-| `load-tester` (bottleneck found) | `performance-optimizer` to fix the code |
 | `incident-commander` (incident resolved) | `debug-detective` for deeper root cause, then postmortem |
 
 ---
 
 ### `image-architect` — Image and visual generation
 
-Trigger on ANY request for a visual, image, picture, graphic, or design asset. Cast wide — users rarely say "generate"; they say "I need" or "add" or "make it look nice".
+Trigger on ANY request for a visual, image, picture, graphic, or design asset.
 
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| Explicit request | "generate an image", "create a picture", "make a visual", "I need graphics", "make an illustration" |
-| Hero / banner | "hero image", "header image", "banner", "background image for my site", "the top image" |
-| Social assets | "OG image", "social preview", "GitHub card", "Twitter card", "Facebook image", "LinkedIn banner", "thumbnail for my post", "share image" |
-| Landing page | "images for my landing page", "visuals for the site", "add some images to my app", "make the landing page look good" |
-| Marketing | "marketing images", "product screenshots", "cover image", "feature image", "promotional graphic" |
-| Design ask | "design a logo", "create artwork", "make it look good", "I need something for the homepage", "make it more visual", "give it some flair" |
-| Implicit visual need | "my site looks plain", "the site looks boring", "it looks empty", "it needs something visual", "it's too plain", "the page looks bare" |
-| App branding | "app icon", "brand image", "I need a visual identity", "something that looks professional" |
+| Explicit request | "generate an image", "create a picture", "make a visual", "I need graphics" |
+| Hero / social | "hero image", "banner", "OG image", "social preview", "GitHub card", "Twitter card" |
+| Implicit visual need | "my site looks plain", "it looks empty", "needs something visual", "looks boring" |
+| Design ask | "design a logo", "make it look good", "something for the homepage" |
 
-Platform routing inside `image-architect`:
-- Google Antigravity → Gemini Imagen 3 (native, no key needed)
-- Codex CLI → DALL-E 3 (native, no key needed)
-- Claude Code → fal.ai MCP → SVG fallback
-- Windsurf / Cursor → native model image gen → fal.ai → SVG fallback
-- Any platform → SVG (always available, always free)
+Platform routing: Antigravity → Gemini Imagen 3 · Codex → DALL-E 3 · Claude Code → fal.ai → SVG · others → SVG.
 
 ---
 
 ### `/project-launch` — New project parallel founding team
 
-Trigger when someone is starting something new — ANY new build, app, service, or feature of meaningful scope. Do not wait for the user to say "launch" or "project-launch". If they are clearly at the start of building something non-trivial, this is always the right move.
+Trigger when starting something new of meaningful scope.
 
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| New build | "help me build X", "I want to build X", "I'm building X", "I want to create X", "let's make X" |
-| Greenfield | "starting from scratch", "new project", "new app", "new service", "new API", "I'm starting a new" |
-| Idea phase | "I have this idea", "I want to create", "I'm thinking of building", "I want to make a" |
-| Planning start | "where do I start", "how should I approach building X", "what do I need to build X" |
-| Product description | User describes a product they haven't started yet — what it does, who uses it |
-| New SaaS / startup | "I'm building a SaaS", "side project", "startup idea", "I want to launch" |
-| Multi-component new thing | "an app that does X, Y, and Z" — multiple features described together |
+| New build | "help me build X", "I want to build X", "I'm building X", "let's make X" |
+| Greenfield | "starting from scratch", "new project", "new app", "new service", "new API" |
+| Idea phase | "I have this idea", "I'm thinking of building", "I want to make a" |
+| New SaaS / startup | "I'm building a SaaS", "side project", "startup idea" |
 
-**Key rule:** If the user describes a non-trivial new thing to build (more than a single function), default to `/project-launch`. Five expert agents analyzing simultaneously catches mistakes before they cost hours of rework. Always better to over-plan than under-plan.
+**Key rule:** Non-trivial new build → `/project-launch`. Adding one feature to existing codebase → `pair-programmer`.
 
-**Counter-signals (do NOT route here):** User is adding one feature to an existing codebase → `pair-programmer`. User is describing an existing project to fix a bug → `debug-detective`.
-
-Route to `/project-launch` — fires `architect` + `pair-programmer` + `security-reviewer` + `tdd-guide` + `ux-reviewer` simultaneously. Parallel analysis: 10 min instead of 45 min.
+Route to `/project-launch` — fires `architect` + `pair-programmer` + `security-reviewer` + `tdd-guide` + `ux-reviewer` simultaneously.
 
 ---
 
 ### `/team-review` — Existing project parallel full audit
 
-Trigger when someone wants their existing code reviewed and the scope is broad (more than one file), or when they're asking "is this ready?". Also trigger before any deployment, release, or launch of an existing project.
+Trigger when review scope is broad (multiple files) or the user asks "is this ready?".
 
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| Review request (broad) | "review my code", "review my project", "check my codebase", "look at my code", "audit my code" |
-| Full audit | "audit everything", "full review", "review everything", "check the whole project", "go through my code" |
-| Pre-release | "before I ship", "ready to release?", "can I deploy this?", "pre-launch check", "about to go live" |
-| Quality check | "is my code good?", "what's wrong with my project?", "code quality check", "is this production-ready?" |
-| Multiple concerns | User mentions security AND performance AND quality — parallel review is the right answer |
-| Readiness check | "is this ready?", "should I launch?", "any issues before I ship?", "what am I missing?" |
+| Broad review | "review my project", "check my codebase", "audit my code" |
+| Pre-release | "before I ship", "ready to release?", "pre-launch check", "about to go live" |
+| Readiness check | "is this ready?", "any issues before I ship?", "is this production-ready?" |
 
-**Key rule:** Single-file review → language-specific reviewer (e.g., `typescript-reviewer`). Full project or multi-file → `/team-review`. When in doubt about scope, ask.
+**Key rule:** Single-file review → language-specific reviewer. Full project or multi-file → `/team-review`.
 
-Route to `/team-review` — fires `code-reviewer` + `security-reviewer` + `performance-optimizer` + `api-guardian` simultaneously. Parallel review: 15 min instead of 60 min.
+Route to `/team-review` — fires `code-reviewer` + `security-reviewer` + `performance-optimizer` + `api-guardian` simultaneously.
 
 ---
 
 ### `/security-audit` — Full parallel security sweep
 
-Trigger when the user is worried about security across the whole project, not just one file. Also trigger before any public launch, API exposure, or when secrets/auth/dependencies are mentioned together.
+Trigger when security concern spans the whole project or multiple vectors (secrets + deps + API).
 
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| Full security concern | "is my app secure?", "security audit", "check my security", "is there anything insecure?", "run a security check" |
-| Pre-launch security | "before I go public", "about to expose this API", "launching soon, any security issues?" |
+| Full security concern | "is my app secure?", "security audit", "run a security check" |
+| Pre-launch security | "before I go public", "about to expose this API" |
 | Dependency worry | "are my deps safe?", "any vulnerable packages?", "CVEs in my dependencies?" |
-| Auth concern | "is my auth secure?", "is my login safe?", "JWT/OAuth/session security" combined with dep or API mention |
-| Multiple security angles | User mentions secrets AND API keys AND dependencies together — all three need sweeping |
 
-**Key rule:** Single security concern on one file → `security-reviewer`. Full project sweep or multiple security vectors at once → `/security-audit`.
-
-**Counter-signals (do NOT route here):** Single endpoint with a specific injection concern → `security-reviewer`. Dependency-only question → `dependency-doctor`.
+**Key rule:** Single file concern → `security-reviewer`. Multi-vector or project-wide → `/security-audit`.
 
 Route to `/security-audit` — fires `security-reviewer` + `dependency-doctor` + `api-guardian` simultaneously.
 
@@ -592,38 +540,32 @@ Route to `/security-audit` — fires `security-reviewer` + `dependency-doctor` +
 
 ### `/devil-mode` — Full adversarial parallel sweep
 
-Trigger when the user wants the **attacker mindset** applied to their entire codebase, not just one concern. Stronger than `/security-audit` — it hunts secrets, supply-chain attacks, prompt injection, and backdoors all at once. Always trigger before going open-source, before any public launch, after any security alert, or when the user mentions multiple adversarial concerns together.
+Trigger when attacker mindset is needed across the whole codebase, especially pre-public or post-compromise.
 
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| Attacker mindset | "think like an attacker", "what would a hacker find?", "red-team my code", "adversarial review", "find what's exploitable" |
-| Pre-public sweep | "I'm going open-source — full audit", "making this public, scan for everything", "before I publish, full red-team" |
-| Multi-vector worry | User mentions secrets AND deps AND AI-feature security AND backdoors together |
-| Post-compromise | "we were hacked, audit everything", "compromise alert, sweep the codebase", "after the incident, full review" |
-| Pre-launch paranoia | "launching tomorrow, find everything", "find what we missed", "what's the worst case in my code?" |
-| Devil mode keyword | "devil mode", "go feral on this", "throw everything at it", "no-mercy audit", "paranoid review" |
+| Attacker mindset | "think like an attacker", "red-team my code", "find what's exploitable" |
+| Pre-public sweep | "going open-source — full audit", "scan for everything before I publish" |
+| Post-compromise | "we were hacked, audit everything", "after the incident, full review" |
+| Devil mode keyword | "devil mode", "no-mercy audit", "paranoid review" |
 
-**Key rule:** Standard security concern with one or two angles → `/security-audit`. Multi-vector adversarial sweep, going public, or attacker-mindset framing → `/devil-mode`.
+**Key rule:** One or two security angles → `/security-audit`. Multi-vector attacker sweep → `/devil-mode`.
 
-**Counter-signals (do NOT route here):** Single-angle question (just secrets, just AI safety, just deps) → individual devil-mode agent. Code quality (not adversarial) → `/team-review`.
-
-Route to `/devil-mode` — fires `prompt-injection-hunter` + `supply-chain-auditor` + `secret-hunter` + `backdoor-hunter` simultaneously. Use `/devil-mode --all` to fire all 8 (also adds `license-violation-finder` + `code-stealer-detector` + `jailbreak-tester` + `chaos-engineer`). Use `/devil-mode --pre-public` for the open-source sweep, or `/devil-mode --pre-launch` for the launch readiness sweep.
+Route to `/devil-mode` — fires `prompt-injection-hunter` + `supply-chain-auditor` + `secret-hunter` + `backdoor-hunter`. Use `--all` for all 8, `--pre-public` for OSS sweep, `--pre-launch` for launch sweep.
 
 ---
 
 ### `/pre-release` — Ship-readiness parallel check
 
-Trigger when the user is about to cut a release, tag a version, or deploy to production and wants confidence everything is correct. Also trigger when they mention "release" + "check" or "ready to ship" + version number.
+Trigger when cutting a release, tagging a version, or deploying to production.
 
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| About to release | "ready to cut v2?", "about to release", "cutting a release", "tagging v1.0", "shipping today" |
-| Release checklist | "what do I need before releasing?", "release checklist", "anything missing before v2?" |
-| Version confidence | "is v3 ready?", "can I ship this version?", "pre-release check for 2.0" |
-| Final sanity check | "last check before I push to prod", "final review before release", "one more look before shipping" |
-| Combined signals | User mentions semver + "ready" or "deploy" + "safe" together |
+| About to release | "ready to cut v2?", "cutting a release", "tagging v1.0", "shipping today" |
+| Release checklist | "release checklist", "anything missing before v2?" |
+| Final sanity check | "last check before I push to prod", "one more look before shipping" |
 
-**Key rule:** General "is this ready" with no version/release framing → `/team-review`. Explicit release or version cut → `/pre-release`.
+**Key rule:** General readiness → `/team-review`. Explicit release or version cut → `/pre-release`.
 
 Route to `/pre-release` — fires `release-captain` + `security-reviewer` + `code-reviewer` simultaneously.
 
@@ -631,17 +573,15 @@ Route to `/pre-release` — fires `release-captain` + `security-reviewer` + `cod
 
 ### `/debug-blitz` — Triple-agent parallel debug for stubborn bugs
 
-Trigger when a bug has resisted normal debugging, when the user is frustrated after trying multiple things, or when the problem could be in multiple layers (code + env + hidden failure).
+Trigger when a bug has resisted normal debugging or spans multiple layers (code + env + hidden failure).
 
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| Persistent bug | "I've been fighting this bug for hours", "can't figure this out", "nothing is working", "tried everything" |
-| Multi-layer problem | "works locally not in CI", "works on my machine", "only fails in prod", "sometimes fails" |
-| Hidden failure | "no error but wrong behavior", "silently failing", "something is wrong but I don't know what" |
-| Environment suspicion | "is it my env?", "could it be a config issue?", "not sure if it's the code or environment" |
-| Frustration signal | "I give up", "losing my mind", "this is driving me crazy", "been stuck for X hours/days" |
+| Persistent bug | "been fighting this for hours", "nothing is working", "tried everything" |
+| Multi-layer problem | "works locally not in CI", "works on my machine", "only fails in prod" |
+| Frustration signal | "I give up", "losing my mind", "been stuck for X hours/days" |
 
-**Key rule:** First-time bug report → `debug-detective`. Persistent, multi-attempt, or multi-layer bug → `/debug-blitz`. Emotion of long frustration is a strong signal for blitz.
+**Key rule:** First-time bug → `debug-detective`. Persistent, multi-layer, or frustration-coded → `/debug-blitz`.
 
 Route to `/debug-blitz` — fires `debug-detective` + `silent-failure-hunter` + `env-debugger` simultaneously.
 
@@ -649,17 +589,14 @@ Route to `/debug-blitz` — fires `debug-detective` + `silent-failure-hunter` + 
 
 ### `/refactor-sprint` — Full parallel refactor + type + test pass
 
-Trigger when the user wants a comprehensive cleanup of existing code — not just one function, but a module, file, or system. Also trigger when multiple quality concerns are mentioned together (readability + types + tests).
+Trigger when cleanup spans a module or file, especially when multiple concerns (readability + types + tests) come together.
 
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| Big cleanup | "refactor this module", "clean up this whole file", "this code is a mess", "technical debt cleanup" |
-| Multi-concern quality | "improve quality, types, and add tests", "make this cleaner and add coverage", "full cleanup" |
-| Code health | "code is getting hard to maintain", "too much complexity", "needs a full cleanup", "legacy code overhaul" |
-| Combined refactor | "refactor + add types + write tests" — three concerns together always means blitz |
-| Pre-hire prep | "cleaning up before the new dev joins", "making this more readable for the team" |
+| Big cleanup | "refactor this module", "this code is a mess", "technical debt cleanup" |
+| Multi-concern quality | "improve quality, types, and add tests", "full cleanup", "legacy code overhaul" |
 
-**Key rule:** Cleanup of one function → `refactor-cleaner`. Cleanup of a whole module/file with types and tests → `/refactor-sprint`.
+**Key rule:** Single function cleanup → `refactor-cleaner`. Module-wide with types and tests → `/refactor-sprint`.
 
 Route to `/refactor-sprint` — fires `refactor-cleaner` + `code-simplifier` + `type-design-analyzer` + `tdd-guide` simultaneously.
 
@@ -667,17 +604,15 @@ Route to `/refactor-sprint` — fires `refactor-cleaner` + `code-simplifier` + `
 
 ### `/onboard` — New-joiner parallel codebase onboarding
 
-Trigger when someone is new to a codebase and needs to understand it — either a new team member, or the user themselves joining a project they didn't write.
+Trigger when someone is new to a codebase and needs to understand it.
 
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| New to codebase | "I just joined the team", "new to this project", "inherited this codebase", "taking over this repo" |
-| Explore unfamiliar code | "never seen this code before", "trying to understand this project", "where do I even start?" |
-| Onboarding docs | "we need onboarding docs", "no documentation for new devs", "new dev joining, need to explain the codebase" |
-| Architecture understanding | "what does this system do?", "explain the architecture to me", "how does all of this fit together?" |
-| Ramp-up request | "help me get up to speed", "ramp me up on this", "what should I know about this codebase?" |
+| New to codebase | "I just joined the team", "inherited this codebase", "taking over this repo" |
+| Explore unfamiliar code | "never seen this code before", "where do I even start?" |
+| Ramp-up request | "help me get up to speed", "ramp me up on this" |
 
-**Key rule:** Single "explain this function" → `code-explorer`. Full codebase orientation or onboarding a new person → `/onboard`.
+**Key rule:** Single "explain this function" → `code-explorer`. Full codebase orientation → `/onboard`.
 
 Route to `/onboard` — fires `code-explorer` + `architect` + `doc-updater` simultaneously.
 
@@ -685,30 +620,27 @@ Route to `/onboard` — fires `code-explorer` + `architect` + `doc-updater` simu
 
 ### `/lessons` — Project lessons management
 
-Trigger when the user references project rules, preferences, corrections, or past instructions. Also trigger proactively at session start if `tasks/lessons.md` exists in the project root.
+Trigger when the user references project rules, preferences, corrections, or past instructions.
 
-| Signal | Real human phrasing |
+| Signal | Examples |
 |---|---|
-| Load rules | "load my lessons", "what rules do we have", "what do you know about this project", "show me the rules" |
-| Remember something | "remember that we use pnpm", "remember I always want X", "don't forget Y", "note that we do X" |
-| Preference | "I prefer X", "we always do X here", "never do Y in this project", "always use X not Y" |
-| Save corrections | "save what I told you today", "write that down", "remember this for next time", "add this to the rules" |
+| Load rules | "load my lessons", "what rules do we have", "show me the rules" |
+| Remember something | "remember that we use pnpm", "note that we do X", "don't forget Y" |
 | Habit encode | "from now on always X", "make it a rule that", "I want you to always" |
-| Session start trigger | If `tasks/lessons.md` exists in the project root — proactively offer: "Found project lessons. Load them now?" |
+
+Proactively offer to load if `tasks/lessons.md` exists in the project root.
 
 ---
 
 ### Parallel suggestions
 
-When the user's request spans multiple concerns, name the parallel agents and explain the time saving rather than picking just one:
+When the user's request spans multiple concerns, name the parallel agents:
 
 - "I'm building a payment endpoint" → `pair-programmer` + `security-reviewer` + `api-guardian`
 - "Refactoring the auth module" → `refactor-cleaner` + `security-reviewer` + `tdd-guide`
-- "help me build a SaaS app" → `/project-launch` (5 agents, 10 min vs 45 min)
-- "review my project before I deploy" → `/team-review` (4 agents, 15 min vs 60 min)
+- "help me build a SaaS app" → `/project-launch` (5 agents)
+- "review my project before I deploy" → `/team-review` (4 agents)
 - "my site needs visuals" → `image-architect`
-- "new feature that touches the API" → `pair-programmer` + `api-guardian` + `security-reviewer`
-- "big refactor of core module" → `architect` + `refactor-cleaner` + `tdd-guide`
 
 ---
 
@@ -717,11 +649,10 @@ When the user's request spans multiple concerns, name the parallel agents and ex
 **Skip routing if:**
 
 - The user **already explicitly invoked** an agent (`use <agent>`, `@agent`, `invoke <agent>`) — that takes precedence
-- The message is **a one-liner factual question** ("what does `git stash pop` do?") — answer directly
-- The message is **purely conversational** ("hi", "thanks", "ok", "got it") — respond normally
+- The message is **a one-liner factual question** — answer directly
+- The message is **purely conversational** ("hi", "thanks", "ok") — respond normally
 - The user says **"just answer me directly"** or **"don't route"** — respect it
-- The user is in the middle of a **defined multi-step workflow** initiated by another agent
-- The request is **trivially simple** (rename a variable, change one line, answer a "what is X?" question)
+- The request is **trivially simple** (rename a variable, change one line)
 
 ---
 
@@ -737,59 +668,29 @@ When the user's request spans multiple concerns, name the parallel agents and ex
 | "How do I make this faster?" | `performance-optimizer` | Direct perf question |
 | "Is my JWT signing secure?" | `security-reviewer` | Auth + security keyword |
 | "build failed on Vercel" | `build-error-resolver` | Build failure |
-| "Tests are slow / red" | `tdd-guide` then `debug-detective` | Test-first reasoning |
 | "Migrate from Pages Router to App Router" | `migration-guide` | Framework migration |
 | "Add accessibility to this form" | `ux-reviewer` | a11y |
-| "Plan the v2 redesign" | `planner` → `architect` | Plan + design |
-| "open source this project" | `opensource-forker` | OSS chain start |
 | "production is down, getting 500s" | `incident-commander` | Active production incident |
 | "will this hold under 10k users?" | `load-tester` | Capacity question |
-| "postmortem for yesterday's outage" | `incident-commander` | Postmortem workflow |
 | "generate a hero image" | `image-architect` | Explicit image request |
-| "my site looks plain, needs something visual" | `image-architect` | Implicit visual need |
-| "make it look good / less empty" | `image-architect` | Visual quality signal |
-| "help me build a todo app" | `/project-launch` | New build — founding team |
-| "I want to create a REST API from scratch" | `/project-launch` | New build |
+| "my site looks plain" | `image-architect` | Implicit visual need |
+| "help me build a todo app" | `/project-launch` | New build |
 | "I have this idea for a SaaS dashboard" | `/project-launch` | Greenfield project |
-| "I'm starting a new side project" | `/project-launch` | New project |
-| "can you review my code?" | `code-reviewer` or `/team-review` | Narrow → reviewer, broad → team |
 | "review my code before I deploy" | `/team-review` | Pre-release, full scope |
-| "is my project ready to ship?" | `/team-review` | Readiness check |
-| "full audit before we release v2" | `/team-review` | Explicit full audit |
 | "is my app secure? check everything" | `/security-audit` | Full security sweep |
-| "any CVEs in my deps?" | `/security-audit` | Dependency + security combo |
 | "cutting v2 today, last check" | `/pre-release` | Release + confidence combo |
-| "anything missing before I tag 1.0?" | `/pre-release` | Release checklist signal |
-| "been stuck on this bug for 2 days" | `/debug-blitz` | Persistent frustration = blitz |
+| "been stuck on this bug for 2 days" | `/debug-blitz` | Persistent frustration |
 | "works locally not in prod" | `/debug-blitz` | Multi-layer problem |
 | "clean up this whole module, add types and tests" | `/refactor-sprint` | Multi-concern quality |
-| "this code is a mess, full cleanup needed" | `/refactor-sprint` | Technical debt + scope |
 | "I just joined this team, where do I start?" | `/onboard` | New-joiner onboarding |
 | "think like an attacker, sweep my code" | `/devil-mode` | Attacker mindset trigger |
-| "going open-source, full audit before publish" | `/devil-mode --pre-public` | Pre-public adversarial sweep |
+| "going open-source, full audit before publish" | `/devil-mode --pre-public` | Pre-public sweep |
 | "we were hacked, audit everything" | `/devil-mode --all` | Post-compromise full sweep |
 | "is my AI feature jailbreak-safe?" | `prompt-injection-hunter` | AI-feature attack surface |
 | "did I leak secrets in git history?" | `secret-hunter` | Credential leak hunt |
-| "could this npm package be malicious?" | `supply-chain-auditor` | Dep paranoia |
-| "audit my deps for GPL contamination" | `license-violation-finder` | Copyleft check |
-| "is this code copy-pasted from somewhere?" | `code-stealer-detector` | Provenance audit |
-| "scan this vendored lib for backdoors" | `backdoor-hunter` | Malicious-code scan |
-| "red-team my chatbot for jailbreaks" | `jailbreak-tester` | Live AI red-team |
-| "what hidden assumptions could break us?" | `chaos-engineer` | Fault-injection planning |
-| "inherited this codebase, help me understand it" | `/onboard` | Unfamiliar codebase |
 | "remember we always use pnpm here" | `/lessons` | Preference to encode |
-| "what rules do we follow in this project?" | `/lessons` | Load lessons |
-| "from now on never use var" | `/lessons` | Rule to save |
 | [user pastes code with no text] | `code-reviewer` | Implicit review |
 | [user pastes stack trace with no text] | `debug-detective` | Implicit debug |
-| "open the dashboard" | `/dashboard` | Local observability UI |
-| "show me what's in my memory store" | `/dashboard` | Memory inspection |
-| "run a swarm on this task" | `/swarm` | Parallel agent execution |
-| "which model should I use for this?" | `/route-model` | Cost-aware model routing |
-| "what has ECC learned from my usage?" | `/memory-evolve` | Evolve proposals review |
-| "replay that session bundle" | `/replay` | Session reproduction |
-| "show evolve proposals" | `/memory-evolve` | Pending skill/routing proposals |
-| "fastest way to run this across agents" | `/swarm` | Maximum-throughput execution |
 
 ---
 

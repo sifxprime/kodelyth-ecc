@@ -240,6 +240,7 @@ case "$TARGET" in
     COMMANDS_DEST="$DEST/commands"
     HOOKS_DEST="$DEST/hooks"
     RULES_DEST="$DEST/rules"
+    SCRIPTS_DEST="$DEST/scripts"
     INSTALL_MODE="user"
     ;;
   antigravity)
@@ -476,10 +477,16 @@ echo ""
 
 case "$TARGET" in
   claude-home)
-    install_dir  "$SCRIPT_DIR/agents"   "$AGENTS_DEST"   "Agents   ($AGENT_COUNT)"
-    install_dir  "$SCRIPT_DIR/skills"   "$SKILLS_DEST"   "Skills   ($SKILL_COUNT)"
-    install_dir  "$SCRIPT_DIR/commands" "$COMMANDS_DEST" "Commands ($CMD_COUNT)"
-    install_hooks                       "$HOOKS_DEST"
+    install_dir  "$SCRIPT_DIR/agents"         "$AGENTS_DEST"            "Agents   ($AGENT_COUNT)"
+    install_dir  "$SCRIPT_DIR/skills"         "$SKILLS_DEST"            "Skills   ($SKILL_COUNT)"
+    install_dir  "$SCRIPT_DIR/commands"       "$COMMANDS_DEST"          "Commands ($CMD_COUNT)"
+    install_hooks                             "$HOOKS_DEST"
+    # Hook scripts: hooks/hooks.json references ${CLAUDE_PLUGIN_ROOT}/scripts/hooks and /scripts/memory
+    install_dir  "$SCRIPT_DIR/scripts/hooks"  "$SCRIPTS_DEST/hooks"     "Hook scripts"
+    install_dir  "$SCRIPT_DIR/scripts/memory" "$SCRIPTS_DEST/memory"    "Memory scripts"
+    mkdir -p "$SCRIPTS_DEST/lib"
+    cp "$SCRIPT_DIR/scripts/lib/hook-flags.js" "$SCRIPTS_DEST/lib/hook-flags.js" 2>/dev/null || true
+    echo -e "  ${GREEN}✓${RESET} Script libs ${BLUE}(→ $SCRIPTS_DEST/lib)${RESET}"
     # Rules: install common + selected languages
     mkdir -p "$RULES_DEST"
     if [[ -d "$SCRIPT_DIR/rules/common" ]]; then

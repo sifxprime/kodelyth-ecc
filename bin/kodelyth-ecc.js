@@ -954,11 +954,60 @@ if (isWin) {
     console.error('Error: install.ps1 not found. Please clone the repo and run install.ps1 manually.');
     process.exit(1);
   }
-  const result = spawnSync(
-    'powershell',
-    ['-ExecutionPolicy', 'Bypass', '-File', ps1, ...args],
-    { stdio: 'inherit', shell: false }
-  );
+
+  // Map CLI args (--target X, --bundle X, --profile X) → PowerShell named params (-Target X, -Bundle X)
+  // Positional language args (e.g. "typescript python") → collected for -Languages
+  const psArgs = [];
+  const languages = [];
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if ((a === '--target' || a === '-target') && args[i + 1]) {
+      psArgs.push('-Target', args[++i]); continue;
+    }
+    if ((a === '--bundle' || a === '-bundle') && args[i + 1]) {
+      psArgs.push('-Bundle', args[++i]); continue;
+    }
+    if ((a === '--profile' || a === '-profile') && args[i + 1]) {
+      // profile maps to languages in ps1
+      languages.push(args[++i]); continue;
+    }
+    if (!a.startsWith('-')) {
+      // positional = language module
+      languages.push(a); continue;
+    }
+    // pass through any other flags unmapped
+    psArgs.push(a);
+  }
+  if (languages.length > 0) {
+    psArgs.push('-Languages', languages.join(','));
+  }
+
+  // Try pwsh (PowerShell 7+) first, then fall back to powershell (5.1)
+  function trySpawn(bin) {
+    return spawnSync(bin, ['-NoLogo', '-ExecutionPolicy', 'Bypass', '-File', ps1, ...psArgs], {
+      stdio: 'inherit',
+      shell: false,
+      env: { ...process.env, KODELYTH_NONINTERACTIVE: '1' },
+    });
+  }
+
+  let result = trySpawn('pwsh');
+  if (result.error && result.error.code === 'ENOENT') {
+    // pwsh not found — try legacy powershell.exe
+    result = trySpawn('powershell');
+  }
+
+  if (result.error) {
+    console.error(
+      '\nError: Could not launch PowerShell to run the installer.\n' +
+      'Make sure PowerShell is installed and accessible in your PATH.\n' +
+      '  • Try:   pwsh --version\n' +
+      '  • Or:    powershell -Version\n' +
+      '\nAlternatively, run the installer manually:\n' +
+      `  powershell -ExecutionPolicy Bypass -File "${ps1}"\n`
+    );
+    process.exit(1);
+  }
   process.exit(result.status ?? 1);
 } else {
   const sh = path.join(ROOT, 'install.sh');

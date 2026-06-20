@@ -14,27 +14,40 @@
 param(
     [string]$Target = "claude-home",
     [string]$Bundle = "",
-    [string[]]$Languages = @()
+    [string]$Languages = ""   # comma-separated when called from npx (e.g. "typescript,python")
+                               # PowerShell native call still accepts: -Languages @("typescript","python")
 )
 
 $ErrorActionPreference = "Stop"
+
+# Normalize -Languages: accept both comma-separated string (npx) and array (direct PS call)
+[string[]]$LangArray = if ($Languages -is [array]) {
+    $Languages | Where-Object { $_ -ne '' }
+} elseif ($Languages -and $Languages -ne '') {
+    $Languages -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
+} else {
+    @()
+}
+
+# Non-interactive mode: set by npx launcher (KODELYTH_NONINTERACTIVE=1) or --yes flag
+$NonInteractive = ($env:KODELYTH_NONINTERACTIVE -eq '1')
 
 # ── Bundle handling (audience-tailored cheat sheets) ─────────────────────────
 if ($Bundle) {
     switch ($Bundle.ToLower()) {
         { $_ -in "indie-hacker","indie" } {
             $Bundle = "indie-hacker"
-            $Languages += @("typescript","python")
+            $LangArray += @("typescript","python")
             Write-Host "Bundle: Indie Hacker -> ship-fast workflow + TS/Python" -ForegroundColor Cyan
         }
         { $_ -in "red-team","redteam","security" } {
             $Bundle = "red-team"
-            $Languages += @("typescript","python")
+            $LangArray += @("typescript","python")
             Write-Host "Bundle: Red Team -> adversarial mindset + devil-mode crew" -ForegroundColor Cyan
         }
         { $_ -in "enterprise","compliance" } {
             $Bundle = "enterprise"
-            $Languages += @("typescript","java","python")
+            $LangArray += @("typescript","java","python")
             Write-Host "Bundle: Enterprise -> compliance + audit + supply chain" -ForegroundColor Cyan
         }
         default {
@@ -51,7 +64,9 @@ Write-Host "  Kodelyth ECC — Production-grade AI coding agent toolkit" -Foregr
 Write-Host "  70 agents (8 devil-mode) · 194 skills · 97 commands · 22+ hooks · intent routing · local memory" -ForegroundColor Gray
 Write-Host ""
 
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+# $PSScriptRoot is always the directory containing this .ps1 file,
+# even when launched via Node's spawnSync (unlike $MyInvocation.MyCommand.Path).
+$ScriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
 
 # ── Resolve Destination ───────────────────────────────────────────────────────
 $HomeDir = $env:USERPROFILE
@@ -170,15 +185,17 @@ switch ($Target) {
 
 Write-Host "Install target: $Target" -ForegroundColor Yellow
 Write-Host "Destination:    $Dest"
-if ($Languages.Count -gt 0) {
-    Write-Host "Languages:      $($Languages -join ', ')"
+if ($LangArray.Count -gt 0) {
+    Write-Host "Languages:      $($LangArray -join ', ')"
 }
 Write-Host ""
 
-$Confirm = Read-Host "Proceed with install? [Y/n]"
-if ($Confirm -and $Confirm -notmatch '^[Yy]$') {
-    Write-Host "Install cancelled."
-    exit 0
+if (-not $NonInteractive) {
+    $Confirm = Read-Host "Proceed with install? [Y/n]"
+    if ($Confirm -and $Confirm -notmatch '^[Yy]$') {
+        Write-Host "Install cancelled."
+        exit 0
+    }
 }
 Write-Host ""
 
@@ -228,7 +245,7 @@ switch ($Target) {
             Copy-Item -Path "$ScriptDir\rules\common\*" -Destination $RulesDest -Recurse -Force
             Write-Host "  [OK] Rules (common) -> $RulesDest" -ForegroundColor Green
         }
-        foreach ($lang in $Languages) {
+        foreach ($lang in $LangArray) {
             if (Test-Path "$ScriptDir\rules\$lang") {
                 $LangDest = "$RulesDest\$lang"
                 if (-not (Test-Path $LangDest)) { New-Item -ItemType Directory -Path $LangDest -Force | Out-Null }
@@ -358,7 +375,7 @@ $State = @{
     target       = $Target
     bundle       = $Bundle
     installed_at = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
-    languages    = $Languages
+    languages    = $LangArray
 } | ConvertTo-Json
 $State | Out-File -FilePath $StateFile -Encoding UTF8
 Write-Host "  [OK] Install state -> $StateFile" -ForegroundColor Green

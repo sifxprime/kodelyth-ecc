@@ -1,0 +1,23 @@
+# --- Standard excludes ---
+node_modules/
+.DS_Store
+*.log
+.env
+.env.*
+kodelyth-ecc-install-state.json
+
+# --- Non-ECC apps/assets (not part of the npm package) ---
+scripts/openclaw-twitter/
+brand/
+social/
+kodelyth-ecc-wiki/
+
+# --- Repo-only meta ---
+.github/
+.git/
+tests/
+docs/
+
+# --- Generated/binary noise ---
+*.png
+*.tgz

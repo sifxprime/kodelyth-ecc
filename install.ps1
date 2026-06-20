@@ -224,7 +224,7 @@ function Install-Flat {
 }
 
 # -- Install -------------------------------------------------------------------
-Write-Host "Installing components..." -ForegroundColor Bold
+Write-Host "Installing components..." -ForegroundColor White
 
 switch ($Target) {
     "claude-home" {

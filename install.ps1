@@ -1,5 +1,5 @@
-# =============================================================================
-# Kodelyth ECC — Windows PowerShell Installer
+﻿# =============================================================================
+# Kodelyth ECC -- Windows PowerShell Installer
 # Supports: Claude Code, Antigravity, Cursor, Codex, Windsurf, OpenCode
 # Usage:
 #   .\install.ps1                                   # Claude Code (default)
@@ -32,7 +32,7 @@ $ErrorActionPreference = "Stop"
 # Non-interactive mode: set by npx launcher (KODELYTH_NONINTERACTIVE=1) or --yes flag
 $NonInteractive = ($env:KODELYTH_NONINTERACTIVE -eq '1')
 
-# ── Bundle handling (audience-tailored cheat sheets) ─────────────────────────
+# -- Bundle handling (audience-tailored cheat sheets) -------------------------
 if ($Bundle) {
     switch ($Bundle.ToLower()) {
         { $_ -in "indie-hacker","indie" } {
@@ -58,17 +58,17 @@ if ($Bundle) {
     }
 }
 
-# ── Banner ────────────────────────────────────────────────────────────────────
+# -- Banner --------------------------------------------------------------------
 Write-Host ""
-Write-Host "  Kodelyth ECC — Production-grade AI coding agent toolkit" -ForegroundColor Cyan
-Write-Host "  70 agents (8 devil-mode) · 194 skills · 97 commands · 22+ hooks · intent routing · local memory" -ForegroundColor Gray
+Write-Host "  Kodelyth ECC -- Production-grade AI coding agent toolkit" -ForegroundColor Cyan
+Write-Host "  70 agents (8 devil-mode) | 194 skills | 97 commands | 22+ hooks | intent routing | local memory" -ForegroundColor Gray
 Write-Host ""
 
 # $PSScriptRoot is always the directory containing this .ps1 file,
 # even when launched via Node's spawnSync (unlike $MyInvocation.MyCommand.Path).
 $ScriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
 
-# ── Resolve Destination ───────────────────────────────────────────────────────
+# -- Resolve Destination -------------------------------------------------------
 $HomeDir = $env:USERPROFILE
 
 switch ($Target) {
@@ -199,12 +199,12 @@ if (-not $NonInteractive) {
 }
 Write-Host ""
 
-# ── Dynamic Counts ───────────────────────────────────────────────────────────
+# -- Dynamic Counts -----------------------------------------------------------
 $AgentCount   = (Get-ChildItem -Path "$ScriptDir\agents"   -Filter "*.md" -File).Count
 $SkillCount   = (Get-ChildItem -Path "$ScriptDir\skills"   -Recurse -Filter "SKILL.md" -File).Count
 $CmdCount     = (Get-ChildItem -Path "$ScriptDir\commands" -Filter "*.md" -File).Count
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# -- Helpers -------------------------------------------------------------------
 function Install-Dir {
     param([string]$Src, [string]$Dest, [string]$Label)
     if (-not $Dest) { return }
@@ -223,7 +223,7 @@ function Install-Flat {
     Write-Host "  [OK] $Label (flattened) -> $Dest" -ForegroundColor Green
 }
 
-# ── Install ───────────────────────────────────────────────────────────────────
+# -- Install -------------------------------------------------------------------
 Write-Host "Installing components..." -ForegroundColor Bold
 
 switch ($Target) {
@@ -321,12 +321,12 @@ Aider auto-loads this file. To bring full ECC context, run Aider with:
 
 Full catalog: `.aider-ecc/agents/`, `.aider-ecc/skills/`, `.aider-ecc/commands/`, `.aider-ecc/rules/`.
 
-Powered by Kodelyth ECC — github.com/sifxprime/kodelyth-ecc
+Powered by Kodelyth ECC -- github.com/sifxprime/kodelyth-ecc
 '@
             $aiderText | Out-File -FilePath $ConventionsFile -Encoding UTF8
             Write-Host "  [OK] CONVENTIONS.md -> $ConventionsFile" -ForegroundColor Green
         } else {
-            Write-Host "  [skip] CONVENTIONS.md exists — not overwriting" -ForegroundColor Yellow
+            Write-Host "  [skip] CONVENTIONS.md exists -- not overwriting" -ForegroundColor Yellow
         }
     }
     "kimi" {
@@ -342,15 +342,15 @@ Powered by Kodelyth ECC — github.com/sifxprime/kodelyth-ecc
         $GeminiFile = "$Dest\GEMINI.md"
         if (-not (Test-Path $GeminiFile)) {
             $geminiText = @'
-# Kodelyth ECC — Gemini CLI context
+# Kodelyth ECC -- Gemini CLI context
 
-This project uses Kodelyth ECC — 70 specialist agents, 194 skills, 97 commands, intent routing, and self-learning memory.
+This project uses Kodelyth ECC -- 70 specialist agents, 194 skills, 97 commands, intent routing, and self-learning memory.
 
 The full toolkit is installed under this directory:
 
-- agents/ — specialist subagents (debug-detective, security-reviewer, devil-mode crew)
-- skills/ — domain knowledge files
-- rules/ — always-on coding standards + intent routing rule
+- agents/ -- specialist subagents (debug-detective, security-reviewer, devil-mode crew)
+- skills/ -- domain knowledge files
+- rules/ -- always-on coding standards + intent routing rule
 
 For more: github.com/sifxprime/kodelyth-ecc
 '@
@@ -360,13 +360,13 @@ For more: github.com/sifxprime/kodelyth-ecc
     }
 }
 
-# ── Install bundle cheat sheet (if -Bundle was set) ───────────────────────────
+# -- Install bundle cheat sheet (if -Bundle was set) ---------------------------
 if ($Bundle -and (Test-Path "$ScriptDir\bundles\$Bundle.md")) {
     Copy-Item -Path "$ScriptDir\bundles\$Bundle.md" -Destination "$Dest\BUNDLE.md" -Force
     Write-Host "  [OK] Bundle cheat sheet ($Bundle) -> $Dest\BUNDLE.md" -ForegroundColor Green
 }
 
-# ── Write install state ───────────────────────────────────────────────────────
+# -- Write install state -------------------------------------------------------
 $Version = if (Test-Path "$ScriptDir\VERSION") { Get-Content "$ScriptDir\VERSION" } else { "1.0.0" }
 $StateFile = "$Dest\kodelyth-ecc-install-state.json"
 $State = @{
@@ -380,7 +380,7 @@ $State = @{
 $State | Out-File -FilePath $StateFile -Encoding UTF8
 Write-Host "  [OK] Install state -> $StateFile" -ForegroundColor Green
 
-# ── Bundle-specific reminder ──────────────────────────────────────────────────
+# -- Bundle-specific reminder --------------------------------------------------
 if ($Bundle) {
     Write-Host ""
     switch ($Bundle) {
@@ -402,7 +402,7 @@ if ($Bundle) {
     }
 }
 
-# ── Done ──────────────────────────────────────────────────────────────────────
+# -- Done ----------------------------------------------------------------------
 Write-Host ""
 Write-Host "Kodelyth ECC installed successfully!" -ForegroundColor Green
 Write-Host ""

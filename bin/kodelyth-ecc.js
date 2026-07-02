@@ -172,6 +172,59 @@ if (args[0] && args[0].startsWith('mcp-')) {
   return;
 }
 
+// ── Subcommand: index (codebase graph) ──────────────────────────────────────
+// Usage:
+//   npx kodelyth-ecc index                          # index current dir
+//   npx kodelyth-ecc index /path/to/repo            # index a specific repo
+//   npx kodelyth-ecc index --search <name>          # search graph symbols
+//   npx kodelyth-ecc index --arch                   # show architecture summary
+//   npx kodelyth-ecc index --callers <name>         # find callers
+if (args[0] === 'index') {
+  try {
+    const indexer = require(path.join(ROOT, 'scripts', 'indexer', 'index.js'));
+    const rest = args.slice(1);
+    let projectRoot = process.cwd();
+    let mode = 'index';
+    let queryName = null;
+    for (let i = 0; i < rest.length; i++) {
+      const a = rest[i];
+      if (a === '--search') { mode = 'search'; queryName = rest[++i]; continue; }
+      if (a === '--callers') { mode = 'callers'; queryName = rest[++i]; continue; }
+      if (a === '--arch' || a === '--architecture') { mode = 'arch'; continue; }
+      if (a === '--json') { /* handled below */ continue; }
+      if (!a.startsWith('--')) projectRoot = path.resolve(a);
+    }
+    if (mode === 'index') {
+      const result = indexer.indexRepo(projectRoot);
+      const s = result.stats;
+      console.log(`Kodelyth ECC — indexed ${projectRoot}`);
+      console.log(`  files:  ${s.files_indexed} indexed (${s.files_changed} re-parsed, ${s.files_unchanged} cached)`);
+      console.log(`  graph:  ${s.nodes_total} nodes, ${s.edges_total} edges`);
+      console.log(`  time:   ${s.duration_ms}ms`);
+      console.log(`  wrote:  ${projectRoot}/.kodelythecc/graph.json`);
+      return;
+    }
+    if (mode === 'search') {
+      const results = indexer.searchGraph(projectRoot, { name: queryName });
+      console.log(JSON.stringify(results.slice(0, 20), null, 2));
+      return;
+    }
+    if (mode === 'callers') {
+      const results = indexer.callersOf(projectRoot, queryName);
+      console.log(JSON.stringify(results.slice(0, 20), null, 2));
+      return;
+    }
+    if (mode === 'arch') {
+      console.log(JSON.stringify(indexer.architecture(projectRoot), null, 2));
+      return;
+    }
+  } catch (err) {
+    process.stderr.write(`kodelyth-ecc index: ${err.stack || err.message}\n`);
+    process.exit(1);
+  }
+  return;
+}
+
 // ── Subcommand: route (cost-aware model tier recommendation) ──────────────────
 // Usage: npx kodelyth-ecc route "<task description>" [--files N] [--agent <name>] [--current <model-id>]
 if (args[0] === 'route') {

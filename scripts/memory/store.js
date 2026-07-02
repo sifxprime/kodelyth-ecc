@@ -1,36 +1,26 @@
 // =============================================================================
-// Kodelyth ECC — Memory Store
-// Local, zero-dependency, model-agnostic memory for AI coding sessions.
+// Kodelyth ECC — Memory Store v2
 //
-// Storage layout (all in ~/.kodelyth/memory/):
-//   memories.jsonl       Append-only log of every captured memory
-//   index.json           Inverted index: token -> [memory ids]
-//   patterns.json        User-level patterns (preferences, conventions)
-//   projects/<hash>.json Per-project memory shortcuts
-//
-// Retrieval: BM25 over tokenised problem + approach + tags. No embeddings,
-// no native deps, no network. Pure JS, runs anywhere Node 18+ runs.
+// Pure-JS, zero-dep BM25 memory over an append-only JSONL log.
+// Improvements over v1:
+//   1. Fabric-based paths (~/.kodelythecc/memory/, legacy ~/.kodelyth read-only).
+//   2. Integrity check + auto-heal on every load. If index docCount != log
+//      live-count, the index is rebuilt silently.
+//   3. Outcome-weighted ranking. Recall score = BM25 × recency-decay
+//      × outcome-boost. Failed approaches sink. Newer memories float.
+//   4. Every recall and capture emits a telemetry event.
 // =============================================================================
 
 'use strict';
 
 const fs   = require('fs');
-const os   = require('os');
 const path = require('path');
 const crypto = require('crypto');
 
-const MEMORY_DIR = process.env.KODELYTH_MEMORY_DIR
-  || path.join(os.homedir(), '.kodelyth', 'memory');
+const fabric    = require('../lib/fabric');
+const telemetry = require('../lib/telemetry');
 
-const PATHS = {
-  dir:       MEMORY_DIR,
-  log:       path.join(MEMORY_DIR, 'memories.jsonl'),
-  index:     path.join(MEMORY_DIR, 'index.json'),
-  patterns:  path.join(MEMORY_DIR, 'patterns.json'),
-  projects:  path.join(MEMORY_DIR, 'projects'),
-};
-
-// ── Stop words (English + common code noise) ─────────────────────────────────
+// ── Stop words (English + code noise) ────────────────────────────────────────
 const STOP_WORDS = new Set([
   'the','a','an','and','or','but','if','then','else','for','to','of','in','on',
   'is','are','was','were','be','been','being','have','has','had','do','does',
@@ -40,13 +30,16 @@ const STOP_WORDS = new Set([
   'fix','fixed','make','made','want','need','try','tried','run','running',
 ]);
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-function ensureDir(dir) {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-}
+// Public paths (kept for backward compat with v1 consumers).
+const PATHS = {
+  get dir()      { return fabric.GLOBAL.memory; },
+  get log()      { return fabric.GLOBAL.memoryLog; },
+  get index()    { return fabric.GLOBAL.memoryIndex; },
+  get patterns() { return fabric.GLOBAL.patterns; },
+  get projects() { return path.join(fabric.GLOBAL.memory, 'projects'); },
+};
 
+// ── Utilities ────────────────────────────────────────────────────────────────
 function tokenise(text) {
   if (!text) return [];
   return String(text)
@@ -56,129 +49,187 @@ function tokenise(text) {
     .filter(t => t.length >= 2 && t.length <= 40 && !STOP_WORDS.has(t));
 }
 
-function projectHash(projectRoot) {
-  return crypto
-    .createHash('sha256')
-    .update(String(projectRoot))
-    .digest('hex')
-    .slice(0, 12);
-}
-
 function newMemoryId() {
   return crypto.randomBytes(8).toString('hex');
 }
 
-// ── Index ────────────────────────────────────────────────────────────────────
+// ── Index (BM25) ─────────────────────────────────────────────────────────────
+function emptyIndex() {
+  return { tokens: {}, docCount: 0, avgDocLength: 0, totalLength: 0, version: 2 };
+}
+
 function loadIndex() {
-  if (!fs.existsSync(PATHS.index)) {
-    return { tokens: {}, docCount: 0, avgDocLength: 0, totalLength: 0 };
-  }
-  try {
-    return JSON.parse(fs.readFileSync(PATHS.index, 'utf8'));
-  } catch {
-    return { tokens: {}, docCount: 0, avgDocLength: 0, totalLength: 0 };
-  }
+  const raw = fabric.readJson(PATHS.index, null);
+  if (!raw || typeof raw !== 'object' || !raw.tokens) return emptyIndex();
+  return raw;
 }
 
-function saveIndex(index) {
-  ensureDir(PATHS.dir);
-  fs.writeFileSync(PATHS.index, JSON.stringify(index, null, 2));
+function saveIndex(idx) {
+  fabric.ensureGlobal();
+  fs.writeFileSync(PATHS.index, JSON.stringify(idx));
 }
 
-function indexMemory(index, memory) {
-  const text   = `${memory.problem || ''} ${memory.approach || ''} ${(memory.tags || []).join(' ')}`;
+function indexMemory(idx, m) {
+  const text   = `${m.problem || ''} ${m.approach || ''} ${(m.tags || []).join(' ')}`;
   const tokens = tokenise(text);
   const length = tokens.length;
-  if (length === 0) return index;
+  if (length === 0) return idx;
 
-  const tokenFreq = {};
-  for (const token of tokens) {
-    tokenFreq[token] = (tokenFreq[token] || 0) + 1;
+  const freq = {};
+  for (const t of tokens) freq[t] = (freq[t] || 0) + 1;
+
+  for (const [token, tf] of Object.entries(freq)) {
+    if (!idx.tokens[token]) idx.tokens[token] = { docs: [], df: 0 };
+    idx.tokens[token].docs.push({ id: m.id, tf, len: length });
+    idx.tokens[token].df += 1;
   }
 
-  for (const [token, freq] of Object.entries(tokenFreq)) {
-    if (!index.tokens[token]) {
-      index.tokens[token] = { docs: [], df: 0 };
-    }
-    index.tokens[token].docs.push({ id: memory.id, tf: freq, len: length });
-    index.tokens[token].df += 1;
-  }
-
-  index.totalLength += length;
-  index.docCount    += 1;
-  index.avgDocLength = index.totalLength / index.docCount;
-
-  return index;
+  idx.totalLength += length;
+  idx.docCount    += 1;
+  idx.avgDocLength = idx.totalLength / idx.docCount;
+  return idx;
 }
 
-// ── BM25 retrieval (k1=1.5, b=0.75) ──────────────────────────────────────────
-function search(query, options = {}) {
-  const { limit = 5, minScore = 0.5, projectFilter = null } = options;
-  const index   = loadIndex();
-  const tokens  = tokenise(query);
-  if (tokens.length === 0 || index.docCount === 0) return [];
-
-  const k1 = 1.5;
-  const b  = 0.75;
-  const N  = index.docCount;
-  const avgDl = index.avgDocLength || 1;
-  const scores = {};
-
-  for (const token of tokens) {
-    const entry = index.tokens[token];
-    if (!entry) continue;
-    const idf = Math.log(1 + (N - entry.df + 0.5) / (entry.df + 0.5));
-    for (const doc of entry.docs) {
-      const norm  = 1 - b + b * (doc.len / avgDl);
-      const score = idf * ((doc.tf * (k1 + 1)) / (doc.tf + k1 * norm));
-      scores[doc.id] = (scores[doc.id] || 0) + score;
-    }
-  }
-
-  const ranked = Object.entries(scores)
-    .filter(([, score]) => score >= minScore)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, limit * 3);
-
-  if (ranked.length === 0) return [];
-
-  const memories = readMemories(ranked.map(([id]) => id));
-  let results = ranked
-    .map(([id, score]) => {
-      const memory = memories[id];
-      return memory ? { ...memory, score } : null;
-    })
-    .filter(Boolean);
-
-  if (projectFilter) {
-    results = results.filter(m => m.project === projectFilter);
-  }
-
-  return results.slice(0, limit);
+// ── Log I/O (legacy-aware read) ──────────────────────────────────────────────
+function readAllLines() {
+  return fabric.readLogWithLegacy(PATHS.log, fabric.LEGACY.memoryLog);
 }
 
-// ── Memory I/O ───────────────────────────────────────────────────────────────
 function readMemories(ids = null) {
-  if (!fs.existsSync(PATHS.log)) return ids ? {} : [];
   const wantSet = ids ? new Set(ids) : null;
-  const lines = fs.readFileSync(PATHS.log, 'utf8').split('\n').filter(Boolean);
-  const out = ids ? {} : [];
+  const lines   = readAllLines();
+  const out     = ids ? {} : [];
   for (const line of lines) {
-    let memory;
-    try { memory = JSON.parse(line); } catch { continue; }
-    if (memory.deleted) continue;
+    let m;
+    try { m = JSON.parse(line); } catch { continue; }
+    if (m.deleted) continue;
     if (wantSet) {
-      if (wantSet.has(memory.id)) out[memory.id] = memory;
+      if (wantSet.has(m.id)) out[m.id] = m;
     } else {
-      out.push(memory);
+      out.push(m);
     }
   }
   return out;
 }
 
+function liveCount() {
+  const lines = readAllLines();
+  let n = 0;
+  for (const line of lines) {
+    try { const m = JSON.parse(line); if (!m.deleted) n++; } catch {}
+  }
+  return n;
+}
+
 function appendMemory(memory) {
-  ensureDir(PATHS.dir);
+  fabric.ensureDir(PATHS.dir);
   fs.appendFileSync(PATHS.log, JSON.stringify(memory) + '\n');
+}
+
+// ── Integrity check + auto-heal ──────────────────────────────────────────────
+// Runs on every recall path. If the index is missing, empty, older schema, or
+// drifted from the log, we rebuild it. Silent, non-blocking, always self-heals.
+function ensureIndexHealthy() {
+  const idx  = loadIndex();
+  const live = liveCount();
+  const drift = Math.abs((idx.docCount || 0) - live);
+  const stale = idx.version !== 2 || drift > 0;
+  if (stale) {
+    const rebuilt = rebuildIndex();
+    telemetry.record('memory.index.rebuild', {
+      before_count: idx.docCount || 0,
+      after_count:  rebuilt.count,
+      drift,
+    });
+    return { rebuilt: true, drift };
+  }
+  return { rebuilt: false, drift: 0 };
+}
+
+function rebuildIndex() {
+  const memories = readMemories();
+  let idx = emptyIndex();
+  for (const m of memories) idx = indexMemory(idx, m);
+  saveIndex(idx);
+  return { count: memories.length };
+}
+
+// ── BM25 + outcome-weighted ranking ──────────────────────────────────────────
+function search(query, options = {}) {
+  ensureIndexHealthy();
+
+  const {
+    limit         = 5,
+    minScore      = 0.5,
+    projectFilter = null,
+    decayHalfLifeDays = 45,   // recency half-life for the recency boost
+  } = options;
+
+  const idx    = loadIndex();
+  const tokens = tokenise(query);
+  if (tokens.length === 0 || idx.docCount === 0) return [];
+
+  const k1    = 1.5;
+  const b     = 0.75;
+  const N     = idx.docCount;
+  const avgDl = idx.avgDocLength || 1;
+  const raw   = {};
+
+  for (const token of tokens) {
+    const entry = idx.tokens[token];
+    if (!entry) continue;
+    const idfN = Math.log(1 + (N - entry.df + 0.5) / (entry.df + 0.5));
+    for (const doc of entry.docs) {
+      const norm  = 1 - b + b * (doc.len / avgDl);
+      const bm25  = idfN * ((doc.tf * (k1 + 1)) / (doc.tf + k1 * norm));
+      raw[doc.id] = (raw[doc.id] || 0) + bm25;
+    }
+  }
+
+  const candIds = Object.keys(raw);
+  if (candIds.length === 0) return [];
+
+  const memoriesById = readMemories(candIds);
+  const now = Date.now();
+  const results = [];
+  for (const id of candIds) {
+    const m = memoriesById[id];
+    if (!m) continue;
+
+    // Recency boost — exp-decay from captured_at
+    let recencyBoost = 1.0;
+    try {
+      const ageMs   = now - new Date(m.captured_at).getTime();
+      const ageDays = Math.max(0, ageMs / (1000 * 60 * 60 * 24));
+      recencyBoost  = Math.pow(0.5, ageDays / decayHalfLifeDays); // 1 at 0d, 0.5 at halfLife
+      recencyBoost  = 0.5 + 0.5 * recencyBoost; // clamp to [0.5, 1.0]
+    } catch {}
+
+    // Outcome boost — resolved=true → up, resolved=false → down.
+    let outcomeBoost = 1.0;
+    if (m.resolved === true)  outcomeBoost = 1.3;
+    if (m.resolved === false) outcomeBoost = 0.6;
+
+    const bm25Score  = raw[id];
+    const finalScore = bm25Score * recencyBoost * outcomeBoost;
+
+    if (finalScore < minScore) continue;
+    results.push({
+      ...m,
+      score:        finalScore,
+      bm25:         bm25Score,
+      recency_boost: recencyBoost,
+      outcome_boost: outcomeBoost,
+    });
+  }
+
+  results.sort((a, b) => b.score - a.score);
+
+  const filtered = projectFilter
+    ? results.filter(m => m.project === projectFilter)
+    : results;
+
+  return filtered.slice(0, limit);
 }
 
 // ── Public API ───────────────────────────────────────────────────────────────
@@ -201,7 +252,7 @@ function capture({
     problem:     String(problem).slice(0, 500),
     approach:    String(approach).slice(0, 2000),
     tags:        Array.from(new Set(tags.map(String))).slice(0, 20),
-    project:     project ? projectHash(project) : null,
+    project:     project ? fabric.projectHash(project) : null,
     project_path: project,
     language,
     files:       files.slice(0, 20),
@@ -209,32 +260,53 @@ function capture({
     source,
   };
   appendMemory(memory);
-  const index = loadIndex();
-  saveIndex(indexMemory(index, memory));
+  const idx = loadIndex();
+  saveIndex(indexMemory(idx, memory));
+
+  telemetry.record('memory.capture', {
+    memory_id: memory.id,
+    source,
+    project:   project,
+    tag_count: memory.tags.length,
+  });
+
   return memory;
 }
 
 function recall(query, options = {}) {
-  return search(query, options);
-}
-
-function recallForProject(projectRoot, query, options = {}) {
-  const opts = { ...options, projectFilter: projectHash(projectRoot) };
-  const results = search(query, opts);
-  if (results.length >= (options.limit || 5)) return results;
-  // Fall back to global memories if project-specific are sparse
-  const globalResults = search(query, options);
-  const seen = new Set(results.map(r => r.id));
-  for (const m of globalResults) {
-    if (!seen.has(m.id)) results.push(m);
-    if (results.length >= (options.limit || 5)) break;
-  }
+  const results = search(query, options);
+  telemetry.record('memory.recall', {
+    project:   options.project || null,
+    query_len: (query || '').length,
+    hits:      results.length,
+    top_score: results[0]?.score || 0,
+  });
   return results;
 }
 
-function listAll() {
-  return readMemories();
+function recallForProject(projectRoot, query, options = {}) {
+  const opts = { ...options, projectFilter: fabric.projectHash(projectRoot) };
+  const local = search(query, opts);
+  if (local.length >= (options.limit || 5)) {
+    telemetry.record('memory.recall.project', {
+      project: projectRoot, query_len: (query || '').length, hits: local.length,
+    });
+    return local;
+  }
+  // Fill from global if project results are sparse
+  const global = search(query, options);
+  const seen   = new Set(local.map(r => r.id));
+  for (const m of global) {
+    if (!seen.has(m.id)) local.push(m);
+    if (local.length >= (options.limit || 5)) break;
+  }
+  telemetry.record('memory.recall.project', {
+    project: projectRoot, query_len: (query || '').length, hits: local.length,
+  });
+  return local;
 }
+
+function listAll() { return readMemories(); }
 
 function forget(memoryId) {
   if (!fs.existsSync(PATHS.log)) return false;
@@ -248,23 +320,14 @@ function forget(memoryId) {
         return JSON.stringify({ ...m, deleted: true, deleted_at: new Date().toISOString() });
       }
       return line;
-    } catch {
-      return line;
-    }
+    } catch { return line; }
   });
   fs.writeFileSync(PATHS.log, updated.join('\n') + '\n');
   if (found) rebuildIndex();
   return found;
 }
 
-// ── Improvement C: outcome tracking ──────────────────────────────────────────
-// Mark a memory as resolved:true (success) or resolved:false (failure).
-// Called automatically by the PostToolUse hook when an edited file matches
-// a memory's files[] list — a follow-up fix implies the previous approach
-// didn't fully work, so resolved=false. The user can also call this manually.
-//
-// Side-effect: also propagates to instincts.js if the instinct module exists,
-// so low-confidence instincts sourced from the same session get downgraded.
+// ── Outcome tracking (was Improvement C) ─────────────────────────────────────
 function resolveMemory(memoryId, resolved) {
   if (!fs.existsSync(PATHS.log)) return false;
   const lines = fs.readFileSync(PATHS.log, 'utf8').split('\n').filter(Boolean);
@@ -274,111 +337,68 @@ function resolveMemory(memoryId, resolved) {
       const m = JSON.parse(line);
       if (m.id === memoryId && !m.deleted) {
         found = true;
-        return JSON.stringify({
-          ...m,
-          resolved,
-          resolved_at: new Date().toISOString(),
-        });
+        return JSON.stringify({ ...m, resolved, resolved_at: new Date().toISOString() });
       }
       return line;
-    } catch {
-      return line;
-    }
+    } catch { return line; }
   });
   if (found) {
     fs.writeFileSync(PATHS.log, updated.join('\n') + '\n');
+    telemetry.record('memory.resolve', { memory_id: memoryId, resolved });
   }
   return found;
 }
 
-// Find unresolved memories whose files[] overlap with the given file path.
-// Returns [ { id, problem, files, captured_at } ] — caller decides what to do.
 function findMemoriesForFile(filePath, options = {}) {
   const { projectRoot = null, limit = 5 } = options;
-  if (!fs.existsSync(PATHS.log)) return [];
-
   const normFile = path.normalize(filePath);
-  const lines    = fs.readFileSync(PATHS.log, 'utf8').split('\n').filter(Boolean);
+  const lines    = readAllLines();
   const matches  = [];
-
   for (const line of lines) {
     let m;
     try { m = JSON.parse(line); } catch { continue; }
-    if (m.deleted || m.resolved !== undefined) continue; // skip already resolved
+    if (m.deleted || m.resolved !== undefined) continue;
     if (!Array.isArray(m.files) || m.files.length === 0) continue;
     if (projectRoot && m.project_path && m.project_path !== projectRoot) continue;
-
     const hit = m.files.some(f => {
       const normF = path.normalize(String(f));
       return normF === normFile || normFile.endsWith(normF) || normF.endsWith(normFile);
     });
-
     if (hit) {
       matches.push({
-        id:          m.id,
-        problem:     m.problem,
-        approach:    m.approach,
-        files:       m.files,
-        captured_at: m.captured_at,
-        project_path: m.project_path,
+        id: m.id, problem: m.problem, approach: m.approach,
+        files: m.files, captured_at: m.captured_at, project_path: m.project_path,
       });
       if (matches.length >= limit) break;
     }
   }
-
   return matches;
 }
 
-// Auto-resolve hook: called by PostToolUse (Write|Edit) with the file just edited.
-// Marks any unresolved memory that listed this file as resolved:false, then
-// nudges the instinct schema to downgrade the matching instinct's confidence.
 function autoResolveOnEdit(filePath, projectRoot = null) {
   const affected = findMemoriesForFile(filePath, { projectRoot });
   if (affected.length === 0) return [];
-
   const resolved = [];
   for (const m of affected) {
-    const ok = resolveMemory(m.id, false);
-    if (ok) resolved.push(m);
+    if (resolveMemory(m.id, false)) resolved.push(m);
   }
-
-  // Propagate to instinct schema — best-effort only
-  try {
-    const instinctsPath = path.join(__dirname, 'instincts.js');
-    if (fs.existsSync(instinctsPath)) {
-      const instincts = require(instinctsPath);
-      for (const m of resolved) {
-        // Match by project_path + approximate problem text
-        instincts.recordOutcomeByProject(m.project_path, m.problem, false);
-      }
-    }
-  } catch { /* never block */ }
-
   return resolved;
-}
-
-function rebuildIndex() {
-  const memories = readMemories();
-  let index = { tokens: {}, docCount: 0, avgDocLength: 0, totalLength: 0 };
-  for (const m of memories) {
-    index = indexMemory(index, m);
-  }
-  saveIndex(index);
-  return { count: memories.length };
 }
 
 function stats() {
   const memories = readMemories();
-  const byProject = {};
-  const byLanguage = {};
-  const byTag = {};
+  const byProject = {}, byLanguage = {}, byTag = {};
+  let resolvedTrue = 0, resolvedFalse = 0;
   for (const m of memories) {
     if (m.project) byProject[m.project] = (byProject[m.project] || 0) + 1;
     if (m.language) byLanguage[m.language] = (byLanguage[m.language] || 0) + 1;
     for (const tag of m.tags || []) byTag[tag] = (byTag[tag] || 0) + 1;
+    if (m.resolved === true) resolvedTrue++;
+    if (m.resolved === false) resolvedFalse++;
   }
   return {
     total: memories.length,
+    resolvedTrue, resolvedFalse,
     storageDir: PATHS.dir,
     projects: Object.keys(byProject).length,
     byLanguage,
@@ -394,10 +414,10 @@ module.exports = {
   listAll,
   forget,
   rebuildIndex,
+  ensureIndexHealthy,
   stats,
   tokenise,
-  projectHash,
-  // Improvement C
+  projectHash: fabric.projectHash,
   resolveMemory,
   findMemoriesForFile,
   autoResolveOnEdit,

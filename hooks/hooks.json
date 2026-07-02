@@ -230,6 +230,19 @@
         ],
         "description": "Kodelyth Memory: inject relevant past memories as cache-friendly context",
         "id": "kodelyth:session:start:memory-inject"
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/routing/auto-index.js\"",
+            "async": true,
+            "timeout": 3
+          }
+        ],
+        "description": "Kodelyth ECC v2: auto-build the project codebase graph on first session or when stale (background)",
+        "id": "kodelyth:session:start:auto-index"
       }
     ],
     "PostToolUse": [

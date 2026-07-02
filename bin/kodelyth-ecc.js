@@ -172,6 +172,137 @@ if (args[0] && args[0].startsWith('mcp-')) {
   return;
 }
 
+// ── Subcommand: token (proxy / compress / savings) ──────────────────────────
+// Usage:
+//   npx kodelyth-ecc token proxy -- <cmd> [args...]     # measured proxy
+//   npx kodelyth-ecc token savings [--json]              # summary
+//   npx kodelyth-ecc token compress < file.txt           # compress stdin
+if (args[0] === 'token') {
+  (async () => {
+    const sub = args[1];
+    if (sub === 'proxy') {
+      const proxy = require(path.join(ROOT, 'scripts', 'token', 'proxy.js'));
+      const sepIdx = args.indexOf('--');
+      const rest = sepIdx >= 0 ? args.slice(sepIdx + 1) : args.slice(2);
+      if (rest.length === 0) { console.error('usage: token proxy -- <cmd> [args...]'); process.exit(1); }
+      const [cmd, ...rem] = rest;
+      const result = proxy.proxy(cmd, rem);
+      if (!result.allowed) { console.error(`refused: ${result.reason}`); process.exit(2); }
+      process.stdout.write(result.leanStdout);
+      process.stderr.write(`\n[kodelyth token proxy] saved ${result.saved.saved} tokens (${Math.round(result.saved.ratio*100)}%)\n`);
+      process.exit(result.exitCode || 0);
+    }
+    if (sub === 'savings') {
+      const ledger = require(path.join(ROOT, 'scripts', 'token', 'ledger.js'));
+      const summary = ledger.summary({});
+      if (args.includes('--json')) { console.log(JSON.stringify(summary, null, 2)); return; }
+      console.log(`Kodelyth ECC — Token Savings`);
+      console.log(`  ledger:       ${summary.ledger_path}`);
+      console.log(`  events:       ${summary.rows_counted}`);
+      console.log(`  raw tokens:   ${summary.total_raw}`);
+      console.log(`  lean tokens:  ${summary.total_lean}`);
+      console.log(`  SAVED:        ${summary.total_saved}  (${Math.round(summary.ratio*100)}%)`);
+      if (Object.keys(summary.bySource).length > 0) {
+        console.log(`  by source:`);
+        for (const [k, v] of Object.entries(summary.bySource)) console.log(`    ${k.padEnd(10)} ${v}`);
+      }
+      if (summary.rows_counted === 0) console.log(`\n  (no savings yet — run some commands via 'kodelyth-ecc token proxy -- git status' to start measuring)`);
+      return;
+    }
+    if (sub === 'compress') {
+      const compress = require(path.join(ROOT, 'scripts', 'token', 'compress.js'));
+      let input = '';
+      process.stdin.setEncoding('utf8');
+      process.stdin.on('data', c => input += c);
+      process.stdin.on('end', () => {
+        const r = compress.compress(input, { label: 'cli' });
+        process.stdout.write(r.text);
+        process.stderr.write(`\n[compress] ${r.saved.saved} tokens saved (${Math.round(r.saved.ratio*100)}%)\n`);
+      });
+      return;
+    }
+    console.error('usage: token <proxy|savings|compress>');
+    process.exit(1);
+  })();
+  return;
+}
+
+// ── Subcommand: doctor (self-test) ──────────────────────────────────────────
+if (args[0] === 'doctor') {
+  const d = require(path.join(ROOT, 'scripts', 'doctor-v2.js'));
+  d.main({ json: args.includes('--json') });
+  return;
+}
+
+// ── Subcommand: update-check ────────────────────────────────────────────────
+if (args[0] === 'update' || args[0] === 'update-check') {
+  (async () => {
+    const u = require(path.join(ROOT, 'scripts', 'cli', 'update.js'));
+    const r = await u.check({ force: args.includes('--force') });
+    if (args.includes('--json')) { console.log(JSON.stringify(r, null, 2)); return; }
+    console.log(`installed: ${r.installed || '(unknown)'}`);
+    console.log(`latest:    ${r.latest || '(unknown)'}`);
+    if (r.upToDate === true)  console.log(`status:    up to date`);
+    if (r.upToDate === false) console.log(`status:    UPDATE AVAILABLE — run: npm i -g kodelyth-ecc`);
+    if (r.reason)             console.log(`note:      ${r.reason}`);
+  })();
+  return;
+}
+
+// ── Subcommand: mcp-register (auto-wire into detected clients) ──────────────
+if (args[0] === 'mcp-register') {
+  const reg = require(path.join(ROOT, 'scripts', 'mcp', 'register.js'));
+  const dryRun = args.includes('--dry-run');
+  const results = reg.registerAll({ dryRun });
+  if (args.includes('--json')) { console.log(JSON.stringify(results, null, 2)); return; }
+  for (const r of results) {
+    console.log(`  ${r.status.padEnd(8)} ${r.id.padEnd(18)} → ${r.config}${r.reason ? '  (' + r.reason + ')' : ''}`);
+  }
+  return;
+}
+
+// ── Subcommand: mcp-status (report registration state) ──────────────────────
+if (args[0] === 'mcp-status') {
+  const reg = require(path.join(ROOT, 'scripts', 'mcp', 'register.js'));
+  const s = reg.status();
+  if (args.includes('--json')) { console.log(JSON.stringify(s, null, 2)); return; }
+  for (const t of s) {
+    console.log(`  ${t.id.padEnd(18)} present=${t.config_present ? 'yes' : 'no '} registered=${t.registered ? 'yes' : 'no '}  ${t.config}`);
+  }
+  return;
+}
+
+// ── Subcommand: learn (continuous learning engine) ──────────────────────────
+if (args[0] === 'learn') {
+  const learn = require(path.join(ROOT, 'scripts', 'learn', 'engine.js'));
+  const sub = args[1] || 'stats';
+  if (sub === 'stats') {
+    const s = learn.stats();
+    if (args.includes('--json')) { console.log(JSON.stringify(s, null, 2)); return; }
+    console.log(`Kodelyth ECC — Learning Engine`);
+    console.log(`  total instincts:  ${s.total}`);
+    console.log(`  promoted:         ${s.promoted}`);
+    console.log(`  at threshold:     ${s.atThreshold}`);
+    console.log(`  by risk:          ${JSON.stringify(s.byRisk)}`);
+    return;
+  }
+  if (sub === 'promotable') {
+    const list = learn.promotable();
+    console.log(JSON.stringify(list, null, 2));
+    return;
+  }
+  if (sub === 'review') {
+    console.log(JSON.stringify(learn.needsReview(), null, 2));
+    return;
+  }
+  if (sub === 'decay') {
+    console.log(JSON.stringify(learn.decay(), null, 2));
+    return;
+  }
+  console.error('usage: learn <stats|promotable|review|decay>');
+  process.exit(1);
+}
+
 // ── Subcommand: index (codebase graph) ──────────────────────────────────────
 // Usage:
 //   npx kodelyth-ecc index                          # index current dir
@@ -671,8 +802,12 @@ if (args[0] === 'dashboard') {
     }
     function has(name) { return rest.includes(name); }
     try {
-      const { start } = require(path.join(ROOT, 'scripts', 'dashboard', 'server.js'));
-      const port = Number(flag('--port', '5747'));
+      const useV2 = has('--v2') || process.env.KODELYTH_DASH_V2 === '1';
+      const serverPath = useV2
+        ? path.join(ROOT, 'scripts', 'dashboard', 'server-v2.js')
+        : path.join(ROOT, 'scripts', 'dashboard', 'server.js');
+      const { start } = require(serverPath);
+      const port = Number(flag('--port', useV2 ? '7443' : '5747'));
       const host = flag('--host', '127.0.0.1');
       const openBrowser = !has('--no-open');
       await start({ port, host, openBrowser });
@@ -873,6 +1008,39 @@ if (args[0] === 'evolve') {
     } catch (e) {
       process.stderr.write(`[evolve] ${e.message}\n`);
       process.exit(1);
+    }
+  })();
+  return;
+}
+
+// ── Interactive menu (TTY, no args) ─────────────────────────────────────────
+// Only when no positional command was given AND we're interactive AND user
+// didn't pass any flags — installs are still the default via `--target`.
+if (args.length === 0 && process.stdout.isTTY && process.stdin.isTTY && !process.env.KODELYTH_NONINTERACTIVE) {
+  (async () => {
+    try {
+      const menu = require(path.join(ROOT, 'scripts', 'cli', 'menu.js'));
+      const choice = await menu.show();
+      if (!choice || choice === 'quit') { process.exit(0); }
+      const { spawnSync } = require('child_process');
+      const self = process.argv[1];
+      const map = {
+        update:      [self, 'update'],
+        dashboard:   [self, 'dashboard', '--v2'],
+        ide:         [self, '--target', 'claude-home'],
+        'mcp-doctor':[self, 'mcp-status'],
+        doctor:      [self, 'doctor'],
+        index:       [self, 'index'],
+        stats:       [self, 'token', 'savings'],
+        docs:        [self, '--help'],
+      };
+      const cmd = map[choice];
+      if (!cmd) process.exit(0);
+      spawnSync(process.execPath, cmd, { stdio: 'inherit' });
+      process.exit(0);
+    } catch (err) {
+      process.stderr.write(`menu error: ${err.message}\n`);
+      // Fall through to installer default
     }
   })();
   return;

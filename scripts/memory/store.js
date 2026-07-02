@@ -133,15 +133,18 @@ function ensureIndexHealthy() {
   const idx  = loadIndex();
   const live = liveCount();
   const drift = Math.abs((idx.docCount || 0) - live);
-  const stale = idx.version !== 2 || drift > 0;
+  // Force rebuild if index file is entirely missing (fresh install or wiped).
+  const indexMissing = !fs.existsSync(PATHS.index);
+  const stale = indexMissing || idx.version !== 2 || drift > 0;
   if (stale) {
     const rebuilt = rebuildIndex();
     telemetry.record('memory.index.rebuild', {
       before_count: idx.docCount || 0,
       after_count:  rebuilt.count,
       drift,
+      reason: indexMissing ? 'missing' : (idx.version !== 2 ? 'schema' : 'drift'),
     });
-    return { rebuilt: true, drift };
+    return { rebuilt: true, drift, reason: indexMissing ? 'missing' : (idx.version !== 2 ? 'schema' : 'drift') };
   }
   return { rebuilt: false, drift: 0 };
 }

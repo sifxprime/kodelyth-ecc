@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kodelyth ECC 2.0 — Dashboard</title>
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --surface: #12161c;
+      --surface-2: #1a1f28;
+      --border: #232a35;
+      --text: #e6edf3;
+      --muted: #8a94a3;
+      --accent: #7dd3fc;
+      --good: #4ade80;
+      --warn: #facc15;
+      --bad: #f87171;
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: -apple-system, "Inter", system-ui, sans-serif;
+      font-size: 14px; line-height: 1.5;
+    }
+    header {
+      padding: 20px 32px; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    header h1 { margin: 0; font-size: 18px; letter-spacing: -0.01em; }
+    header .tag { color: var(--accent); font-family: var(--mono); font-size: 12px; }
+    main { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+    .grid {
+      display: grid; gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 18px 20px;
+    }
+    .card h2 {
+      margin: 0 0 12px; font-size: 13px; font-weight: 600;
+      color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .stat { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); }
+    .stat:last-child { border-bottom: 0; }
+    .stat .k { color: var(--muted); }
+    .stat .v { font-family: var(--mono); }
+    .big {
+      font-size: 32px; font-weight: 700; font-family: var(--mono);
+      color: var(--accent); margin: 4px 0 2px;
+    }
+    .sub { font-size: 12px; color: var(--muted); }
+    .empty {
+      color: var(--muted); font-size: 12px; padding: 12px 0;
+      font-style: italic;
+    }
+    .list { max-height: 320px; overflow: auto; }
+    .row {
+      padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+    }
+    .row:last-child { border-bottom: 0; }
+    .row .meta { color: var(--muted); font-size: 11px; margin-top: 2px; font-family: var(--mono); }
+    .pill {
+      display: inline-block; padding: 2px 8px; border-radius: 100px;
+      font-size: 11px; font-family: var(--mono);
+      background: var(--surface-2); color: var(--muted);
+      margin-right: 4px;
+    }
+    .pill.good  { color: var(--good); }
+    .pill.warn  { color: var(--warn); }
+    .pill.bad   { color: var(--bad); }
+    .live {
+      color: var(--good); font-size: 11px; margin-left: 8px;
+    }
+    .live::before {
+      content: '●'; margin-right: 4px; animation: blink 2s infinite;
+    }
+    @keyframes blink { 50% { opacity: 0.3; } }
+    footer {
+      padding: 24px 32px; color: var(--muted); font-size: 12px;
+      border-top: 1px solid var(--border); text-align: center;
+    }
+    code { font-family: var(--mono); color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Kodelyth ECC <span class="tag">2.0 · dashboard</span></h1>
+    <div>
+      <span id="conn" class="live">connected</span>
+    </div>
+  </header>
+  <main>
+    <div class="grid">
+      <section class="card" id="p-savings">
+        <h2>Token Savings <span id="savings-src"></span></h2>
+        <div class="big" id="savings-total">0</div>
+        <div class="sub">tokens saved · <span id="savings-ratio">0%</span> of raw</div>
+        <div id="savings-empty" class="empty" hidden></div>
+        <div id="savings-detail"></div>
+      </section>
+
+      <section class="card" id="p-memory">
+        <h2>Memory</h2>
+        <div class="big" id="memory-total">0</div>
+        <div class="sub"><span id="memory-resolved">0</span> resolved · <span id="memory-projects">0</span> projects</div>
+        <div id="memory-empty" class="empty" hidden></div>
+        <div id="memory-recent" class="list"></div>
+      </section>
+
+      <section class="card" id="p-routing">
+        <h2>Intent Routing</h2>
+        <div class="big" id="routing-total">0</div>
+        <div class="sub"><span id="routing-routed">0</span> routed · <span id="routing-suggested">0</span> suggested</div>
+        <div id="routing-empty" class="empty" hidden></div>
+        <div id="routing-recent" class="list"></div>
+      </section>
+
+      <section class="card" id="p-learning">
+        <h2>Continuous Learning</h2>
+        <div class="big" id="learning-total">0</div>
+        <div class="sub"><span id="learning-promoted">0</span> promoted · <span id="learning-atthreshold">0</span> at threshold</div>
+        <div id="learning-empty" class="empty" hidden></div>
+        <div id="learning-eligible" class="list"></div>
+      </section>
+
+      <section class="card" id="p-graph">
+        <h2>Codebase Graph</h2>
+        <div class="big" id="graph-nodes">0</div>
+        <div class="sub"><span id="graph-edges">0</span> edges · <span id="graph-files">0</span> files</div>
+        <div id="graph-empty" class="empty" hidden></div>
+        <div id="graph-kinds"></div>
+      </section>
+
+      <section class="card" id="p-overview">
+        <h2>Fabric</h2>
+        <div id="overview-fabric"></div>
+      </section>
+    </div>
+  </main>
+  <footer>
+    Every number on this page maps to a real file in <code id="fabric-root">~/.kodelythecc/</code> ·
+    <span id="footer-ts"></span>
+  </footer>
+
+<script>
+async function get(path) {
+  const r = await fetch(path);
+  return r.json();
+}
+
+function fmt(n) { return Number(n).toLocaleString(); }
+function pct(x) { return (Math.round(x * 1000) / 10) + '%'; }
+function iso(s) { return s ? s.slice(0, 19).replace('T', ' ') : '—'; }
+
+function empty(el, msg) { el.hidden = false; el.textContent = msg || 'no data yet'; }
+
+async function loadSavings() {
+  const d = await get('/api/savings');
+  document.getElementById('savings-total').textContent = fmt(d.total_saved);
+  document.getElementById('savings-ratio').textContent = pct(d.ratio);
+  document.getElementById('savings-src').innerHTML = d.empty ? '' :
+    Object.entries(d.bySource).map(([k, v]) => `<span class="pill">${k}: ${fmt(v)}</span>`).join('');
+  if (d.empty) empty(document.getElementById('savings-empty'), d.empty_reason);
+  else document.getElementById('savings-empty').hidden = true;
+
+  const detail = document.getElementById('savings-detail');
+  detail.innerHTML =
+    `<div class="stat"><span class="k">rows counted</span><span class="v">${fmt(d.rows_counted)}</span></div>` +
+    `<div class="stat"><span class="k">raw tokens</span><span class="v">${fmt(d.total_raw)}</span></div>` +
+    `<div class="stat"><span class="k">lean tokens</span><span class="v">${fmt(d.total_lean)}</span></div>` +
+    (d.last_ts ? `<div class="stat"><span class="k">last event</span><span class="v">${iso(d.last_ts)}</span></div>` : '');
+}
+
+async function loadMemory() {
+  const d = await get('/api/memory');
+  document.getElementById('memory-total').textContent = fmt(d.total);
+  document.getElementById('memory-resolved').textContent = fmt(d.resolvedTrue || 0);
+  document.getElementById('memory-projects').textContent = fmt(d.projects || 0);
+  if (d.empty) empty(document.getElementById('memory-empty'), 'no memories yet — capture one with kodelyth-ecc memory remember');
+  else document.getElementById('memory-empty').hidden = true;
+  document.getElementById('memory-recent').innerHTML = (d.recent || []).map(m =>
+    `<div class="row"><div>${escapeHtml(m.problem || '(no title)')}</div>
+     <div class="meta">${iso(m.captured_at)} · ${(m.tags || []).join(', ')}${m.resolved === true ? ' · <span class="pill good">resolved</span>' : m.resolved === false ? ' · <span class="pill bad">failed</span>' : ''}</div></div>`
+  ).join('');
+}
+
+async function loadRouting() {
+  const d = await get('/api/routing');
+  document.getElementById('routing-total').textContent = fmt(d.total);
+  document.getElementById('routing-routed').textContent = fmt(d.routed);
+  document.getElementById('routing-suggested').textContent = fmt(d.suggested);
+  if (d.empty) empty(document.getElementById('routing-empty'), 'no intent routing decisions yet');
+  else document.getElementById('routing-empty').hidden = true;
+  document.getElementById('routing-recent').innerHTML = (d.recent || []).map(r =>
+    `<div class="row"><div>${escapeHtml(r.prompt_head || '(no head)')}</div>
+     <div class="meta">${iso(r.ts)} · <span class="pill ${r.kind === 'route' ? 'good' : ''}">${r.agent}</span> ${Math.round((r.confidence || 0) * 100)}%</div></div>`
+  ).join('');
+}
+
+async function loadLearning() {
+  const d = await get('/api/learning');
+  document.getElementById('learning-total').textContent = fmt(d.total);
+  document.getElementById('learning-promoted').textContent = fmt(d.promoted);
+  document.getElementById('learning-atthreshold').textContent = fmt(d.atThreshold);
+  if (d.empty) empty(document.getElementById('learning-empty'), 'no instincts learned yet');
+  else document.getElementById('learning-empty').hidden = true;
+  document.getElementById('learning-eligible').innerHTML = (d.eligible_for_promotion || []).map(it =>
+    `<div class="row"><div>${escapeHtml(it.key)}</div>
+     <div class="meta"><span class="pill">${it.kind}</span> conf ${Math.round(it.confidence * 100)}% · support ${it.support} · <span class="pill ${it.risk_class === 'safe' ? 'good' : it.risk_class === 'moderate' ? 'warn' : 'bad'}">${it.risk_class}</span></div></div>`
+  ).join('');
+}
+
+async function loadGraph() {
+  const project = new URLSearchParams(location.search).get('project') || '';
+  const d = await get('/api/graph' + (project ? '?project=' + encodeURIComponent(project) : ''));
+  if (d.empty) {
+    empty(document.getElementById('graph-empty'), 'no graph for this project — run kodelyth-ecc index');
+    document.getElementById('graph-nodes').textContent = '0';
+    document.getElementById('graph-edges').textContent = '0';
+    document.getElementById('graph-files').textContent = '0';
+    return;
+  }
+  document.getElementById('graph-empty').hidden = true;
+  document.getElementById('graph-nodes').textContent = fmt(d.stats.nodes_total);
+  document.getElementById('graph-edges').textContent = fmt(d.stats.edges_total);
+  document.getElementById('graph-files').textContent = fmt(d.stats.files_indexed);
+  document.getElementById('graph-kinds').innerHTML =
+    Object.entries(d.kinds).map(([k, v]) => `<span class="pill">${k}: ${fmt(v)}</span>`).join('');
+}
+
+async function loadOverview() {
+  const d = await get('/api/overview');
+  document.getElementById('fabric-root').textContent = d.fabric.global_root;
+  document.getElementById('overview-fabric').innerHTML =
+    `<div class="stat"><span class="k">memories</span><span class="v">${fmt(d.counts.memories)}</span></div>` +
+    `<div class="stat"><span class="k">telemetry events</span><span class="v">${fmt(d.counts.telemetry)}</span></div>` +
+    `<div class="stat"><span class="k">savings rows</span><span class="v">${fmt(d.counts.savings)}</span></div>` +
+    `<div class="stat"><span class="k">memory dir</span><span class="v" style="font-size:10px">${d.fabric.memory_dir}</span></div>`;
+  document.getElementById('footer-ts').textContent = 'refreshed ' + iso(d.generated_at);
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+async function refresh() {
+  try {
+    await Promise.all([loadSavings(), loadMemory(), loadRouting(), loadLearning(), loadGraph(), loadOverview()]);
+    document.getElementById('conn').textContent = 'live';
+  } catch (err) {
+    document.getElementById('conn').textContent = 'error: ' + err.message;
+  }
+}
+
+refresh();
+setInterval(refresh, 5000);
+</script>
+</body>
+</html>

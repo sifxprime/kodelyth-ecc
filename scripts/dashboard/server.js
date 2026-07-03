@@ -279,6 +279,25 @@ function handleRequest(req, res) {
       return jsonResponse(res, 200, data.tokenBudgetSnapshot());
     }
 
+    if (p === '/api/rtk/status') {
+      const rtk = require('../rtk/index.js');
+      return jsonResponse(res, 200, rtk.status());
+    }
+
+    if (p === '/api/rtk') {
+      const rtk = require('../rtk/index.js');
+      const st  = rtk.status();
+      if (!st.installed) {
+        return jsonResponse(res, 200, {
+          ok: false,
+          installed: false,
+          install_hint: 'Run: kodelyth-ecc rtk install',
+        });
+      }
+      const s = rtk.savings({ days: Number(q.get('days')) || 30 });
+      return jsonResponse(res, 200, { ok: true, installed: true, version: st.version, active: st.active, ...s });
+    }
+
     if (p.startsWith('/api/')) return notFound(res);
 
     // ── static fallback ───────────────────────────────────────────────────

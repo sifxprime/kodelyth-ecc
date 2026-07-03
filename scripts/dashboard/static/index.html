@@ -220,6 +220,7 @@
       <button id="refreshBtn" class="btn-ghost" title="Refresh active tab  (R key)">Refresh</button>
       <nav class="tabs">
         <button data-tab="overview" class="active">Overview</button>
+        <button data-tab="rtk">RTK Savings</button>
         <button data-tab="memory">Memory</button>
         <button data-tab="evolve">Evolve</button>
         <button data-tab="catalog">Catalog</button>
@@ -242,6 +243,27 @@
           <h2>Token budget snapshot</h2>
           <div id="budgetSnapshot">loading…</div>
         </div>
+      </div>
+    </section>
+
+    <!-- ───────── RTK SAVINGS ───────── -->
+    <section data-panel="rtk" hidden>
+      <div class="grid" id="rtkCards"></div>
+      <hr class="sep">
+      <div class="row">
+        <div class="card">
+          <h2>Top saving commands</h2>
+          <div id="rtkTopCmds">loading…</div>
+        </div>
+        <div class="card">
+          <h2>Active integrations</h2>
+          <div id="rtkActive">loading…</div>
+        </div>
+      </div>
+      <hr class="sep">
+      <div class="card">
+        <h2>Daily savings (last 30 days)</h2>
+        <div id="rtkDaily">loading…</div>
       </div>
     </section>
 
@@ -630,9 +652,76 @@
     }
   }
 
+  // ───── RTK loader ─────
+  async function loadRtk() {
+    try {
+      const r = await fetch('/api/rtk').then(r => r.json());
+      const cards = $('#rtkCards');
+      if (!r.installed) {
+        cards.innerHTML = `<div class="empty">RTK not installed. Install with:
+          <code>kodelyth-ecc rtk install</code>
+          <br><br>${escapeHtml(r.install_hint || '')}</div>`;
+        $('#rtkTopCmds').innerHTML = '';
+        $('#rtkActive').innerHTML  = '';
+        $('#rtkDaily').innerHTML   = '';
+        return;
+      }
+      if (!r.ok || !r.gain) {
+        cards.innerHTML = `<div class="empty">RTK installed (${escapeHtml(r.version || '')}) but no savings data yet. Use your AI tool with RTK enabled and refresh.</div>`;
+        $('#rtkTopCmds').innerHTML = '';
+        $('#rtkActive').innerHTML  = (r.active || []).map(a => `<div class="muted">• ${escapeHtml(a)}</div>`).join('') || '<div class="empty">none</div>';
+        $('#rtkDaily').innerHTML   = '';
+        return;
+      }
+      const g = r.gain || {};
+      const s = g.summary || {};
+      const totalSaved = s.total_saved   ?? 0;
+      const totalInput = s.total_input   ?? 0;
+      const percent    = s.avg_savings_pct != null ? Math.round(s.avg_savings_pct) : 0;
+      const cmdCount   = s.total_commands ?? 0;
+      cards.innerHTML = [
+        statCard(fmtN(totalSaved), 'Tokens saved (all-time)',  `${percent}% avg reduction`),
+        statCard(fmtN(cmdCount),   'Commands filtered',        'through RTK'),
+        statCard(fmtN(totalInput), 'Raw tokens seen',          'before RTK compression'),
+        statCard(escapeHtml((r.version || '—').replace(/^rtk\s+/,'')), 'RTK version', 'active binary'),
+      ].join('');
+      // Per-command breakdown — RTK's `gain` JSON does not expose this today.
+      $('#rtkTopCmds').innerHTML = `<div class="muted" style="font-size:12.5px;">
+        Per-command breakdown lives in <code>rtk discover</code>. Run it in your terminal for missed savings opportunities.
+      </div>`;
+      // Active integrations
+      $('#rtkActive').innerHTML = (r.active && r.active.length)
+        ? r.active.map(a => `<div class="muted" style="font-family:monospace;font-size:12px;">${escapeHtml(a)}</div>`).join('')
+        : '<div class="empty">no active IDE integrations detected</div>';
+      // Daily graph — simple ascii-style bars, RTK schema: g.daily[].saved_tokens
+      const daily = g.daily || [];
+      if (Array.isArray(daily) && daily.length) {
+        const max = Math.max(...daily.map(d => d.saved_tokens || 0));
+        $('#rtkDaily').innerHTML = daily.slice(-30).map(d => {
+          const saved = d.saved_tokens || 0;
+          const pct = max ? (saved / max) * 100 : 0;
+          return `<div style="display:flex;gap:8px;align-items:center;margin:3px 0;font-size:12px;">
+            <span class="muted" style="width:90px;font-family:monospace;">${escapeHtml(d.date || '')}</span>
+            <div style="flex:1;background:#f1f5f9;border-radius:3px;height:14px;overflow:hidden;">
+              <div style="background:#34d399;height:100%;width:${pct}%;"></div>
+            </div>
+            <span style="width:110px;text-align:right;font-family:monospace;">${fmtN(saved)}</span>
+          </div>`;
+        }).join('');
+      } else {
+        $('#rtkDaily').innerHTML = '<div class="empty">no daily data yet</div>';
+      }
+      setLastUpdated();
+    } catch (e) {
+      $('#rtkCards').innerHTML = `<div class="empty">failed: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+  function fmtN(n) { return Number(n || 0).toLocaleString(); }
+
   // ───── tab dispatcher ─────
   function onTabShown(tab) {
     if (tab === 'overview') loadOverview();
+    if (tab === 'rtk')      loadRtk();
     if (tab === 'memory')   loadMemory();
     if (tab === 'evolve')   loadEvolve();
     if (tab === 'catalog')  loadCatalog();

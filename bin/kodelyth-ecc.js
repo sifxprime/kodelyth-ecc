@@ -177,6 +177,59 @@ if (args[0] && args[0].startsWith('mcp-')) {
   return;
 }
 
+// ── Subcommand: rtk (Rust Token Killer integration) ──────────────────────────
+// Usage:
+//   kodelyth-ecc rtk install                install rtk binary (brew or curl)
+//   kodelyth-ecc rtk enable [--target X]    wire rtk into an IDE (default: claude-code)
+//   kodelyth-ecc rtk disable [--target X]   remove rtk hook from an IDE
+//   kodelyth-ecc rtk status                 show binary version + active integrations
+//   kodelyth-ecc rtk gain                   thin wrapper around `rtk gain`
+if (args[0] === 'rtk') {
+  const rtk = require(path.join(ROOT, 'scripts', 'rtk', 'index.js'));
+  const sub = args[1] || 'status';
+  const rest = args.slice(2);
+  function flag(name, dflt) {
+    const i = rest.indexOf(name);
+    return i >= 0 && rest[i + 1] ? rest[i + 1] : dflt;
+  }
+  const log = (m) => process.stdout.write(m + '\n');
+  try {
+    if (sub === 'install') {
+      const r = rtk.install({ log });
+      log(JSON.stringify(r, null, 2));
+      process.exit(r.installed || r.skipped ? 0 : 1);
+    }
+    if (sub === 'enable') {
+      const target = flag('--target', 'claude-code');
+      const inst = rtk.install({ log });
+      if (!rtk.isInstalled()) { log(JSON.stringify(inst, null, 2)); process.exit(1); }
+      const r = rtk.enableFor(target, { log });
+      log(JSON.stringify(r, null, 2));
+      process.exit(r.enabled ? 0 : 1);
+    }
+    if (sub === 'disable') {
+      const target = flag('--target', 'claude-code');
+      const r = rtk.disableFor(target, { log });
+      log(JSON.stringify(r, null, 2));
+      process.exit(r.disabled ? 0 : 1);
+    }
+    if (sub === 'status') {
+      log(JSON.stringify(rtk.status(), null, 2));
+      process.exit(0);
+    }
+    if (sub === 'gain') {
+      const r = spawnSync('rtk', ['gain', ...rest], { stdio: 'inherit' });
+      process.exit(r.status ?? 1);
+    }
+    process.stderr.write('unknown rtk subcommand. try: install | enable | disable | status | gain\n');
+    process.exit(2);
+  } catch (e) {
+    process.stderr.write(`[rtk] ${e.message}\n`);
+    process.exit(1);
+  }
+  return;
+}
+
 // ── Subcommand: route (cost-aware model tier recommendation) ──────────────────
 // Usage: npx kodelyth-ecc route "<task description>" [--files N] [--agent <name>] [--current <model-id>]
 if (args[0] === 'route') {
@@ -1023,5 +1076,33 @@ if (isWin) {
   }
   fs.chmodSync(sh, 0o755);
   const result = spawnSync('bash', [sh, ...args], { stdio: 'inherit', shell: false });
+
+  // Post-install: auto-install + wire RTK for the target IDE (opt-out via --no-rtk).
+  if (result.status === 0 && !args.includes('--no-rtk')) {
+    try {
+      const rtk = require(path.join(ROOT, 'scripts', 'rtk', 'index.js'));
+      const targetIdx = args.indexOf('--target');
+      const target = targetIdx >= 0 && args[targetIdx + 1] ? args[targetIdx + 1] : 'claude-code';
+      if (rtk.TARGET_MAP[target]) {
+        process.stdout.write('\n' + '─'.repeat(60) + '\n');
+        process.stdout.write('[rtk] setting up token savings (60-90% on shell commands)\n');
+        const inst = rtk.install({ log: (m) => process.stdout.write(m + '\n') });
+        if (inst.installed || inst.reason === 'already installed') {
+          const en = rtk.enableFor(target, { log: (m) => process.stdout.write(m + '\n') });
+          if (en.enabled) {
+            process.stdout.write(`[rtk] enabled for ${target} — restart your AI tool to activate\n`);
+          } else {
+            process.stdout.write(`[rtk] enable skipped: ${en.reason}\n`);
+          }
+        } else {
+          process.stdout.write(`[rtk] install skipped: ${inst.reason}\n`);
+          process.stdout.write('[rtk] you can retry later with: kodelyth-ecc rtk enable --target ' + target + '\n');
+        }
+      }
+    } catch (e) {
+      process.stderr.write(`[rtk] setup skipped: ${e.message}\n`);
+    }
+  }
+
   process.exit(result.status ?? 1);
 }

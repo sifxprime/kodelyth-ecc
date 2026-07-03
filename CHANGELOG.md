@@ -2,6 +2,29 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v1.9.0 — RTK integration + revived dashboard (July 2026)
+
+ECC now auto-installs [RTK](https://github.com/rtk-ai/rtk) (Rust Token Killer) and wires its transparent command filter into whichever IDE ECC was installed for. Real token savings (60-90% on shell commands) show up in the dashboard, pulled straight from RTK's own ledger — no synthetic numbers.
+
+### Added
+
+- `scripts/rtk/index.js` — RTK integration module: `install()`, `enableFor(target)`, `disableFor(target)`, `status()`, `savings()`
+- `kodelyth-ecc rtk <install|enable|disable|status|gain>` — CLI subcommands to manage RTK from ECC
+- Post-install auto-hook: after `npx kodelyth-ecc --target <ide>` succeeds, ECC auto-installs the RTK binary (Homebrew on macOS, curl script elsewhere) and runs `rtk init` for the target IDE. Opt out with `--no-rtk`
+- Target map covers 10 install targets: `claude-code`, `cursor`, `cursor-project`, `windsurf-home`, `windsurf-project`, `antigravity`, `codex-home`, `opencode`, `cline`, `gemini-cli`
+- `/api/rtk` + `/api/rtk/status` dashboard endpoints — surface RTK's live ledger
+- New **RTK Savings** tab in the dashboard: total tokens saved, raw tokens seen, avg reduction %, active IDE integrations, 30-day daily bar chart
+
+### Changed
+
+- Dashboard nav order: `Overview → RTK Savings → Memory → Evolve → Catalog → Sessions`
+
+### Notes
+
+- Windows auto-install is skipped (RTK requires manual .zip download on native Windows); WSL follows the Linux path
+- RTK setup is best-effort — if brew/curl aren't available, install fails gracefully with a hint to run `kodelyth-ecc rtk install` later
+- Existing RTK installs are detected and reused; no double-install
+
 ## v1.8.6 — Memory path rename + auto-migration (July 2026)
 
 Renamed the on-disk memory root from `~/.kodelyth/` to `~/.kodelythecc/` across every runtime path. Existing installs auto-migrate on first CLI invocation or hook fire — idempotent, non-destructive, keeps a dated backup of the old directory.

@@ -13,7 +13,7 @@ const { chromium } = require('playwright');
 const readline     = require('readline');
 const fs           = require('fs');
 
-const SESSION_DIR = process.env.SESSION_DIR || `${process.env.HOME}/.kodelyth/twitter-session`;
+const SESSION_DIR = process.env.SESSION_DIR || `${process.env.HOME}/.kodelythecc/twitter-session`;
 
 function prompt(question) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });

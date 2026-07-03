@@ -70,7 +70,7 @@ const ECC_FEATURES = [
   },
   {
     name:    'Local Memory (BM25)',
-    desc:    'Every session captures solutions to ~/.kodelyth/memory/. BM25 recall surfaces relevant past solutions automatically.',
+    desc:    'Every session captures solutions to ~/.kodelythecc/memory/. BM25 recall surfaces relevant past solutions automatically.',
     cmd:     'use kodelyth-memory',
     detail:  'Cross-project. Cross-IDE. One shared store.',
   },

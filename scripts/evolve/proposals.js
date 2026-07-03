@@ -12,7 +12,7 @@
 // audit trail is preserved. Reads collapse to "latest state per id".
 //
 // Storage:
-//   ${KODELYTH_EVOLVE_DIR:-~/.kodelyth/evolve}/proposals.jsonl
+//   ${KODELYTH_EVOLVE_DIR:-~/.kodelythecc/evolve}/proposals.jsonl
 //
 // Pure where possible. Public functions accept dir explicitly.
 'use strict';
@@ -22,7 +22,7 @@ const path = require('path');
 const os   = require('os');
 
 const DEFAULT_DIR = process.env.KODELYTH_EVOLVE_DIR
-  || path.join(os.homedir(), '.kodelyth', 'evolve');
+  || path.join(os.homedir(), '.kodelythecc', 'evolve');
 
 const PROPOSALS_FILE = 'proposals.jsonl';
 

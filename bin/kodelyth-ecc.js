@@ -20,6 +20,11 @@ const fs            = require('fs');
 const os            = require('os');
 
 const ROOT    = path.join(__dirname, '..');
+
+// Auto-migrate legacy ~/.kodelyth/ → ~/.kodelythecc/ on first run for existing users.
+// Idempotent; instant no-op if legacy dir is absent or migration marker exists.
+try { require(path.join(ROOT, 'scripts', 'migrate-legacy.js')).main(); } catch { /* best-effort */ }
+
 // zsh (unlike bash) passes inline comments as literal args — strip them
 const args    = process.argv.slice(2).filter((a, i, arr) => {
   if (a.startsWith('#')) return false;          // drop # and everything after
@@ -863,7 +868,7 @@ if (args.includes('--help') || args.includes('-h')) {
     mcp-call <name> <tool> [--json '{"arg":"value"}']
                          Call a tool on a registered server. See docs/mcp-clients.md.
     route                Recommend trivial/standard/hard model tier for a task. Reads
-                         .kodelyth/router.json and KODELYTH_ROUTER_* env vars. Disable with
+                         .kodelythecc/router.json and KODELYTH_ROUTER_* env vars. Disable with
                          KODELYTH_ROUTER=off. Use --json for machine-readable output.
     swarm                Run N specialist agents in parallel inside isolated git worktrees +
                          a tmux session. Auto-picks agents from --task signals or accepts
@@ -1010,6 +1015,7 @@ if (isWin) {
   }
   process.exit(result.status ?? 1);
 } else {
+  try { require(path.join(ROOT, 'scripts', 'migrate-legacy.js')).main(); } catch {}
   const sh = path.join(ROOT, 'install.sh');
   if (!fs.existsSync(sh)) {
     console.error('Error: install.sh not found in package root:', ROOT);

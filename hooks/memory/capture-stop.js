@@ -4,7 +4,7 @@
 //
 // Runs at the end of a Claude Code session. Locates the session JSONL,
 // extracts memory candidates, writes them to a review queue at:
-//   ~/.kodelyth/memory/pending-review.jsonl
+//   ~/.kodelythecc/memory/pending-review.jsonl
 //
 // Candidates are NEVER auto-stored. The user reviews via:
 //   /memory review-pending
@@ -51,7 +51,7 @@ function main() {
     }
 
     const dir = process.env.KODELYTH_MEMORY_DIR
-      || path.join(os.homedir(), '.kodelyth', 'memory');
+      || path.join(os.homedir(), '.kodelythecc', 'memory');
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
     const sessionId = data.session_id || path.basename(sessionJsonl, '.jsonl');

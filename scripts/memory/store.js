@@ -2,7 +2,7 @@
 // Kodelyth ECC — Memory Store
 // Local, zero-dependency, model-agnostic memory for AI coding sessions.
 //
-// Storage layout (all in ~/.kodelyth/memory/):
+// Storage layout (all in ~/.kodelythecc/memory/):
 //   memories.jsonl       Append-only log of every captured memory
 //   index.json           Inverted index: token -> [memory ids]
 //   patterns.json        User-level patterns (preferences, conventions)
@@ -19,8 +19,11 @@ const os   = require('os');
 const path = require('path');
 const crypto = require('crypto');
 
+// Auto-migrate legacy ~/.kodelyth/ → ~/.kodelythecc/ before we touch any path.
+try { require('../migrate-legacy').main(); } catch { /* best-effort */ }
+
 const MEMORY_DIR = process.env.KODELYTH_MEMORY_DIR
-  || path.join(os.homedir(), '.kodelyth', 'memory');
+  || path.join(os.homedir(), '.kodelythecc', 'memory');
 
 const PATHS = {
   dir:       MEMORY_DIR,

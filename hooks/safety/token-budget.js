@@ -21,7 +21,7 @@
 //                Blocks SessionStart once usage >= budget.
 //
 // Optional knobs:
-//   KODELYTH_TOKEN_BUDGET_DIR=/custom/path   default ~/.kodelyth/safety
+//   KODELYTH_TOKEN_BUDGET_DIR=/custom/path   default ~/.kodelythecc/safety
 //   KODELYTH_TOKEN_BUDGET_WARN=0.7           warn threshold (0-1, default 0.7)
 //   KODELYTH_TOKEN_BUDGET_RESET=1            wipe usage and exit (admin op)
 //
@@ -39,7 +39,7 @@ const WARN_PCT   = Math.max(0, Math.min(1, Number(process.env.KODELYTH_TOKEN_BUD
 const RESET      = !!process.env.KODELYTH_TOKEN_BUDGET_RESET;
 
 const STATE_DIR = process.env.KODELYTH_TOKEN_BUDGET_DIR
-  || path.join(os.homedir(), '.kodelyth', 'safety');
+  || path.join(os.homedir(), '.kodelythecc', 'safety');
 
 function safeExit(code) {
   try { process.stdout.write(''); } catch {}

@@ -2,7 +2,7 @@
 // Kodelyth ECC — Structured Instinct Schema  (Improvement B)
 //
 // Stores learned instincts as typed JSON records in:
-//   ~/.kodelyth/memory/instincts.jsonl
+//   ~/.kodelythecc/memory/instincts.jsonl
 //
 // Each instinct has: pattern, trigger, confidence, last_used, outcome, decay.
 // This replaces free-form markdown bullets for machine-readable learning.
@@ -33,7 +33,7 @@ const path   = require('path');
 const crypto = require('crypto');
 
 const MEMORY_DIR = process.env.KODELYTH_MEMORY_DIR
-  || path.join(os.homedir(), '.kodelyth', 'memory');
+  || path.join(os.homedir(), '.kodelythecc', 'memory');
 
 const INSTINCTS_FILE = path.join(MEMORY_DIR, 'instincts.jsonl');
 const STALE_DAYS     = 30;

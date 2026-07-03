@@ -90,8 +90,8 @@ test('loadConfig: defaults when no overrides', () => {
 
 test('loadConfig: project file overrides defaults', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'router-cfg-'));
-  fs.mkdirSync(path.join(tmp, '.kodelyth'), { recursive: true });
-  fs.writeFileSync(path.join(tmp, '.kodelyth', 'router.json'), JSON.stringify({
+  fs.mkdirSync(path.join(tmp, '.kodelythecc'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, '.kodelythecc', 'router.json'), JSON.stringify({
     trivial:  'gpt-4.1-mini',
     standard: 'gpt-4.1',
     hard:     'gpt-5',
@@ -106,8 +106,8 @@ test('loadConfig: project file overrides defaults', () => {
 
 test('loadConfig: env vars override project file', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'router-cfg-'));
-  fs.mkdirSync(path.join(tmp, '.kodelyth'), { recursive: true });
-  fs.writeFileSync(path.join(tmp, '.kodelyth', 'router.json'), JSON.stringify({
+  fs.mkdirSync(path.join(tmp, '.kodelythecc'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, '.kodelythecc', 'router.json'), JSON.stringify({
     trivial: 'gpt-4.1-mini',
   }));
   const orig = process.env.KODELYTH_ROUTER_TRIVIAL;

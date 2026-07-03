@@ -8,7 +8,7 @@ const os     = require('os');
 const path   = require('path');
 
 // Isolate the memory store to a tmp dir so capture/recall don't pollute
-// the user's real ~/.kodelyth/memory.
+// the user's real ~/.kodelythecc/memory.
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'kodelyth-mcp-'));
 process.env.KODELYTH_MEMORY_DIR = TMP;
 

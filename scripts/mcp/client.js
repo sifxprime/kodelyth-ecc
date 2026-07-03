@@ -6,7 +6,7 @@
 // make ECC the MCP HUB: serve to any framework, consume from any provider.
 //
 // Storage:
-//   ~/.kodelyth/mcp-clients.json     registry of named external servers
+//   ~/.kodelythecc/mcp-clients.json     registry of named external servers
 //
 // Public API (all functions pure or local file-only):
 //   loadRegistry(), saveRegistry(reg)
@@ -32,7 +32,7 @@ const os   = require('os');
 const path = require('path');
 
 const REGISTRY_DIR = process.env.KODELYTH_MCP_CLIENT_DIR
-  || path.join(os.homedir(), '.kodelyth');
+  || path.join(os.homedir(), '.kodelythecc');
 const REGISTRY_FILE = path.join(REGISTRY_DIR, 'mcp-clients.json');
 
 // ── Registry I/O ─────────────────────────────────────────────────────────────

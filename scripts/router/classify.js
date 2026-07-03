@@ -164,13 +164,13 @@ function classify(task, opts = {}) {
   return { tier: 'standard', reasons, score, explicit_tier: explicitTier || null };
 }
 
-// ── Config loader (env vars + .kodelyth/router.json) ─────────────────────────
+// ── Config loader (env vars + .kodelythecc/router.json) ─────────────────────────
 function loadConfig({ projectRoot = process.cwd() } = {}) {
   const cfg = { ...DEFAULT_MODELS, notes: '' };
 
   // 1. Project-level override.
   try {
-    const file = path.join(projectRoot, '.kodelyth', 'router.json');
+    const file = path.join(projectRoot, '.kodelythecc', 'router.json');
     if (fs.existsSync(file)) {
       const raw = JSON.parse(fs.readFileSync(file, 'utf8'));
       for (const k of ['trivial', 'standard', 'hard', 'default', 'notes']) {

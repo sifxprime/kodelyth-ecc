@@ -8,7 +8,7 @@ const { chromium } = require('playwright');
 const path = require('path');
 const fs   = require('fs');
 
-const SESSION_DIR = process.env.SESSION_DIR || `${process.env.HOME}/.kodelyth/twitter-session`;
+const SESSION_DIR = process.env.SESSION_DIR || `${process.env.HOME}/.kodelythecc/twitter-session`;
 const HEADLESS    = process.env.HEADLESS !== 'false';
 const BASE_URL    = 'https://x.com';
 

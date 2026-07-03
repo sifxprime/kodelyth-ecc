@@ -2,6 +2,26 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v1.8.6 — Memory path rename + auto-migration (July 2026)
+
+Renamed the on-disk memory root from `~/.kodelyth/` to `~/.kodelythecc/` across every runtime path. Existing installs auto-migrate on first CLI invocation or hook fire — idempotent, non-destructive, keeps a dated backup of the old directory.
+
+### Changed
+
+- All 20 runtime JS files: memory, hooks, dashboard, evolve, MCP, router, tests now point at `~/.kodelythecc/` (42 replacements total)
+- `scripts/memory/store.js` — default `MEMORY_DIR` now `~/.kodelythecc/memory/`; runs migration on `require`
+- `bin/kodelyth-ecc.js` — runs migration on every CLI invocation (no-op after first run)
+- `KODELYTH_MEMORY_DIR` and related env vars kept unchanged for backwards compat
+
+### Added
+
+- `scripts/migrate-legacy.js` — one-shot migrator: merges memories, copies sibling files (index, patterns, projects/, evolve/, safety/, mcp-clients.json), renames old dir to `~/.kodelyth.backup-YYYY-MM-DD`, drops `.migrated-from-kodelyth` marker so it never runs twice
+
+### Behavior
+
+- **New users**: get `~/.kodelythecc/` from the start
+- **Existing users** (have `~/.kodelyth/`): data migrated on next CLI run or hook fire; original preserved as backup
+
 ## v1.8.0 — Visual system overhaul + SVG polish (May 2026)
 
 Comprehensive overhaul of all 31 social assets. GitHub social preview and OG image rebuilt with two-panel stat card layout. All text overflow issues fixed across the full SVG set. Test counts updated to 373. PNG exports regenerated at 4K only.

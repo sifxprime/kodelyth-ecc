@@ -4,8 +4,8 @@
 //
 // All data the dashboard renders comes from:
 //   - The MCP catalog (filesystem reads of agents/, skills/, commands/, rules/, bundles/)
-//   - The BM25 memory store (~/.kodelyth/memory/)
-//   - The evolve signal streams (~/.kodelyth/evolve/)
+//   - The BM25 memory store (~/.kodelythecc/memory/)
+//   - The evolve signal streams (~/.kodelythecc/evolve/)
 //   - The token-budget hook state (${KODELYTH_TOKEN_BUDGET_DIR})
 //   - The orchestration session dirs (.orchestration/<session>/)
 //   - Live IDE session activity (Claude Code, Windsurf, Antigravity)
@@ -35,13 +35,13 @@ const evolveProposals = safeRequire('scripts/evolve/proposals.js');
 // ── helpers ──────────────────────────────────────────────────────────────────
 
 function defaultMemoryDir() {
-  return process.env.KODELYTH_MEMORY_DIR || path.join(os.homedir(), '.kodelyth', 'memory');
+  return process.env.KODELYTH_MEMORY_DIR || path.join(os.homedir(), '.kodelythecc', 'memory');
 }
 function defaultEvolveDir() {
-  return process.env.KODELYTH_EVOLVE_DIR || path.join(os.homedir(), '.kodelyth', 'evolve');
+  return process.env.KODELYTH_EVOLVE_DIR || path.join(os.homedir(), '.kodelythecc', 'evolve');
 }
 function defaultBudgetDir() {
-  return process.env.KODELYTH_TOKEN_BUDGET_DIR || path.join(os.homedir(), '.kodelyth', 'token-budget');
+  return process.env.KODELYTH_TOKEN_BUDGET_DIR || path.join(os.homedir(), '.kodelythecc', 'token-budget');
 }
 function defaultCoordRoot() {
   return process.env.KODELYTH_COORDINATION_ROOT || path.join(process.cwd(), '.orchestration');

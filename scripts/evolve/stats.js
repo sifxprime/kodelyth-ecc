@@ -14,7 +14,7 @@
 //                          by tokens to surface "we keep getting asked
 //                          about X but have no agent / skill / memory for it".
 //
-// Storage layout (default ${HOME}/.kodelyth/evolve/):
+// Storage layout (default ${HOME}/.kodelythecc/evolve/):
 //   reuse.json                  { byMemory: { id: { count, sessions[], lastSurfaced } } }
 //   routing-misses.jsonl        append-only — one prompt per line
 //
@@ -31,7 +31,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 const DEFAULT_DIR = process.env.KODELYTH_EVOLVE_DIR
-  || path.join(os.homedir(), '.kodelyth', 'evolve');
+  || path.join(os.homedir(), '.kodelythecc', 'evolve');
 
 const REUSE_FILE = 'reuse.json';
 const MISSES_FILE = 'routing-misses.jsonl';

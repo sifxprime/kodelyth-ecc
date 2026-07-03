@@ -11,7 +11,7 @@
 //   - Skips on prompts that look like agent commands (`use foo`, `@bar`)
 //   - Skips when no memory exists yet
 //   - Suppresses repeats: never re-surfaces the same memory twice in a session
-//     (state file: ~/.kodelyth/memory/session-surfaced-<sessionId>.json)
+//     (state file: ~/.kodelythecc/memory/session-surfaced-<sessionId>.json)
 //   - Always exits 0 — never blocks the prompt because memory is unavailable
 // =============================================================================
 
@@ -120,7 +120,7 @@ function formatBlock(memories, userPrompt) {
 
 function surfacedStatePath(sessionId) {
   const dir = process.env.KODELYTH_MEMORY_DIR
-    || path.join(os.homedir(), '.kodelyth', 'memory');
+    || path.join(os.homedir(), '.kodelythecc', 'memory');
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   return path.join(dir, `session-surfaced-${sessionId}.json`);
 }

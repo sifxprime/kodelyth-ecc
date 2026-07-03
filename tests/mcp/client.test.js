@@ -9,7 +9,7 @@ const fs     = require('fs');
 const os     = require('os');
 const path   = require('path');
 
-// Isolate the registry to a tmp dir so we don't pollute ~/.kodelyth.
+// Isolate the registry to a tmp dir so we don't pollute ~/.kodelythecc.
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'kodelyth-mcp-client-'));
 process.env.KODELYTH_MCP_CLIENT_DIR = TMP;
 

@@ -81,7 +81,7 @@ test('writeBundle: rejects bad schema', () => {
 test('readBundle: rejects unknown schema', () => {
   const root = tmp();
   const out = path.join(root, 'bad.json');
-  fs.writeFileSync(out, JSON.stringify({ schema: 'not.kodelyth/v0', session: 'x', workers: [] }));
+  fs.writeFileSync(out, JSON.stringify({ schema: 'not.kodelythecc/v0', session: 'x', workers: [] }));
   assert.throws(() => B.readBundle(out), /unsupported schema/);
 });
 

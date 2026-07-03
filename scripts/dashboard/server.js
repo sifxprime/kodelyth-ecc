@@ -37,11 +37,11 @@ const MAX_SSE_CLIENTS = 10;
 // IMPORTANT: include both `routing-misses.jsonl` (always present once evolve sees
 // any miss) AND `proposals.jsonl` (created later, after `evolve analyze` runs).
 const WATCH_PATHS = [
-  path.join(os.homedir(), '.kodelyth', 'memory',  'memories.jsonl'),
-  path.join(os.homedir(), '.kodelyth', 'evolve',  'reuse.json'),
-  path.join(os.homedir(), '.kodelyth', 'evolve',  'routing-misses.jsonl'),
-  path.join(os.homedir(), '.kodelyth', 'evolve',  'proposals.jsonl'),
-  path.join(os.homedir(), '.kodelyth', 'token-budget'), // dir mtime — changes when budget files appear
+  path.join(os.homedir(), '.kodelythecc', 'memory',  'memories.jsonl'),
+  path.join(os.homedir(), '.kodelythecc', 'evolve',  'reuse.json'),
+  path.join(os.homedir(), '.kodelythecc', 'evolve',  'routing-misses.jsonl'),
+  path.join(os.homedir(), '.kodelythecc', 'evolve',  'proposals.jsonl'),
+  path.join(os.homedir(), '.kodelythecc', 'token-budget'), // dir mtime — changes when budget files appear
 ];
 const lastMtimes    = new Map();
 let   lastIdeMtime  = 0; // max mtime across Claude Code / Windsurf / Antigravity sessions

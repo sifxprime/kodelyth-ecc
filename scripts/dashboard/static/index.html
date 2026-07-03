@@ -246,8 +246,9 @@
       </div>
     </section>
 
-    <!-- ───────── RTK SAVINGS ───────── -->
+    <!-- ───────── TOKEN SAVINGS (RTK + TERSE) ───────── -->
     <section data-panel="rtk" hidden>
+      <h2 style="margin:0 0 10px 0;">Input savings (RTK)</h2>
       <div class="grid" id="rtkCards"></div>
       <hr class="sep">
       <div class="row">
@@ -262,8 +263,16 @@
       </div>
       <hr class="sep">
       <div class="card">
-        <h2>Daily savings (last 30 days)</h2>
+        <h2>Daily input savings (last 30 days)</h2>
         <div id="rtkDaily">loading…</div>
+      </div>
+      <hr class="sep">
+      <h2 style="margin:20px 0 10px 0;">Output savings (Terse mode)</h2>
+      <div class="grid" id="terseCards"></div>
+      <hr class="sep">
+      <div class="card">
+        <h2>Daily output savings (last 30 days)</h2>
+        <div id="terseDaily">loading…</div>
       </div>
     </section>
 
@@ -714,6 +723,37 @@
       setLastUpdated();
     } catch (e) {
       $('#rtkCards').innerHTML = `<div class="empty">failed: ${escapeHtml(e.message)}</div>`;
+    }
+    // Load Terse-mode output-savings section in parallel.
+    loadTerse();
+  }
+  async function loadTerse() {
+    try {
+      const t = await fetch('/api/terse').then(r => r.json());
+      $('#terseCards').innerHTML = [
+        statCard(fmtN(t.totalSaved),        'Output tokens saved',    `${t.avgSavingsPct}% vs baseline`),
+        statCard(fmtN(t.totalActual),       'Output tokens produced', 'under terse mode'),
+        statCard(fmtN(t.totalTurns),        'Turns tracked',          'with terse active'),
+        statCard(Object.keys(t.byLevel || {}).join(' · ') || '—', 'Levels used', 'lite / full / ultra'),
+      ].join('');
+      const daily = t.daily || [];
+      if (daily.length) {
+        const max = Math.max(...daily.map(d => d.saved || 0));
+        $('#terseDaily').innerHTML = daily.slice(-30).map(d => {
+          const pct = max ? (d.saved / max) * 100 : 0;
+          return `<div style="display:flex;gap:8px;align-items:center;margin:3px 0;font-size:12px;">
+            <span class="muted" style="width:90px;font-family:monospace;">${escapeHtml(d.date || '')}</span>
+            <div style="flex:1;background:#f1f5f9;border-radius:3px;height:14px;overflow:hidden;">
+              <div style="background:#60a5fa;height:100%;width:${pct}%;"></div>
+            </div>
+            <span style="width:110px;text-align:right;font-family:monospace;">${fmtN(d.saved)}</span>
+          </div>`;
+        }).join('');
+      } else {
+        $('#terseDaily').innerHTML = '<div class="empty">no terse-mode turns tracked yet — activate with <code>/terse</code></div>';
+      }
+    } catch (e) {
+      $('#terseCards').innerHTML = `<div class="empty">terse: ${escapeHtml(e.message)}</div>`;
     }
   }
   function fmtN(n) { return Number(n || 0).toLocaleString(); }

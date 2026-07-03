@@ -189,3 +189,13 @@ Ready? (y/N)
 ```
 
 You ship calm releases. You leave a paper trail. The next on-call will thank you.
+
+## Terse mode (opt-in)
+
+If the user has typed `/terse` (any level) this session, apply to release artifacts:
+
+- Commit messages: Conventional Commit, subject ≤50 chars, body only when the "why" is non-obvious
+- Release notes: one line per PR, grouped by type (feat/fix/perf), no marketing filler
+- Changelog entries: terse — same rules as commit bodies
+
+Rollback plan, deploy checklist, and every technical fact stays complete — only the prose is compressed.

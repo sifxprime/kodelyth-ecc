@@ -260,6 +260,126 @@ if (args[0] === 'rtk') {
   return;
 }
 
+// ── Subcommand: terse (output token compression) ─────────────────────────────
+// Usage:
+//   kodelyth-ecc terse status
+//   kodelyth-ecc terse stats [--json]
+//   kodelyth-ecc terse compress <file> [--dry-run] [--no-backup]
+//   kodelyth-ecc terse enable  [--target X | --all]
+if (args[0] === 'terse') {
+  const sub = args[1] || 'status';
+  const rest = args.slice(2);
+  const log = (m) => process.stdout.write(m + '\n');
+  function flag(name, dflt) {
+    const i = rest.indexOf(name);
+    return i >= 0 && rest[i + 1] ? rest[i + 1] : dflt;
+  }
+  try {
+    if (sub === 'status') {
+      const skill = path.join(ROOT, 'skills', 'terse-mode', 'SKILL.md');
+      const cmd   = path.join(ROOT, 'commands', 'terse.md');
+      const inClaude = fs.existsSync(path.join(os.homedir(), '.claude', 'skills', 'terse-mode', 'SKILL.md'));
+      log(`Terse mode skill: ${fs.existsSync(skill) ? 'shipped' : 'missing'}`);
+      log(`Terse mode command: ${fs.existsSync(cmd) ? 'shipped' : 'missing'}`);
+      log(`Installed to Claude Code: ${inClaude ? 'yes' : 'no'}`);
+      log(`Ledger: ${require(path.join(ROOT, 'scripts', 'terse', 'ledger.js')).LEDGER}`);
+      log('Activate in your AI tool with:  /terse [lite|full|ultra|off]');
+      process.exit(0);
+    }
+    if (sub === 'stats') {
+      const ledger = require(path.join(ROOT, 'scripts', 'terse', 'ledger.js'));
+      const s = ledger.summary({ days: 30 });
+      if (rest.includes('--json')) { log(JSON.stringify(s, null, 2)); process.exit(0); }
+      log(`Terse mode — output token savings`);
+      log(`  turns:        ${s.totalTurns.toLocaleString()}`);
+      log(`  tokens out:   ${s.totalActual.toLocaleString()}`);
+      log(`  tokens saved: ${s.totalSaved.toLocaleString()}  (${s.avgSavingsPct}% vs baseline)`);
+      log(`  by level:     ${JSON.stringify(s.byLevel)}`);
+      log(`  30d days:     ${s.daily.length}`);
+      process.exit(0);
+    }
+    if (sub === 'compress') {
+      const file = rest.find(a => !a.startsWith('-'));
+      if (!file) { process.stderr.write('usage: kodelyth-ecc terse compress <file> [--dry-run] [--no-backup]\n'); process.exit(2); }
+      const { compressFile } = require(path.join(ROOT, 'scripts', 'terse', 'compress.js'));
+      const dry = rest.includes('--dry-run');
+      const backup = !rest.includes('--no-backup');
+      const r = compressFile(file, { write: !dry, backup });
+      log(`${r.path}`);
+      log(`  before: ${r.stats.originalBytes.toLocaleString()} bytes`);
+      log(`  after:  ${r.stats.newBytes.toLocaleString()} bytes`);
+      log(`  saved:  ${r.stats.saved.toLocaleString()} bytes  (${r.stats.savedPct}%)  ~${r.stats.estimatedTokensSaved.toLocaleString()} tokens`);
+      log(dry ? '  (dry-run — nothing written)' : (backup ? `  backup: ${r.path}.pre-terse.bak` : '  (no backup)'));
+      process.exit(0);
+    }
+    if (sub === 'enable') {
+      // Install skill + command into the chosen IDE(s) by running the base
+      // installer with just those files. Simplest reliable path: copy directly.
+      const targetIdx = rest.indexOf('--target');
+      const single = targetIdx >= 0 ? rest[targetIdx + 1] : null;
+      const useAll = rest.includes('--all');
+      const rtk = require(path.join(ROOT, 'scripts', 'rtk', 'index.js'));
+      const targets = useAll ? rtk.detectInstalledTargets() : [single || 'claude-code'];
+      let ok = 0;
+      for (const t of targets) {
+        try {
+          const skillSrc = path.join(ROOT, 'skills', 'terse-mode', 'SKILL.md');
+          const cmdSrc   = path.join(ROOT, 'commands', 'terse.md');
+          const cmdCompress = path.join(ROOT, 'commands', 'terse-compress.md');
+          const destSkillDir = getTargetSkillsDir(t);
+          const destCmdDir   = getTargetCommandsDir(t);
+          if (!destSkillDir || !destCmdDir) { log(`  · ${t} — no skills/commands path`); continue; }
+          fs.mkdirSync(path.join(destSkillDir, 'terse-mode'), { recursive: true });
+          fs.mkdirSync(destCmdDir, { recursive: true });
+          fs.copyFileSync(skillSrc, path.join(destSkillDir, 'terse-mode', 'SKILL.md'));
+          fs.copyFileSync(cmdSrc,   path.join(destCmdDir, 'terse.md'));
+          fs.copyFileSync(cmdCompress, path.join(destCmdDir, 'terse-compress.md'));
+          log(`  ✓ ${t}`);
+          ok++;
+        } catch (e) {
+          log(`  · ${t} — ${e.message}`);
+        }
+      }
+      log(`\nTerse mode installed on ${ok}/${targets.length} IDE${targets.length === 1 ? '' : 's'}. Use /terse to activate.`);
+      process.exit(ok ? 0 : 1);
+    }
+    process.stderr.write('unknown terse subcommand. try: status | stats | compress | enable\n');
+    process.exit(2);
+  } catch (e) {
+    process.stderr.write(`[terse] ${e.message}\n`);
+    process.exit(1);
+  }
+}
+
+function getTargetSkillsDir(target) {
+  const home = os.homedir();
+  switch (target) {
+    case 'claude-code':      return path.join(home, '.claude', 'skills');
+    case 'cursor':
+    case 'cursor-project':   return path.join(home, '.cursor', 'skills');
+    case 'windsurf-home':    return path.join(home, '.codeium', 'windsurf', 'skills');
+    case 'antigravity':      return path.join(home, '.antigravity', 'skills');
+    case 'codex-home':       return path.join(home, '.codex', 'skills');
+    case 'gemini-cli':       return path.join(home, '.gemini', 'skills');
+    case 'opencode':         return path.join(home, '.config', 'opencode', 'skills');
+    default: return null;
+  }
+}
+function getTargetCommandsDir(target) {
+  const home = os.homedir();
+  switch (target) {
+    case 'claude-code':      return path.join(home, '.claude', 'commands');
+    case 'cursor':
+    case 'cursor-project':   return path.join(home, '.cursor', 'commands');
+    case 'windsurf-home':    return path.join(home, '.codeium', 'windsurf', 'commands');
+    case 'antigravity':      return path.join(home, '.antigravity', 'commands');
+    case 'codex-home':       return path.join(home, '.codex', 'commands');
+    case 'gemini-cli':       return path.join(home, '.gemini', 'commands');
+    case 'opencode':         return path.join(home, '.config', 'opencode', 'commands');
+    default: return null;
+  }
+}
+
 // ── Subcommand: route (cost-aware model tier recommendation) ──────────────────
 // Usage: npx kodelyth-ecc route "<task description>" [--files N] [--agent <name>] [--current <model-id>]
 if (args[0] === 'route') {
@@ -1134,7 +1254,31 @@ if (isWin) {
         w('');
       }
     } catch (e) {
-      process.stderr.write(`[rtk] setup skipped: ${e.message}\n`);
+      /* fall through */
+    }
+
+    // Also install terse-mode skill + commands (dormant until user types /terse).
+    try {
+      const rtk2 = require(path.join(ROOT, 'scripts', 'rtk', 'index.js'));
+      const targetIdx = args.indexOf('--target');
+      const target = targetIdx >= 0 && args[targetIdx + 1] ? args[targetIdx + 1] : 'claude-code';
+      const skillsDir = getTargetSkillsDir(target);
+      const cmdsDir   = getTargetCommandsDir(target);
+      if (skillsDir && cmdsDir) {
+        fs.mkdirSync(path.join(skillsDir, 'terse-mode'), { recursive: true });
+        fs.mkdirSync(cmdsDir, { recursive: true });
+        fs.copyFileSync(path.join(ROOT, 'skills', 'terse-mode', 'SKILL.md'),
+                        path.join(skillsDir, 'terse-mode', 'SKILL.md'));
+        fs.copyFileSync(path.join(ROOT, 'commands', 'terse.md'),
+                        path.join(cmdsDir, 'terse.md'));
+        fs.copyFileSync(path.join(ROOT, 'commands', 'terse-compress.md'),
+                        path.join(cmdsDir, 'terse-compress.md'));
+        process.stdout.write('━ Terse mode ' + '─'.repeat(47) + '\n');
+        process.stdout.write(`  ✓ /terse and /terse-compress installed for ${target}\n`);
+        process.stdout.write(`  · Activate any time: type /terse in your AI tool (dormant until you do)\n\n`);
+      }
+    } catch (e) {
+      process.stderr.write(`[terse] setup skipped: ${e.message}\n`);
     }
   }
 

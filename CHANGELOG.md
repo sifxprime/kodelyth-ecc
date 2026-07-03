@@ -2,6 +2,62 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.0.0 — Terse mode: output-token compressor + memory compressor (July 2026)
+
+RTK saves input tokens. Terse mode now saves output tokens. Together — on a typical coding session — ECC cuts ~55-65% of total token cost while keeping code, commands, and errors byte-exact.
+
+**Inspired by [Caveman](https://github.com/JuliusBrussee/caveman) (MIT, by Julius Brussee).** Our implementation is independent: our own prompt, own compressor, own ledger, own dashboard tile. Credit to Julius for the core insight — "make the mouth smaller, not the brain smaller."
+
+### Added
+
+**Terse mode skill + slash commands** (works across every ECC-installed IDE)
+- `skills/terse-mode/SKILL.md` — 4-level dial (lite / full / ultra / off), byte-preserves code/commands/URLs/paths
+- `commands/terse.md` — `/terse [lite|full|ultra|off]` sticks for the session
+- `commands/terse-compress.md` — one-shot memory-file compression via LLM
+
+**Deterministic memory compressor** (scriptable, no LLM required)
+- `scripts/terse/compress.js` — zero-dep markdown compressor. Strips 40+ filler patterns, merges wrapped prose, byte-preserves fenced code / inline code / URLs / paths / YAML frontmatter. Idempotent, safe to re-run
+- `kodelyth-ecc terse compress <file> [--dry-run] [--no-backup]` — CLI wrapper
+- On real prose-heavy content: ~30% byte reduction, 100% code/URL/path integrity
+
+**Output-token savings ledger + dashboard tile**
+- `scripts/terse/ledger.js` — JSONL ledger at `~/.kodelythecc/terse/ledger.jsonl`. Per-turn record: level, actual output tokens, estimated baseline, saved
+- `/api/terse` dashboard endpoint
+- New "Output savings (Terse mode)" section on the RTK Savings tab: totals, level breakdown, 30-day daily bar chart
+- Renamed the tab's implicit RTK header to "Input savings (RTK)" so both axes read cleanly
+
+**CLI**
+- `kodelyth-ecc terse status` — shipped/installed/ledger paths
+- `kodelyth-ecc terse stats [--json]` — turns tracked, tokens saved, savings %, level breakdown
+- `kodelyth-ecc terse enable [--target X | --all]` — installs skill + commands into one or every ECC-detected IDE
+
+**Auto-install on ECC install**
+- After the base installer succeeds, terse-mode files are copied into the target IDE's `skills/` and `commands/` directories automatically. Dormant until user types `/terse` — respects "no forced verbosity change"
+
+**Phase C — bake-in to existing agents**
+- `agents/code-reviewer.md` — opt-in terse section: one-line PR comments when `/terse` active
+- `agents/release-captain.md` — opt-in terse section: Conventional Commit ≤50-char subjects, terse changelog rows, rollback plan stays complete
+
+### Changed
+
+- Major version bump: adds a new user-visible mode (terse) that changes AI output style. Breaking only in the sense of "your AI now has a new toggle." No existing behavior removed
+- Dashboard RTK Savings tab now shows both input (RTK) and output (Terse) savings side by side
+
+### Compatibility
+
+- Fully backwards-compatible with v1.9.x installs
+- Terse mode never auto-activates — user opts in per session
+- RTK integration unchanged
+- Memory paths (`~/.kodelythecc/`) unchanged
+- Zero-dep: terse mode ships as a prompt + a plain-JS compressor. No extra npm dependencies
+
+### Honest math
+
+- Combined RTK + Terse on a typical coding session: 55-65% total token reduction
+- On explain-heavy or review sessions: closer to 65-70%
+- Terse mode adds ~800-1200 input tokens per turn (the skill prompt) — net-negative on turns with <2k output tokens
+- Memory compressor: one-time rewrite of `CLAUDE.md` / `lessons.md` — cuts ~30-46% every session forever
+
 ## v1.9.1 — Smoothness pass on RTK integration (July 2026)
 
 Follow-up polish on 1.9.0. Cleaner output, agents now say the right paths, one-shot multi-IDE RTK setup.

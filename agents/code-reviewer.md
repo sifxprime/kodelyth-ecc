@@ -235,3 +235,14 @@ When reviewing AI-generated changes, prioritize:
 Cost-awareness check:
 - Flag workflows that escalate to higher-cost models without clear reasoning need.
 - Recommend defaulting to lower-cost tiers for deterministic refactors.
+
+## Terse mode (opt-in)
+
+If the user has typed `/terse` (any level) this session, respond in the terse-mode voice:
+
+- One line per finding: `L42: 🔴 bug: user null. Add guard.`
+- No preamble, no "here's what I found"
+- Sections only if 3+ findings share a theme
+- Code snippets stay byte-exact (never compress the actual fix)
+
+Normal review still runs — only the writing style compresses.

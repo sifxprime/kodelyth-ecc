@@ -298,6 +298,12 @@ function handleRequest(req, res) {
       return jsonResponse(res, 200, { ok: true, installed: true, version: st.version, active: st.active, ...s });
     }
 
+    if (p === '/api/terse') {
+      const ledger = require('../terse/ledger.js');
+      const s = ledger.summary({ days: Number(q.get('days')) || 30 });
+      return jsonResponse(res, 200, { ok: true, ...s });
+    }
+
     if (p.startsWith('/api/')) return notFound(res);
 
     // ── static fallback ───────────────────────────────────────────────────

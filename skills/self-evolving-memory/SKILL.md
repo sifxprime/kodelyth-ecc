@@ -77,7 +77,7 @@ Snapshot of currently recorded signals:
 
 ### `kodelyth-ecc evolve analyze`
 
-Reads signals + your `~/.kodelyth/memory/` store, applies thresholds, and writes proposals to `~/.kodelyth/evolve/proposals.jsonl`. Idempotent — re-running with the same evidence produces the same proposal IDs and does NOT duplicate.
+Reads signals + your `~/.kodelythecc/memory/` store, applies thresholds, and writes proposals to `~/.kodelythecc/evolve/proposals.jsonl`. Idempotent — re-running with the same evidence produces the same proposal IDs and does NOT duplicate.
 
 | Flag | Default | Effect |
 |---|---|---|
@@ -111,8 +111,8 @@ Marks a proposal `rejected`. Optional `--note` is preserved for the audit trail.
 
 The auto-recall hook (`hooks/memory/auto-recall.js`) does two things in addition to its normal job:
 
-1. **On a memory surface** — calls `evolve.recordSurface({ memoryId, sessionId, projectRoot })`. This bumps the per-memory counter in `~/.kodelyth/evolve/reuse.json`. Idempotent per `(memoryId, sessionId)` — you can't game the counter by surfacing the same memory ten times in one session.
-2. **On a substantive prompt with zero memory matches** — calls `evolve.recordRoutingMiss({ prompt, sessionId, projectRoot })`. Appends one line to `~/.kodelyth/evolve/routing-misses.jsonl`. The prompt is capped to 1000 chars and stored alongside its top tokens for clustering.
+1. **On a memory surface** — calls `evolve.recordSurface({ memoryId, sessionId, projectRoot })`. This bumps the per-memory counter in `~/.kodelythecc/evolve/reuse.json`. Idempotent per `(memoryId, sessionId)` — you can't game the counter by surfacing the same memory ten times in one session.
+2. **On a substantive prompt with zero memory matches** — calls `evolve.recordRoutingMiss({ prompt, sessionId, projectRoot })`. Appends one line to `~/.kodelythecc/evolve/routing-misses.jsonl`. The prompt is capped to 1000 chars and stored alongside its top tokens for clustering.
 
 Both calls are **fire-and-forget**: any error is swallowed silently. The hook NEVER blocks recall on stats failure.
 
@@ -157,7 +157,7 @@ Proposal IDs are deterministic over their evidence — the same evidence always 
 ## Storage layout
 
 ```
-~/.kodelyth/evolve/
+~/.kodelythecc/evolve/
 ├── reuse.json               # per-memory reuse counters
 ├── routing-misses.jsonl     # append-only miss log
 └── proposals.jsonl          # append-only proposal events

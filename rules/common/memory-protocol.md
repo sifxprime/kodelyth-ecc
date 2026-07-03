@@ -4,7 +4,7 @@
 
 ## What is Kodelyth Memory
 
-A local file at `~/.kodelyth/memory/memories.jsonl` storing solutions, patterns, and gotchas extracted from past sessions. Retrieval is BM25 (keyword + tag matching). It is **not** a learned model — it is a retrieval store that gives you better context.
+A local file at `~/.kodelythecc/memory/memories.jsonl` storing solutions, patterns, and gotchas extracted from past sessions. Retrieval is BM25 (keyword + tag matching). It is **not** a learned model — it is a retrieval store that gives you better context.
 
 **Cross-IDE: the same file is read/written by every IDE on this machine.** A memory captured in Claude Code is recall-able from Windsurf, Cursor, Antigravity, Codex, and any other MCP-capable client. There is one shared store.
 
@@ -84,4 +84,4 @@ The injected memory block is structured so its prefix is identical across calls 
 
 If the user asks "how do you know that about me?", answer plainly:
 
-> "It's in your local Kodelyth Memory at `~/.kodelyth/memory/`. You can inspect it, edit it, or delete it any time. Nothing was sent anywhere."
+> "It's in your local Kodelyth Memory at `~/.kodelythecc/memory/`. You can inspect it, edit it, or delete it any time. Nothing was sent anywhere."

@@ -117,7 +117,7 @@ ECC uses three compounding memory layers — together they make Claude increasin
 - Edit freely — these are YOUR rules for this project
 - Example: "Always use pnpm. Never npm. Never yarn."
 
-### Layer 2 — Global Memory (`~/.kodelyth/memory/`)
+### Layer 2 — Global Memory (`~/.kodelythecc/memory/`)
 - Cross-project. BM25 fuzzy search. Solution patterns.
 - Captures solutions from every session
 - Auto-recalls relevant past solutions on every prompt you type

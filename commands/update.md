@@ -17,7 +17,7 @@ Upgrades your ECC install to the latest version from npm. Reads your existing in
 1. Reads `kodelyth-ecc-install-state.json` from your install directory to recover the original `target` and `languages`
 2. Runs `npx kodelyth-ecc@latest` with those same flags
 3. Overwrites agents, skills, rules, and commands with the latest versions
-4. Leaves your memory store (`~/.kodelyth/memory/`) and `tasks/lessons.md` untouched — your learned context is never overwritten
+4. Leaves your memory store (`~/.kodelythecc/memory/`) and `tasks/lessons.md` untouched — your learned context is never overwritten
 
 ## Implementation
 
@@ -76,7 +76,7 @@ npx kodelyth-ecc@latest --target cursor-project      # Cursor
 
 | Path | Protected |
 |------|-----------|
-| `~/.kodelyth/memory/` | Your BM25 memory store |
+| `~/.kodelythecc/memory/` | Your BM25 memory store |
 | `tasks/lessons.md` | Project correction rules |
 | `tasks/todo.md` | Open todos |
 

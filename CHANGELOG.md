@@ -2,6 +2,25 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v1.9.1 — Smoothness pass on RTK integration (July 2026)
+
+Follow-up polish on 1.9.0. Cleaner output, agents now say the right paths, one-shot multi-IDE RTK setup.
+
+### Fixed
+
+- `rtk init --codex/--gemini/--opencode/--agent X` rejected `--auto-patch` and silently failed. `enableFor()` now only passes `--auto-patch` to the default Claude Code hook flow, where RTK accepts it. Multi-IDE enable now succeeds 3/3 instead of 2/3
+- 24 memory-path references across 11 agent/skill/rule/command markdown files still said `~/.kodelyth/` — agents were teaching users the wrong path. Now all say `~/.kodelythecc/` (matches the 1.8.6 runtime rename)
+
+### Added
+
+- `kodelyth-ecc rtk enable --all` — auto-detects every IDE ECC has been installed for on this machine (checks `~/.claude/agents`, `~/.cursor/rules`, `~/.codeium/windsurf`, `~/.antigravity`, `~/.codex`, `~/.config/opencode`, `~/.gemini`) and wires RTK into all of them in one command
+- `scripts/rtk/index.js` — `detectInstalledTargets()` export
+
+### Changed
+
+- Post-install output: replaced the raw JSON dumps with a tight 3-line summary (RTK version, target IDE, next step)
+- `kodelyth-ecc rtk status`: human-readable by default (was JSON); use `--json` for machine output. Now also lists detected ECC-installed IDEs so you can see which ones `--all` will wire
+
 ## v1.9.0 — RTK integration + revived dashboard (July 2026)
 
 ECC now auto-installs [RTK](https://github.com/rtk-ai/rtk) (Rust Token Killer) and wires its transparent command filter into whichever IDE ECC was installed for. Real token savings (60-90% on shell commands) show up in the dashboard, pulled straight from RTK's own ledger — no synthetic numbers.

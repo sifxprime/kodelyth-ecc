@@ -200,6 +200,23 @@ if (args[0] === 'rtk') {
       process.exit(r.installed || r.skipped ? 0 : 1);
     }
     if (sub === 'enable') {
+      // --all mode: wire RTK into every IDE that already has ECC installed.
+      if (rest.includes('--all')) {
+        rtk.install({ log });
+        if (!rtk.isInstalled()) { process.stderr.write('rtk install failed — cannot enable\n'); process.exit(1); }
+        const targets = rtk.detectInstalledTargets();
+        if (targets.length === 0) {
+          log('No IDE installs detected. Install ECC first: npx kodelyth-ecc --target claude-code');
+          process.exit(0);
+        }
+        let ok = 0, fail = 0;
+        for (const t of targets) {
+          const r = rtk.enableFor(t, { log: () => {} });
+          if (r.enabled) { log(`  ✓ ${t}`); ok++; } else { log(`  · ${t} — ${r.reason || 'skipped'}`); fail++; }
+        }
+        log(`\nRTK enabled on ${ok}/${targets.length} IDE${targets.length === 1 ? '' : 's'}. Restart each to activate.`);
+        process.exit(fail && !ok ? 1 : 0);
+      }
       const target = flag('--target', 'claude-code');
       const inst = rtk.install({ log });
       if (!rtk.isInstalled()) { log(JSON.stringify(inst, null, 2)); process.exit(1); }
@@ -214,7 +231,20 @@ if (args[0] === 'rtk') {
       process.exit(r.disabled ? 0 : 1);
     }
     if (sub === 'status') {
-      log(JSON.stringify(rtk.status(), null, 2));
+      const st = rtk.status();
+      if (rest.includes('--json')) { log(JSON.stringify(st, null, 2)); process.exit(0); }
+      if (!st.installed) {
+        log('RTK: not installed');
+        log('  → install: kodelyth-ecc rtk install');
+        process.exit(0);
+      }
+      log(`RTK: ${st.version}`);
+      const ecc = rtk.detectInstalledTargets();
+      log(`ECC-installed IDEs: ${ecc.length ? ecc.join(', ') : 'none detected'}`);
+      log('RTK integrations:');
+      for (const line of st.active) log('  ' + line);
+      log('');
+      log('Commands: install | enable [--target X | --all] | disable | gain | status --json');
       process.exit(0);
     }
     if (sub === 'gain') {
@@ -1084,20 +1114,24 @@ if (isWin) {
       const targetIdx = args.indexOf('--target');
       const target = targetIdx >= 0 && args[targetIdx + 1] ? args[targetIdx + 1] : 'claude-code';
       if (rtk.TARGET_MAP[target]) {
-        process.stdout.write('\n' + '─'.repeat(60) + '\n');
-        process.stdout.write('[rtk] setting up token savings (60-90% on shell commands)\n');
-        const inst = rtk.install({ log: (m) => process.stdout.write(m + '\n') });
+        const w = (m) => process.stdout.write(m + '\n');
+        w('');
+        w('━ RTK token savings ' + '─'.repeat(41));
+        const inst = rtk.install({ log: () => {} });        // silent — we summarise
         if (inst.installed || inst.reason === 'already installed') {
-          const en = rtk.enableFor(target, { log: (m) => process.stdout.write(m + '\n') });
+          const en = rtk.enableFor(target, { log: () => {} });
           if (en.enabled) {
-            process.stdout.write(`[rtk] enabled for ${target} — restart your AI tool to activate\n`);
+            w(`  ✓ RTK ${(rtk.getVersion() || '').replace(/^rtk /,'')} — wired for ${target}`);
+            w(`  ✓ Restart your AI tool to activate. 60-90% token savings on shell commands.`);
           } else {
-            process.stdout.write(`[rtk] enable skipped: ${en.reason}\n`);
+            w(`  · skipped: ${en.reason}`);
+            w(`  → retry: kodelyth-ecc rtk enable --target ${target}`);
           }
         } else {
-          process.stdout.write(`[rtk] install skipped: ${inst.reason}\n`);
-          process.stdout.write('[rtk] you can retry later with: kodelyth-ecc rtk enable --target ' + target + '\n');
+          w(`  · install skipped: ${inst.reason}`);
+          w(`  → retry: kodelyth-ecc rtk enable --target ${target}`);
         }
+        w('');
       }
     } catch (e) {
       process.stderr.write(`[rtk] setup skipped: ${e.message}\n`);

@@ -44,7 +44,7 @@ Weight signals together. Single signals are noisy; three or four together are re
 
 ### 2. Read the team's config
 
-Check for `.kodelyth/router.json` at the project root and these env vars:
+Check for `.kodelythecc/router.json` at the project root and these env vars:
 
 ```
 KODELYTH_ROUTER          off | (unset)

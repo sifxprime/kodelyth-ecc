@@ -79,7 +79,7 @@ Emit exactly one block, then proceed normally:
 
 ## Per-team configurability
 
-Teams override the defaults via env vars or `.kodelyth/router.json`:
+Teams override the defaults via env vars or `.kodelythecc/router.json`:
 
 ### Env vars
 
@@ -91,7 +91,7 @@ Teams override the defaults via env vars or `.kodelyth/router.json`:
 | `KODELYTH_ROUTER_HARD=<model-id>` | Override hard tier. |
 | `KODELYTH_ROUTER_DEFAULT=<trivial\|standard\|hard>` | Default tier for ambiguous tasks (default `standard`). |
 
-### Project file: `.kodelyth/router.json`
+### Project file: `.kodelythecc/router.json`
 
 ```json
 {

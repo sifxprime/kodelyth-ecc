@@ -31,6 +31,28 @@ const TARGET_MAP = {
   'gemini-cli':       ['init', '-g', '--gemini'],
 };
 
+// ── Detect which IDEs ECC has already been installed for on this machine ─────
+// Returns list of ECC install-target strings that have visible ECC artifacts.
+function detectInstalledTargets() {
+  const home = os.homedir();
+  const targets = [];
+  const checks = [
+    { target: 'claude-code',      dir: path.join(home, '.claude', 'agents') },
+    { target: 'cursor',           dir: path.join(home, '.cursor', 'rules') },
+    { target: 'windsurf-home',    dir: path.join(home, '.codeium', 'windsurf', 'memories') },
+    { target: 'antigravity',      dir: path.join(home, '.antigravity') },
+    { target: 'codex-home',       dir: path.join(home, '.codex') },
+    { target: 'opencode',         dir: path.join(home, '.config', 'opencode') },
+    { target: 'gemini-cli',       dir: path.join(home, '.gemini') },
+  ];
+  for (const { target, dir } of checks) {
+    try {
+      if (fs.existsSync(dir) && fs.readdirSync(dir).length > 0) targets.push(target);
+    } catch { /* skip */ }
+  }
+  return targets;
+}
+
 function isInstalled() {
   try {
     execFileSync('rtk', ['--version'], { stdio: 'ignore' });
@@ -100,7 +122,10 @@ function enableFor(target, { log = () => {} } = {}) {
   }
 
   log(`[rtk] wiring RTK into ${target} …`);
-  const r = spawnSync('rtk', [...rtkArgs, '--auto-patch'], { encoding: 'utf8' });
+  // --auto-patch is only accepted by the default Claude Code hook flow.
+  // Other agent flags (--codex, --gemini, --opencode, --agent X) reject it.
+  const finalArgs = target === 'claude-code' ? [...rtkArgs, '--auto-patch'] : rtkArgs;
+  const r = spawnSync('rtk', finalArgs, { encoding: 'utf8' });
   const output = (r.stdout || '') + (r.stderr || '');
   if (r.status !== 0) {
     return { enabled: false, skipped: true, reason: 'rtk init failed', output };
@@ -150,6 +175,7 @@ function savings({ days = 30 } = {}) {
 
 module.exports = {
   TARGET_MAP,
+  detectInstalledTargets,
   isInstalled,
   getVersion,
   install,

@@ -72,7 +72,7 @@ Anthropic's prompt cache (5-min TTL, 10% cost on hits) and OpenAI's automatic ca
 ## Honest limits
 
 - Retrieval is **BM25 keyword + tag matching**, not semantic. It finds memories that share vocabulary with the query. It will miss semantic matches with no shared words.
-- Memory is **per-machine**. Sync across machines requires the user opting in (Dropbox/iCloud/git on `~/.kodelyth/memory/`).
+- Memory is **per-machine**. Sync across machines requires the user opting in (Dropbox/iCloud/git on `~/.kodelythecc/memory/`).
 - On cloud-AI platforms (Windsurf, Antigravity), session data is server-side. Memory still works for capture (manual `/memory remember`) but auto-extract from past sessions is unavailable there.
 
 ## Example interaction

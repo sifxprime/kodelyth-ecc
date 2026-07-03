@@ -30,7 +30,7 @@ Capture a new memory. The agent will:
 Show the queue of candidate memories extracted automatically by the Stop hook from your last session. Confirm each one to store, or skip.
 
 ### `/memory forget <id>`
-Mark a memory deleted. It's a soft-delete (the row stays in the log marked `deleted: true`) so you can recover it by editing `~/.kodelyth/memory/memories.jsonl`.
+Mark a memory deleted. It's a soft-delete (the row stays in the log marked `deleted: true`) so you can recover it by editing `~/.kodelythecc/memory/memories.jsonl`.
 
 ### `/memory list`
 Show all stored memories — id, date, language, problem, tags.
@@ -55,7 +55,7 @@ use kodelyth-memory
 
 ## Storage location
 
-`~/.kodelyth/memory/` (override with `KODELYTH_MEMORY_DIR` env var)
+`~/.kodelythecc/memory/` (override with `KODELYTH_MEMORY_DIR` env var)
 
 - `memories.jsonl` — the source of truth
 - `index.json` — BM25 inverted index

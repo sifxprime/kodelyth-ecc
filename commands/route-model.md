@@ -5,7 +5,7 @@ argument-hint: "[task description]"
 
 # /route-model
 
-Get an immediate model-tier recommendation for the current task. Combines the `cost-aware-model-routing` rule, the project's `.kodelyth/router.json` config, and the active session's token-budget pressure.
+Get an immediate model-tier recommendation for the current task. Combines the `cost-aware-model-routing` rule, the project's `.kodelythecc/router.json` config, and the active session's token-budget pressure.
 
 ## Usage
 
@@ -33,7 +33,7 @@ If you're already on the right tier, the AI routes silently and confirms in one 
 ## Behind the scenes
 
 - Pure deterministic classifier (no LLM call) at `scripts/router/classify.js`.
-- Project config: `.kodelyth/router.json` (override per team).
+- Project config: `.kodelythecc/router.json` (override per team).
 - Env-var overrides: `KODELYTH_ROUTER_{TRIVIAL,STANDARD,HARD,DEFAULT}`.
 - Disable with `KODELYTH_ROUTER=off`.
 - Pairs with the `token-budget` safety hook for spend control.

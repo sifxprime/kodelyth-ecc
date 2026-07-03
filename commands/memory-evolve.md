@@ -24,7 +24,7 @@ Run the self-evolving memory loop. Inspect what ECC has learned from your sessio
 1. **stats** prints the current signal snapshot:
    - reuse: how many memories are tracked, total surfaces, top reused
    - routing misses: how many substantive prompts had zero memory matches, top token clusters
-2. **analyze** applies thresholds and writes proposals to `~/.kodelyth/evolve/proposals.jsonl`. Stable IDs — re-running does NOT duplicate.
+2. **analyze** applies thresholds and writes proposals to `~/.kodelythecc/evolve/proposals.jsonl`. Stable IDs — re-running does NOT duplicate.
 3. **list** filters by state. **show** prints the full draft markdown + evidence.
 4. **accept** writes the draft to its target path under `--root` (defaults to package root). Refuses to overwrite without `--overwrite`. Marks the proposal `accepted` with the absolute path.
 5. **reject** marks a proposal rejected with optional note.
@@ -63,7 +63,7 @@ Run the self-evolving memory loop. Inspect what ECC has learned from your sessio
 
 Backed by:
 
-- `scripts/evolve/stats.js` — pure record/read of `~/.kodelyth/evolve/{reuse.json, routing-misses.jsonl}`
+- `scripts/evolve/stats.js` — pure record/read of `~/.kodelythecc/evolve/{reuse.json, routing-misses.jsonl}`
 - `scripts/evolve/analyze.js` — pure functions: signals → proposals
 - `scripts/evolve/proposals.js` — append-only proposal log with state transitions
 - `hooks/memory/auto-recall.js` — fire-and-forget signal recording on every UserPromptSubmit

@@ -16,7 +16,7 @@ description: Local self-learning memory for AI coding sessions. Captures what wo
 
 ```
 ┌─────────────────┐    capture    ┌─────────────────┐    inject    ┌─────────────────┐
-│  Past session   │ ─────────────→│  ~/.kodelyth/   │─────────────→│  Next session   │
+│  Past session   │ ─────────────→│  ~/.kodelythecc/   │─────────────→│  Next session   │
 │  (you solved X) │               │  memory/        │              │  (X comes up)   │
 └─────────────────┘               └─────────────────┘              └─────────────────┘
                                           │
@@ -29,7 +29,7 @@ description: Local self-learning memory for AI coding sessions. Captures what wo
 
 ## Storage layout
 
-All under `~/.kodelyth/memory/` (override with `KODELYTH_MEMORY_DIR`):
+All under `~/.kodelythecc/memory/` (override with `KODELYTH_MEMORY_DIR`):
 
 | File | Purpose |
 |---|---|
@@ -109,9 +109,9 @@ For Anthropic models the cache TTL is 5 minutes — typing back-to-back during a
 ## Honest limits
 
 - **Not "the model learns"** — the model is unchanged. We're just feeding it better context.
-- **Per-machine by default** — sync via Dropbox/iCloud/git on `~/.kodelyth/memory/` if needed.
+- **Per-machine by default** — sync via Dropbox/iCloud/git on `~/.kodelythecc/memory/` if needed.
 - **Cloud-AI platforms** (Windsurf, Antigravity, partial Cursor) — session data is server-side. Auto-extract from past sessions doesn't work there. Manual `/memory remember` still does.
-- **Privacy** — every byte stays on your disk. Verify with `ls -la ~/.kodelyth/memory/`.
+- **Privacy** — every byte stays on your disk. Verify with `ls -la ~/.kodelythecc/memory/`.
 
 ## Anti-patterns
 

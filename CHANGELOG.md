@@ -2,6 +2,42 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.3.0 — Interactive arrow-key CLI menu (July 2026)
+
+Run `kodelythecc` (or `kodelyth-ecc`) with no args in a real terminal and an arrow-key menu opens.
+
+### Added
+
+**Interactive menu** (`scripts/cli/menu.js` — zero dependencies)
+- Arrow-key up/down navigation, Enter to select, `q` / esc / Ctrl+C to quit
+- Vim-style `j`/`k` also work
+- Options:
+  - **Update to vX.Y.Z** — only shown when a newer version exists on npm (24h-cached check)
+  - **Open Dashboard** — boot localhost dashboard (RTK + Terse + Codebase + Memory, all real data)
+  - **Install ECC for another IDE** — inline picker across 13 IDE targets, runs `--target X` non-interactively
+  - **RTK / Terse / Codebase status** — inline `kodelyth-ecc <sub> status` runs, then returns to menu on Enter
+  - **Run in background** — daemonises the dashboard, writes PID to `~/.kodelythecc/dashboard-daemon.pid`, log to `~/.kodelythecc/dashboard-daemon.log`, prints stop command
+  - **Exit**
+
+**Update checker** (`scripts/cli/update-check.js`)
+- Polls `https://registry.npmjs.org/kodelyth-ecc/latest` with 2.5s timeout
+- Result cached to `~/.kodelythecc/update-check.json` for 24 hours to avoid nagging or spam
+- Menu shows `up to date` / `latest: vX.Y.Z` / `update available: vX.Y.Z` (yellow) as appropriate
+- Non-blocking: menu renders in <1s even if npm is slow
+
+### Behaviour
+
+- **Menu opens only when interactive** — real TTY on both stdin and stdout, no `CI` env, no `KODELYTH_NO_MENU=1` env
+- **Piped stdin / CI runs the installer** — same as before, no menu, no breakage
+- **Passing any flag or subcommand** — skips the menu entirely
+- **Background daemon** — the dashboard child is `detach()`ed and `unref()`ed, survives the parent shell exit. Stop with `kill $(cat ~/.kodelythecc/dashboard-daemon.pid)`
+
+### Verified live on this Mac
+
+- `node bin/kodelyth-ecc.js` in a TTY → menu opens, arrow keys navigate
+- `echo | node bin/kodelyth-ecc.js` → menu correctly skips, installer runs as before
+- `require('./scripts/cli/update-check.js').check({current: '2.2.2'})` → live npm hit, returns `{latest: '2.2.2', updateAvailable: false, cached: false}` — real data, no fake fallback
+
 ## v2.2.0 — Codebase graph integration + self-documenting CLI (July 2026)
 
 ECC now stacks three complementary memory + savings layers, all local, all real:

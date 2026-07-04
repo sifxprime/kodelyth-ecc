@@ -33,6 +33,18 @@ const args    = process.argv.slice(2).filter((a, i, arr) => {
 });
 const isWin   = os.platform() === 'win32';
 
+// ── Interactive menu — fires when invoked with no args on a real terminal ───
+// Skip if the user passed any flag/subcommand, if piped/CI, or with --no-menu.
+if (args.length === 0
+    && process.stdin.isTTY
+    && process.stdout.isTTY
+    && !process.env.CI
+    && !process.env.KODELYTH_NO_MENU) {
+  require(path.join(ROOT, 'scripts', 'cli', 'menu.js')).main()
+    .catch(err => { process.stderr.write((err.stack || err.message) + '\n'); process.exit(1); });
+  return;
+}
+
 // ── Per-command help — runs BEFORE any subcommand block consumes --help ─────
 if (args[1] === '--help' || args[1] === '-h') {
   const HELP_MAP = {

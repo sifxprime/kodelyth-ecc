@@ -83,7 +83,7 @@
   <text x="748" y="122" font-family="'Courier New', Courier, monospace" font-size="12" fill="#10b981">$</text>
   <text x="762" y="122" font-family="'Courier New', Courier, monospace" font-size="12" fill="#e6edf3"> npx kodelyth-ecc</text>
 
-  <text x="748" y="144" font-family="'Courier New', Courier, monospace" font-size="12" fill="#484f58">Installing v1.8.0...</text>
+  <text x="748" y="144" font-family="'Courier New', Courier, monospace" font-size="12" fill="#484f58">Installing v2.3.0...</text>
 
   <text x="748" y="176" font-family="'Courier New', Courier, monospace" font-size="12" fill="#e6edf3">  Agents (70)     </text>
   <text x="890" y="176" font-family="'Courier New', Courier, monospace" font-size="12" fill="#484f58">→ installed</text>

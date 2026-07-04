@@ -51,11 +51,11 @@
   <text x="800" y="446" font-size="14" fill="#8b949e">Every session → better context</text>
   <text x="800" y="476" font-size="12" fill="#484f58">Month 1: knows your style.</text>
   <text x="800" y="494" font-size="12" fill="#484f58">Month 3: works like it's been here years.</text>
-  <text x="800" y="528" font-size="11" fill="#30363d">Compound learning — v1.8.0</text>
+  <text x="800" y="528" font-size="11" fill="#30363d">Compound learning — v2.3.0</text>
 
   <!-- Footer CTA -->
   <text x="80" y="606" font-size="20" fill="#484f58">$ npx kodelyth-ecc</text>
-  <text x="1120" y="606" font-size="16" fill="#484f58" text-anchor="end">v1.8.0 · github.com/sifxprime/kodelyth-ecc</text>
+  <text x="1120" y="606" font-size="16" fill="#484f58" text-anchor="end">v2.3.0 · github.com/sifxprime/kodelyth-ecc</text>
 
   <!-- Ghost Depth Mark — brand stamp (scale 0.55×) -->
   <g transform="translate(1044, 282) scale(0.55)" opacity="0.16">

@@ -19,10 +19,21 @@
 ![Auto Recall](https://img.shields.io/badge/Auto%20Chat%20Recall-on-blueviolet)
 ![Parallel Agents](https://img.shields.io/badge/Parallel%20Agents-new-red)
 ![Image Generation](https://img.shields.io/badge/AI%20Image%20Gen-new-yellow)
+![RTK](https://img.shields.io/badge/RTK-input%20savings-orange)
+![Terse Mode](https://img.shields.io/badge/Terse%20Mode-output%20savings-orange)
+![Codebase Graph](https://img.shields.io/badge/Codebase%20Graph-158%20languages-green)
+![Interactive CLI](https://img.shields.io/badge/CLI-interactive%20menu-blue)
 
 </div>
 
 **Kodelyth ECC** is a production-grade AI coding toolkit — **70 specialist agents (incl. an 8-agent devil-mode adversarial crew), 194 skills, 97 commands**, a god-tier **semantic intent-routing system**, local self-learning memory, MCP server, swarm orchestrator, and an observability dashboard — all local, zero telemetry.
+
+Now bundled with:
+
+- **RTK** (Rust Token Killer, Apache-2.0) — auto-compresses shell command output for **60-90% input token savings**
+- **Terse mode** (ECC-native, inspired by Caveman) — 4-level output-token compression dial for **40-70% output savings**
+- **Codebase graph** (via [codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp), MIT) — AST-parsed knowledge graph across 158 languages; structural queries at **99% fewer tokens** than file-by-file grep
+- **Interactive CLI** — type `kodelythecc` alone in a terminal for an arrow-key menu with live update check, dashboard, background daemon
 
 Works with **Claude Code**, **Windsurf**, **Cursor**, **Codex CLI**, **Google Antigravity**, **OpenCode**, **Cline**, **Roo Code**, **Aider**, **Kimi**, and **Gemini CLI**.
 
@@ -87,6 +98,25 @@ You never typed `use debug-detective`. You didn't have to. The toolkit read the 
 <div align="center">
 <img src="social/section-install.svg" alt="Install — One command, 11 platforms, any OS" width="900"/>
 </div>
+
+### The lazy install (one command, everything wired up)
+
+```bash
+npm i -g kodelyth-ecc
+kodelythecc --target claude-code --codebase-graph
+# then restart your AI tool
+```
+
+That's it. This single flow:
+
+1. Installs both binaries (`kodelyth-ecc` and short-form `kodelythecc`) to your PATH
+2. Copies 70 agents + 194 skills + 97 commands + 22 hooks + 14 rules into your AI tool's config dir
+3. Auto-installs **RTK** binary and wires its PreToolUse hook (input compression starts on next AI restart)
+4. Installs **Terse mode** skill + `/terse` and `/terse-compress` slash commands (dormant — user types `/terse` to activate)
+5. Auto-installs **codebase-memory-mcp** and registers its MCP entries in your AI tool (with `--codebase-graph`)
+6. Runs legacy-memory migration if you had `~/.kodelyth/` from an older install → `~/.kodelythecc/`
+
+After it finishes, run `kodelythecc` alone to open the interactive menu.
 
 ### Option 1 — npx from npm (recommended, any platform)
 
@@ -395,6 +425,156 @@ Security design:
 - **Max 10 SSE clients** — connection cap prevents resource exhaustion
 
 Full reference: [`docs/dashboard.md`](docs/dashboard.md).
+
+---
+
+## RTK — Input Token Savings (60-90%)
+
+[RTK (Rust Token Killer)](https://github.com/rtk-ai/rtk) — Apache-2.0, single Rust binary — intercepts shell commands before they run and filters the output. Common commands like `git status`, `ls`, `cargo test`, `docker ps` return ~80% less text with zero information loss for the LLM.
+
+ECC bundles RTK end-to-end:
+
+- Auto-installs the binary via Homebrew (macOS) or curl script (Linux / WSL)
+- Auto-configures the PreToolUse hook in your AI tool's settings
+- Live ledger surfaced in the dashboard's **Token Savings** tab
+
+### Manage from the CLI
+
+```bash
+kodelythecc rtk install                # install rtk binary
+kodelythecc rtk enable --target X      # wire into one IDE
+kodelythecc rtk enable --all           # wire into every ECC-installed IDE at once
+kodelythecc rtk status                 # version + active integrations
+kodelythecc rtk gain --all             # raw rtk savings output
+kodelythecc rtk --help                 # focused help
+```
+
+### Live proof (from this repo maintainer's Mac)
+
+```
+total_commands:    1,285
+total_input:       7,964,612    (raw)
+total_output:      2,858,501    (after RTK filter)
+total_saved:       5,107,394    ← 64.1% average reduction
+```
+
+---
+
+## Terse Mode — Output Token Savings (40-70%)
+
+RTK compresses input. **Terse mode** compresses output. Together they stack — savings on both sides of every turn.
+
+ECC's own implementation, inspired by [Caveman](https://github.com/JuliusBrussee/caveman) (MIT), independently written. Ships as a skill + two slash commands + a deterministic zero-dep memory-file compressor.
+
+### Four levels
+
+Type `/terse` in your AI tool. Level sticks until you switch or session ends.
+
+| Level | Style |
+|---|---|
+| `/terse off` | Normal AI voice |
+| `/terse lite` | Light trim, drop filler ("basically", "essentially") |
+| `/terse full` | Telegram-style fragments (default) |
+| `/terse ultra` | Maximum compression, symbols over words |
+
+**Byte-preserved always**: fenced code blocks, inline code, shell commands, error text, URLs, file paths, identifiers, numbers, versions.
+
+### Compress memory files permanently
+
+`/terse-compress` (or `kodelythecc terse compress <file>`) rewrites `CLAUDE.md`-style memory files into terse form so they cost fewer tokens **every session forever**. ~30% average byte reduction on real prose, 100% code/URL/path integrity.
+
+### CLI
+
+```bash
+kodelythecc terse status                # skill install state
+kodelythecc terse stats                 # tokens saved from ledger
+kodelythecc terse compress <file>       # rewrite a file, byte-preserves code
+kodelythecc terse enable --all          # install skill + commands into every ECC IDE
+kodelythecc terse --help
+```
+
+---
+
+## Codebase Graph — 158 Languages, Structural Queries
+
+Powered by [DeusData/codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) (MIT). AST-parsed knowledge graph via tree-sitter across **158 languages**, Hybrid LSP semantic type resolution for 11 major languages, cross-service HTTP/gRPC/GraphQL linking, 14 MCP tools for structural queries.
+
+**Why this matters**: "Who calls `ProcessOrder`?" via file-by-file grep = ~412k tokens. Same question via the graph = ~3.4k tokens. That's a **99% reduction** on structural questions.
+
+### Auto-install path
+
+Pass `--codebase-graph` on ECC install and it auto-runs their official curl script + auto-configures the MCP server entry in every installed AI-coding agent.
+
+```bash
+kodelythecc --target claude-code --codebase-graph
+# ↑ installs ECC + RTK + Terse + codebase-memory-mcp, all wired up
+```
+
+Then in your AI tool, say **"Index this project"**. Done.
+
+### CLI
+
+```bash
+kodelythecc codebase install                              # install + auto-register
+kodelythecc codebase status                               # version + indexed projects
+kodelythecc codebase query search_graph '{"name_pattern": ".*Handler.*"}'
+kodelythecc codebase query trace_path '{"function_name": "main"}'
+kodelythecc codebase query get_architecture '{}'
+kodelythecc codebase --help
+```
+
+---
+
+## Interactive CLI Menu
+
+Type `kodelythecc` alone in a real terminal → arrow-key menu opens.
+
+```
+⚙ Kodelyth ECC  v2.3.0  ·  Elite Code Crew   up to date
+
+ ▸ Open Dashboard                     localhost — RTK, Terse, Codebase, Memory
+   Install ECC for another IDE        13-target picker
+   RTK status                         Version + wired IDEs + savings
+   Terse status                       Skill install state, ledger totals
+   Codebase graph status              158 languages, structural queries
+   Memory stats                       BM25 recall — captures, projects, tags
+   Run in background                  Detached dashboard daemon
+   Exit
+
+↑/↓ navigate  ·  ⏎ select  ·  q / esc / Ctrl+C to quit
+```
+
+### Behaviour rules
+
+| Situation | Menu opens? |
+|---|---|
+| `kodelythecc` in Terminal / iTerm | **Yes** |
+| `kodelythecc rtk status` (any subcommand) | No — runs subcommand |
+| `echo hi \| kodelythecc` (piped) | No — runs installer |
+| CI environment (`$CI` set) | No |
+| `KODELYTH_NO_MENU=1 kodelythecc` | No |
+
+### Update check
+
+The menu polls `https://registry.npmjs.org/kodelyth-ecc/latest` on open. Cached 24h in `~/.kodelythecc/update-check.json`. When a newer version exists, an extra menu row appears at the top:
+
+```
+ ▸ Update to v2.3.1 [NEW]              npm i -g kodelyth-ecc
+```
+
+### Background daemon
+
+Selecting "Run in background" forks the dashboard as a detached process:
+
+```
+✓ Dashboard daemon started (pid 12345)
+  URL:    http://127.0.0.1:5747
+  Log:    /Users/you/.kodelythecc/dashboard-daemon.log
+  Pid:    /Users/you/.kodelythecc/dashboard-daemon.pid
+  Stop:   kill $(cat ~/.kodelythecc/dashboard-daemon.pid)
+```
+
+Survives shell exit. Real daemon.
 
 ---
 

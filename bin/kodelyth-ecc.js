@@ -135,7 +135,7 @@ if (args[0] === 'mcp') {
 //   kodelyth-ecc mcp-remove <name>
 //   kodelyth-ecc mcp-tools <name>
 //   kodelyth-ecc mcp-call <name> <tool> [--json '{"arg":"value"}']
-if (args[0] && args[0].startsWith('mcp-')) {
+if (args[0] && args[0].startsWith('mcp-') && !['mcp-register'].includes(args[0])) {
   (async () => {
     const sub = args[0].slice(4);
     const client = require(path.join(ROOT, 'scripts', 'mcp', 'client.js'));
@@ -337,6 +337,40 @@ if (args[0] === 'rtk') {
     process.exit(1);
   }
   return;
+}
+
+// ── Subcommand: uninstall (full ECC removal) ────────────────────────────────
+if (args[0] === 'uninstall') {
+  const un = require(path.join(ROOT, 'scripts', 'cli', 'uninstall.js'));
+  const dryRun = args.includes('--dry-run');
+  const keepMemory = args.includes('--keep-memory');
+  const yes = args.includes('--yes') || args.includes('-y');
+  if (!yes && !dryRun) {
+    process.stderr.write('This removes ECC files, RTK hooks, codebase-memory-mcp configs, and (unless --keep-memory) ~/.kodelythecc/. Add --yes to confirm or --dry-run to preview.\n');
+    process.exit(1);
+  }
+  const r = un.run({ log: (m) => process.stdout.write(m + '\n'), dryRun, keepMemory });
+  process.stdout.write(`\nRemoved ${r.removed_files} files across ${r.subsystems_uninstalled.length} subsystems.\n`);
+  if (r.errors.length) process.stdout.write(`Errors: ${r.errors.length}\n${r.errors.map(e => '  ' + e).join('\n')}\n`);
+  process.stdout.write(dryRun ? '(dry-run — no changes made)\n' : 'ECC removed. Uninstall the npm package: npm uninstall -g kodelyth-ecc\n');
+  process.exit(0);
+}
+
+// ── Subcommand: mcp-register (self-register ECC MCP in Claude Code + Desktop)
+if (args[0] === 'mcp-register') {
+  const reg = require(path.join(ROOT, 'scripts', 'mcp', 'register-self.js'));
+  if (args.includes('--status')) {
+    const s = reg.statusAll();
+    for (const row of s) process.stdout.write(`${row.present ? '✓' : '·'} ${row.file}${row.exists ? '' : ' (file missing)'}\n`);
+    process.exit(0);
+  }
+  if (args.includes('--unregister')) {
+    reg.unregisterAll({ log: (m) => process.stdout.write(m + '\n') });
+    process.exit(0);
+  }
+  reg.registerAll({ log: (m) => process.stdout.write(m + '\n') });
+  process.stdout.write('\nRestart Claude Code / Claude Desktop to pick up the new MCP server.\n');
+  process.exit(0);
 }
 
 // ── Subcommand: codebase (DeusData code-graph MCP integration) ───────────────
@@ -1450,6 +1484,22 @@ if (isWin) {
   }
   fs.chmodSync(sh, 0o755);
   const result = spawnSync('bash', [sh, ...args], { stdio: 'inherit', shell: false });
+
+  // Post-install: auto-register ECC's own MCP server in Claude Code + Desktop.
+  if (result.status === 0 && !args.includes('--no-mcp-register')) {
+    try {
+      const reg = require(path.join(ROOT, 'scripts', 'mcp', 'register-self.js'));
+      process.stdout.write('\n━ ECC MCP server registration ' + '─'.repeat(31) + '\n');
+      const rows = reg.registerAll({ log: () => {} });
+      for (const r of rows) {
+        const marker = r.action === 'added' ? '✓ added' : r.action === 'updated' ? '✓ updated' : r.action === 'unchanged' ? '· unchanged' : `· ${r.action}`;
+        process.stdout.write(`  ${marker}: ${r.file}\n`);
+      }
+      process.stdout.write(`  · Restart Claude Code / Claude Desktop to pick up the server\n`);
+    } catch (e) {
+      process.stderr.write(`[mcp] self-register skipped: ${e.message}\n`);
+    }
+  }
 
   // Post-install: auto-install + wire RTK for the target IDE (opt-out via --no-rtk).
   if (result.status === 0 && !args.includes('--no-rtk')) {

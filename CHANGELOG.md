@@ -2,6 +2,46 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.4.0 — MCP auto-register + full uninstall (July 2026)
+
+Real bugs surfaced by live user testing on a fresh Mac install.
+
+### Fixed
+
+- **ECC's own MCP server was never registered anywhere** on install. Result: Claude Desktop showed "1 setup issue: MCP", the Codebase / MCP status views showed nothing, and no tool got to talk to our own MCP. `scripts/mcp/register-self.js` now writes `kodelyth-ecc` under `mcpServers` in both `~/.claude.json` (Claude Code) and `~/Library/Application Support/Claude/claude_desktop_config.json` (Claude Desktop). Idempotent — no duplicates on re-run.
+- **Codebase Architecture snapshot was empty** on the dashboard when no active session graph existed. Dashboard now falls back to a per-project list (project name + nodes + edges) via `list_projects`, so users can see the 8 projects codebase-memory-mcp has indexed even before opening one in-session.
+- **`mcp-register` subcommand was swallowed** by the `mcp-*` catch-all (like `mcp-status` was earlier). Excluded properly.
+
+### Added
+
+**MCP self-registration**
+- `kodelythecc mcp-register` — write ECC's MCP entry into Claude Code + Desktop configs
+- `kodelythecc mcp-register --status` — show which configs already have it
+- `kodelythecc mcp-register --unregister` — remove ECC's entry
+- **Auto-runs in post-install** — after `--target claude-code` succeeds, ECC registers itself in both configs and prints a summary. Opt out with `--no-mcp-register`
+
+**Full uninstall** (`scripts/cli/uninstall.js`)
+- New menu row: **Uninstall ECC completely**
+- CLI: `kodelythecc uninstall --dry-run | --yes | --yes --keep-memory`
+- Removes only files that were shipped by ECC (checks against the package's own `agents/skills/commands/hooks/rules/scripts/` — safe for user-authored siblings)
+- Unwires RTK (`rtk init -g --uninstall`)
+- Removes codebase-memory-mcp agent configs (`codebase-memory-mcp uninstall`)
+- Removes ECC's MCP entry from Claude Code + Desktop
+- Removes `~/.kodelythecc/` (memory + ledgers + cache)
+- Removes legacy `.kodelyth.backup-*` dirs
+- Dry-run mode identifies **759 ECC files** across 6 subdirs on a fresh install
+
+### Verified live end-to-end on this Mac
+
+- `mcp-register --status` (before): both configs empty
+- `mcp-register` writes both:
+  ```json
+  "kodelyth-ecc": { "command": "kodelythecc", "args": ["mcp"], "env": {} }
+  ```
+- `~/.claude.json` now has `mcpServers.kodelyth-ecc` + existing `mcpServers.codebase-memory-mcp` (co-existing, no clobber)
+- `uninstall --dry-run` correctly counts 70 agents + 301 skills + 99 commands + 12 hooks + 104 rules + 173 scripts = 759 files, plus 1 backup dir
+- Nothing removed on dry-run — verified
+
 ## v2.3.0 — Interactive arrow-key CLI menu (July 2026)
 
 Run `kodelythecc` (or `kodelyth-ecc`) with no args in a real terminal and an arrow-key menu opens.

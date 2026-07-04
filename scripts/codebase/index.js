@@ -86,6 +86,21 @@ function dashboardSnapshot() {
   const st = status();
   if (!st.installed) return { ok: false, installed: false, install_hint: 'Run: kodelyth-ecc codebase install' };
   const out = { ok: true, installed: true, version: st.version, indexed_projects: st.indexed_projects, cache_dir: st.cache_dir };
+  // Try to list projects with names — richer than just a count.
+  try {
+    const list = query('list_projects', '{}');
+    if (Array.isArray(list)) {
+      out.projects = list.slice(0, 20).map(p => ({
+        name: p.name || p.path || p.project || 'unnamed',
+        path: p.path || null,
+        nodes: p.node_count ?? p.nodes ?? null,
+        edges: p.edge_count ?? p.edges ?? null,
+      }));
+    } else if (list && Array.isArray(list.projects)) {
+      out.projects = list.projects.slice(0, 20);
+    }
+  } catch { /* older binaries may not support list_projects */ }
+  // Try architecture snapshot for whichever project is 'active'.
   try {
     const arch = query('get_architecture', '{}');
     if (arch && typeof arch === 'object') {
@@ -96,7 +111,7 @@ function dashboardSnapshot() {
         entry_points: (arch.entry_points || []).slice(0, 5),
       };
     }
-  } catch { /* no active project yet */ }
+  } catch { /* no active project yet — dashboard shows CTA */ }
   return out;
 }
 

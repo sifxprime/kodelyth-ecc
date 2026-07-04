@@ -26,13 +26,13 @@
               fill="none"/>
   </g>
 
-  <!-- v2.3.0 pill — below mark -->
+  <!-- v2.4.0 pill — below mark -->
   <rect x="66" y="434" width="88" height="26" rx="13"
         fill="none" stroke="#ffffff" stroke-width="1" opacity="0.20"/>
   <text x="110" y="452"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="13" font-weight="500" text-anchor="middle"
-        fill="#ffffff" opacity="0.35">v2.3.0</text>
+        fill="#ffffff" opacity="0.35">v2.4.0</text>
 
   <!-- Wordmark -->
   <text x="210" y="276"

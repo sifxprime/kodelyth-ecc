@@ -90,6 +90,11 @@ async function buildOptions({ ROOT }) {
     run:   () => runBackground(),
   });
   opts.push({
+    label: 'Uninstall ECC completely',
+    hint:  'Remove agents/skills/commands/hooks, RTK hook, codebase-mcp, and ~/.kodelythecc/',
+    run:   () => runUninstall(ROOT),
+  });
+  opts.push({
     label: 'Exit',
     hint:  '',
     run:   () => process.exit(0),
@@ -147,6 +152,42 @@ async function pickIdeAndInstall(ROOT) {
   });
   console.log(`\n${C.gray}Press Enter to return to menu…${C.reset}`);
   waitForEnter().then(() => main().catch(() => process.exit(0)));
+}
+
+async function runUninstall(ROOT) {
+  cleanup();
+  console.log(`${C.red}${C.bold}⚠  Uninstall Kodelyth ECC${C.reset}`);
+  console.log('');
+  console.log('This will remove:');
+  console.log(`  ${C.gray}·${C.reset} All ECC agents/skills/commands/hooks/rules installed under ~/.claude/`);
+  console.log(`  ${C.gray}·${C.reset} RTK hook (rtk binary stays — remove with brew uninstall rtk)`);
+  console.log(`  ${C.gray}·${C.reset} codebase-memory-mcp agent configs (binary stays)`);
+  console.log(`  ${C.gray}·${C.reset} ECC MCP server entry from Claude Code + Claude Desktop`);
+  console.log(`  ${C.gray}·${C.reset} ~/.kodelythecc/ (memory, ledgers, cache) — unless you keep it`);
+  console.log('');
+  const choice = await pick('Confirm', [
+    'Uninstall — remove EVERYTHING including memory',
+    'Uninstall — keep ~/.kodelythecc/ memory + ledgers',
+    'Dry run — show what would be removed, change nothing',
+    'Cancel',
+  ]);
+  if (choice == null || choice === 3) return main();
+  const dryRun = choice === 2;
+  const keepMemory = choice === 1;
+  cleanup();
+  console.log('');
+  const un = require(path.join(ROOT, 'scripts', 'cli', 'uninstall.js'));
+  const r = un.run({ log: (m) => console.log(m), dryRun, keepMemory });
+  console.log('');
+  console.log(`${C.green}✓${C.reset} Removed ${C.bold}${r.removed_files}${C.reset} files across ${r.subsystems_uninstalled.length} subsystems.`);
+  if (r.errors.length) console.log(`${C.yellow}Errors: ${r.errors.length}${C.reset}`);
+  if (dryRun) {
+    console.log(`${C.dim}(dry-run — nothing was changed)${C.reset}`);
+  } else {
+    console.log('');
+    console.log(`Finish by removing the npm package: ${C.cyan}npm uninstall -g kodelyth-ecc${C.reset}`);
+  }
+  process.exit(0);
 }
 
 function runBackground() {

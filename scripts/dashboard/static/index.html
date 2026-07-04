@@ -813,6 +813,16 @@ kodelyth-ecc codebase query detect_changes '{}'</pre>
               <td><div style="font-family:monospace;font-size:12px;line-height:1.6;">${a.entry_points.map(e => `<div>${escapeHtml(String(e.name || e))}</div>`).join('')}</div></td></tr>` : ''}
           </tbody>
         </table>`;
+      } else if ((r.projects || []).length) {
+        $('#codebaseArch').innerHTML = `<div class="muted" style="font-size:13px;">
+          ${(r.projects || []).length} project(s) indexed. Architecture snapshot is per-active-session — open a project in your AI tool and it appears here.
+        </div><table style="margin-top:10px;">
+          <thead><tr><th>Project</th><th style="text-align:right;">Nodes</th><th style="text-align:right;">Edges</th></tr></thead>
+          <tbody>${r.projects.map(p => `<tr>
+            <td><code style="font-size:11.5px;">${escapeHtml(p.name)}</code></td>
+            <td style="text-align:right;">${fmtN(p.nodes || 0)}</td>
+            <td style="text-align:right;">${fmtN(p.edges || 0)}</td>
+          </tr>`).join('')}</tbody></table>`;
       } else {
         $('#codebaseArch').innerHTML = '<div class="empty">no active project graph yet — open a repo in your AI tool and say "Index this project"</div>';
       }

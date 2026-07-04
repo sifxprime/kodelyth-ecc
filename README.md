@@ -554,6 +554,19 @@ Type `kodelythecc` alone in a real terminal → arrow-key menu opens.
 | CI environment (`$CI` set) | No |
 | `KODELYTH_NO_MENU=1 kodelythecc` | No |
 
+### Uninstall
+
+The menu's **Uninstall ECC completely** row runs an interactive full cleanup: removes the 759 ECC-installed files from `~/.claude/`, unwires RTK from your AI tool, removes codebase-memory-mcp agent configs, removes ECC's MCP entry from Claude Code + Claude Desktop, and deletes `~/.kodelythecc/` (memory + ledgers). Prompts confirm before anything is deleted; a dry-run mode previews what would be removed without touching anything.
+
+You can also run it non-interactively:
+
+```bash
+kodelythecc uninstall --dry-run           # preview what would be removed
+kodelythecc uninstall --yes                # full cleanup
+kodelythecc uninstall --yes --keep-memory  # remove files but keep ~/.kodelythecc/
+npm uninstall -g kodelyth-ecc              # finally remove the npm package itself
+```
+
 ### Update check
 
 The menu polls `https://registry.npmjs.org/kodelyth-ecc/latest` on open. Cached 24h in `~/.kodelythecc/update-check.json`. When a newer version exists, an extra menu row appears at the top:

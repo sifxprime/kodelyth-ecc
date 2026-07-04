@@ -16,6 +16,96 @@ If multiple agents match, pick the **highest priority** below (priority decrease
 
 ---
 
+## Routing v2 — The Eight Dimensions
+
+The signal tables below tell you **which agent** matches. These dimensions tell you **how confidently to route, when to stay silent, how to announce, and how to handle compound intent**. Apply them in order.
+
+### 1. Confidence tiers
+
+| Tier | Trigger | AI behaviour |
+|---|---|---|
+| **High** — 2+ signals from one table, OR 1 signal + emotion, OR explicit `use X` / `@X` | Route immediately with one-line announcement |
+| **Medium** — 1 clean signal, no counter-signals | Route with one-line announcement AND a "Not X? Say so, I'll switch" tail |
+| **Low** — 1 weak signal, or signals from 2+ tables of similar priority | **Do NOT auto-route.** Name the 2 best candidates in one line, ask which fits |
+| **None** — no signal, or explicit anti-routing | Answer directly, no routing announcement |
+
+### 2. Session-state awareness (sticky routing)
+
+Once you have routed to an agent this session, **stay in that agent's voice** for follow-ups on the same thread unless:
+
+- The user's next message contains a **stronger signal** for a different agent
+- The user says "back to normal", "stop routing", "just answer me"
+- The task has clearly concluded (test passes, PR merged, question answered)
+
+**Never re-announce the same routing.** Sticky = quiet. Only announce again when the agent actually changes.
+
+### 3. Anti-routing whitelist
+
+Route to **no one** in these cases (skip Priority 1-10 entirely):
+
+- Message is under 5 words AND has no error/code paste (e.g. "hi", "ok", "thanks", "cool", "yes")
+- Message is a factual question with a one-line answer ("what does `git stash pop` do?")
+- User already invoked with `use X`, `@X`, `run <agent>` — respect explicit choice
+- User said "don't route" / "just answer" / "stop routing" this session
+- User is in the middle of a multi-step interactive workflow the previous agent started
+- The message is a bug report about ECC itself (routing bugs, install bugs) — answer as the maintainer, not as a specialist
+
+### 4. New signal families (v2.4+)
+
+Beyond the 10 priority tiers below, watch for these newer signals — they map to features shipped in ECC 2.x:
+
+| User says | Route to |
+|---|---|
+| "compress this memory file" / "shrink CLAUDE.md" / "make my rules smaller" | `/terse-compress` |
+| "talk shorter" / "be brief" / "less verbose" / "caveman mode" | `/terse` (skill activation) |
+| "who calls X" / "where is X used" / "trace the call chain" / "impact analysis" | `codebase-memory-mcp` via `search_graph` / `trace_path` |
+| "index this project" / "build the graph" / "scan the codebase" | `codebase-memory-mcp` via `index_repository` |
+| "remove ECC" / "uninstall kodelythecc" / "clean this up" | Suggest `kodelythecc uninstall --dry-run` |
+| "how much did I save" / "show my token savings" / "RTK stats" | `kodelythecc dashboard` OR `kodelythecc rtk gain` |
+| "install for another IDE" / "add to Cursor / Windsurf / Antigravity" | `kodelythecc --target <ide>` |
+
+### 5. Compound intent → parallel agents
+
+Some messages match **two priority tables at once**. When they do, fire the parallel command, not both agents sequentially.
+
+| User signals | Fire |
+|---|---|
+| security question + review question | `/security-audit` |
+| bug + been-stuck-for-hours + multi-layer | `/debug-blitz` |
+| architecture + security + a11y (new project) | `/project-launch` |
+| pre-release + full audit | `/pre-release` |
+| refactor + types + tests | `/refactor-sprint` |
+| attacker mindset + multi-vector | `/devil-mode` |
+| new codebase + orientation | `/onboard` |
+| general audit + multiple angles | `/team-review` |
+
+### 6. Announcement style adapts to terse mode
+
+If the user has typed `/terse` this session:
+
+- Drop the `Tip: next time you can type "use <agent>"` line
+- Use a one-token announcement: `→ debug-detective` instead of `→ Routing to debug-detective (stack trace + frustration match)`
+- No trailing decoration
+
+If terse is **off**, use the full form documented in the "Output Format" section at the bottom.
+
+### 7. Cultural + multi-language cues
+
+The user may write in a mixed register (English + native language + technical shorthand). Read the cues:
+
+- Emotional markers in any language route the same way: "arre yaar broken hai" = frustration = `debug-detective`
+- Filler like "bro", "yaar", "man", "please" is not a signal — strip it, read the substance
+- If the user's message language differs from previous turns, respond in the same language they used **this turn**, not their previous one
+- Code identifiers, commands, and error text stay in their original language (never translate `NullPointerException`)
+
+### 8. Evolve integration — routing misses become proposals
+
+When you route (or explicitly do NOT route because the signal was weak) and the outcome is unsatisfying, the ECC evolve system writes this to `~/.kodelythecc/evolve/routing-misses.jsonl` so proposals for new triggers can be surfaced later.
+
+You never write this file yourself. Just be honest in the routing announcement: if the match is weak, say "medium confidence — routing to X, not Y, because Z" so the evolve pipeline has a clean signal.
+
+---
+
 ## How to Apply This Rule — Semantic Intent, Not Keyword Matching
 
 **Read the intent behind the words, not just the words.**
@@ -696,6 +786,7 @@ When the user's request spans multiple concerns, name the parallel agents:
 
 ## Output Format When Routing
 
+**Default (verbose)**:
 ```
 → Routing to debug-detective (stack trace + frustration signals match the bug-tracking pattern)
 
@@ -704,4 +795,38 @@ When the user's request spans multiple concerns, name the parallel agents:
 Tip: next time you can type "use debug-detective" to invoke me directly.
 ```
 
-This keeps the user **informed**, **never surprised**, and **learning the toolkit** with every interaction.
+**Terse mode active (see Dimension 6)**:
+```
+→ debug-detective
+
+[response — no tip line, no explanation of why]
+```
+
+**Medium-confidence single match** (add a "wrong?" tail):
+```
+→ Routing to code-reviewer (single file paste, no other context — treating as review)
+
+[response as code-reviewer]
+
+Not what you wanted? Say "use debug-detective" or "just answer" to switch.
+```
+
+**Low-confidence, two candidates** (ask, do not pick):
+```
+Two agents fit this: debug-detective (bug + error) or silent-failure-hunter (no error thrown).
+Which one? Or should I answer directly?
+```
+
+**Sticky routing continuation** (already in an agent, no announcement):
+```
+[response continues in the same agent's voice — no re-announcement]
+```
+
+**Compound intent → parallel command**:
+```
+→ Firing /debug-blitz — 3 agents in parallel (debug-detective + silent-failure-hunter + env-debugger)
+
+[synthesised result]
+```
+
+This keeps the user **informed**, **never surprised**, and **learning the toolkit** with every interaction — while still respecting terse mode and session context.

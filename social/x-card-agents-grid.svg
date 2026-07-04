@@ -69,7 +69,7 @@
   <rect x="480" y="280" width="360" height="120" rx="8" fill="#0d2b1d" stroke="#059669" stroke-opacity="0.4" stroke-width="1"/>
   <rect x="480" y="280" width="4" height="120" rx="2" fill="url(#mem)"/>
   <rect x="646" y="286" width="78" height="18" rx="9" fill="#059669" fill-opacity="0.25" stroke="#059669" stroke-opacity="0.5" stroke-width="1"/>
-  <text x="685" y="299" font-size="9" fill="#10b981" text-anchor="middle" font-weight="700">v2.4.0</text>
+  <text x="685" y="299" font-size="9" fill="#10b981" text-anchor="middle" font-weight="700">v2.4.1</text>
   <text x="500" y="306" font-size="13" font-weight="700" fill="#ffffff">image-architect</text>
   <text x="500" y="325" font-size="12" fill="#8b949e">"my site looks plain / boring"</text>
   <text x="500" y="341" font-size="12" fill="#8b949e">"I need an OG image / social card"</text>
@@ -103,7 +103,7 @@
   <text x="920" y="424" font-size="32" font-weight="800" fill="#ffffff" text-anchor="middle">12</text>
   <text x="920" y="446" font-size="10" fill="#484f58" text-anchor="middle" letter-spacing="2">PLATFORMS</text>
   <line x1="860" y1="464" x2="980" y2="464" stroke="#21262d" stroke-width="1"/>
-  <text x="920" y="496" font-size="20" font-weight="800" fill="#ffffff" text-anchor="middle">v2.4.0</text>
+  <text x="920" y="496" font-size="20" font-weight="800" fill="#ffffff" text-anchor="middle">v2.4.1</text>
   <text x="920" y="516" font-size="10" fill="#484f58" text-anchor="middle" letter-spacing="2">LATEST</text>
 
   <!-- Ghost Depth Mark — brand stamp (scale 0.55×) -->

@@ -2,6 +2,36 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.4.1 — Intent routing v2 (July 2026)
+
+Full design pass on `rules/common/agent-intent-routing.md` — the always-on rule that maps plain-language user intent to specialist agents. Deferred from 2.4.0.
+
+### Added — 8 new routing dimensions layered above the existing 10-tier signal tables
+
+1. **Confidence tiers** — high (route silently), medium (route + "not X? say so" tail), low (name 2 candidates, ask), none (answer directly, don't announce)
+2. **Session-state awareness** — once routed to an agent, stay in its voice for follow-ups. Do NOT re-announce the same routing. Only re-route when the user's message contains a stronger signal for a different agent
+3. **Anti-routing whitelist** — 6 situations where routing MUST be skipped (under 5 words with no code, one-line factual questions, explicit `use X`, "don't route", mid-workflow, ECC-itself bug reports)
+4. **New signal families for v2.4+** — routes for `/terse`, `/terse-compress`, `codebase-memory-mcp` queries, `kodelythecc uninstall`, `kodelythecc dashboard`, IDE install
+5. **Compound intent → parallel commands** — when 2 tables match at once, fire the parallel command instead of both agents sequentially (security+review → `/security-audit`, bug+multi-layer → `/debug-blitz`, etc.)
+6. **Announcement style adapts to terse mode** — if `/terse` is active this session, drop the tip line and use one-token announcement `→ debug-detective` instead of the full form
+7. **Cultural / multi-language cues** — read emotional markers in any language, strip filler like "bro"/"yaar"/"man", respond in the user's this-turn language, never translate code/errors/commands
+8. **Evolve integration** — routing misses feed `~/.kodelythecc/evolve/routing-misses.jsonl` so the evolve pipeline can propose new triggers later
+
+### Added — 5 new output-format examples
+
+- Default (verbose)
+- Terse mode active — one-token announcement
+- Medium-confidence single match — with "wrong?" tail
+- Low-confidence, two candidates — asks user to pick
+- Sticky routing continuation — no re-announcement
+- Compound intent → parallel command
+
+### Verified
+
+- All 21 tests pass
+- Rule file grew from 707 → 832 lines (net +125 lines of new dimensions), 69 sections total
+- The 10-tier priority signal tables (unchanged) remain the workhorse; the 8 new dimensions layer above them
+
 ## v2.4.0 — MCP auto-register + full uninstall (July 2026)
 
 Real bugs surfaced by live user testing on a fresh Mac install.

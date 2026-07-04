@@ -18,9 +18,10 @@ const fs   = require('fs');
 
 // ── ECC install target → RTK agent flag ──────────────────────────────────────
 // Reference: `rtk init --help` and RTK README "Supported AI Tools" table.
+// Keyed by canonical install.sh target names (claude-home, gemini-home, ...).
+// Common aliases (claude-code, gemini-cli) are normalised in normalizeTarget().
 const TARGET_MAP = {
-  'claude-code':      ['init', '-g'],
-  'cursor':           ['init', '-g', '--agent', 'cursor'],
+  'claude-home':      ['init', '-g'],
   'cursor-project':   ['init',       '--agent', 'cursor'],
   'windsurf-home':    ['init', '-g', '--agent', 'windsurf'],
   'windsurf-project': ['init',       '--agent', 'windsurf'],
@@ -28,8 +29,18 @@ const TARGET_MAP = {
   'codex-home':       ['init', '-g', '--codex'],
   'opencode':         ['init', '-g', '--opencode'],
   'cline':            ['init',       '--agent', 'cline'],
-  'gemini-cli':       ['init', '-g', '--gemini'],
+  'gemini-home':      ['init', '-g', '--gemini'],
+  'roocode':          ['init',       '--agent', 'cline'],   // roocode is cline-compatible per RTK
+  'kimi':             ['init', '-g'],                        // treat like claude-code hook
 };
+
+// Normalise well-known aliases → canonical target names used by install.sh.
+function normalizeTarget(t) {
+  if (t === 'claude-code') return 'claude-home';
+  if (t === 'gemini-cli')  return 'gemini-home';
+  if (t === 'cursor')      return 'cursor-project';
+  return t;
+}
 
 // ── Detect which IDEs ECC has already been installed for on this machine ─────
 // Returns list of ECC install-target strings that have visible ECC artifacts.
@@ -37,13 +48,13 @@ function detectInstalledTargets() {
   const home = os.homedir();
   const targets = [];
   const checks = [
-    { target: 'claude-code',      dir: path.join(home, '.claude', 'agents') },
-    { target: 'cursor',           dir: path.join(home, '.cursor', 'rules') },
+    { target: 'claude-home',      dir: path.join(home, '.claude', 'agents') },
+    { target: 'cursor-project',   dir: path.join(home, '.cursor', 'rules') },
     { target: 'windsurf-home',    dir: path.join(home, '.codeium', 'windsurf', 'memories') },
     { target: 'antigravity',      dir: path.join(home, '.antigravity') },
     { target: 'codex-home',       dir: path.join(home, '.codex') },
     { target: 'opencode',         dir: path.join(home, '.config', 'opencode') },
-    { target: 'gemini-cli',       dir: path.join(home, '.gemini') },
+    { target: 'gemini-home',      dir: path.join(home, '.gemini') },
   ];
   for (const { target, dir } of checks) {
     try {
@@ -116,15 +127,16 @@ function enableFor(target, { log = () => {} } = {}) {
   if (!isInstalled()) {
     return { enabled: false, skipped: true, reason: 'rtk binary not on PATH' };
   }
-  const rtkArgs = TARGET_MAP[target];
+  const canonical = normalizeTarget(target);
+  const rtkArgs = TARGET_MAP[canonical];
   if (!rtkArgs) {
     return { enabled: false, skipped: true, reason: `no RTK mapping for target "${target}"` };
   }
 
-  log(`[rtk] wiring RTK into ${target} …`);
+  log(`[rtk] wiring RTK into ${canonical} …`);
   // --auto-patch is only accepted by the default Claude Code hook flow.
   // Other agent flags (--codex, --gemini, --opencode, --agent X) reject it.
-  const finalArgs = target === 'claude-code' ? [...rtkArgs, '--auto-patch'] : rtkArgs;
+  const finalArgs = canonical === 'claude-home' ? [...rtkArgs, '--auto-patch'] : rtkArgs;
   const r = spawnSync('rtk', finalArgs, { encoding: 'utf8' });
   const output = (r.stdout || '') + (r.stderr || '');
   if (r.status !== 0) {
@@ -175,6 +187,7 @@ function savings({ days = 30 } = {}) {
 
 module.exports = {
   TARGET_MAP,
+  normalizeTarget,
   detectInstalledTargets,
   isInstalled,
   getVersion,

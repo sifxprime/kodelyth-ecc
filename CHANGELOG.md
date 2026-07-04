@@ -2,6 +2,37 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.1.2 — Install-flow fixes caught by live user testing (July 2026)
+
+Ran the actual `npx kodelyth-ecc --target claude-code` flow as a user would, end-to-end. Three real bugs surfaced and got fixed.
+
+### Fixed
+
+- **`--target claude-code` was rejected** with "Unknown target." install.sh only knew `claude-home`, but every doc, README, and CHANGELOG example uses `claude-code`. install.sh now accepts both (`claude-home|claude-code)` case)
+- **Post-install RTK block silently skipped** on the (correct) `--target claude-code` because `TARGET_MAP` was keyed on `claude-home`. Added `normalizeTarget()` and both the RTK and terse post-install blocks now normalise the target before lookup. `gemini-cli` → `gemini-home`, `cursor` → `cursor-project` also normalised
+- **install.sh `/dev/tty` read failed on piped/CI shells** even though the guard tested `-e /dev/tty`. Guard now also tests `-r /dev/tty` and honours `KODELYTH_NONINTERACTIVE=1` env (Windows PowerShell path already set this)
+- **install.sh footer showed stale `v1.8.1`** from a leftover VERSION file. Bumped to current
+
+### Verified end-to-end on this Mac
+
+```
+$ npm i -g kodelyth-ecc && kodelyth-ecc --target claude-code
+  ...
+━ RTK token savings ─────────────────────────────
+  ✓ RTK 0.42.4 — wired for claude-home
+  ✓ Restart your AI tool to activate. 60-90% token savings on shell commands.
+
+━ Terse mode ────────────────────────────────────
+  ✓ /terse and /terse-compress installed for claude-home
+  · Activate any time: type /terse in your AI tool (dormant until you do)
+```
+
+Files land at `~/.claude/skills/terse-mode/SKILL.md` and `~/.claude/commands/terse.md`. Discoverable by the AI on next session.
+
+### Added
+
+- `scripts/rtk/index.js` — `normalizeTarget(target)` exported. Accepts `claude-code`, `gemini-cli`, `cursor` and returns the canonical install.sh target names. `roocode` and `kimi` also added to `TARGET_MAP`
+
 ## v2.0.0 — Terse mode: output-token compressor + memory compressor (July 2026)
 
 RTK saves input tokens. Terse mode now saves output tokens. Together — on a typical coding session — ECC cuts ~55-65% of total token cost while keeping code, commands, and errors byte-exact.

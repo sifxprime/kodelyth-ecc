@@ -351,30 +351,39 @@ if (args[0] === 'terse') {
   }
 }
 
+// Normalise alias → canonical target (matches scripts/rtk/index.js).
+function _canon(target) {
+  if (target === 'claude-code') return 'claude-home';
+  if (target === 'gemini-cli')  return 'gemini-home';
+  if (target === 'cursor')      return 'cursor-project';
+  return target;
+}
 function getTargetSkillsDir(target) {
   const home = os.homedir();
-  switch (target) {
-    case 'claude-code':      return path.join(home, '.claude', 'skills');
-    case 'cursor':
+  switch (_canon(target)) {
+    case 'claude-home':      return path.join(home, '.claude', 'skills');
     case 'cursor-project':   return path.join(home, '.cursor', 'skills');
-    case 'windsurf-home':    return path.join(home, '.codeium', 'windsurf', 'skills');
+    case 'windsurf-home':
+    case 'windsurf-project': return path.join(home, '.codeium', 'windsurf', 'skills');
     case 'antigravity':      return path.join(home, '.antigravity', 'skills');
     case 'codex-home':       return path.join(home, '.codex', 'skills');
-    case 'gemini-cli':       return path.join(home, '.gemini', 'skills');
+    case 'gemini-home':      return path.join(home, '.gemini', 'skills');
+    case 'gemini-project':   return path.join(process.cwd(), '.gemini', 'skills');
     case 'opencode':         return path.join(home, '.config', 'opencode', 'skills');
     default: return null;
   }
 }
 function getTargetCommandsDir(target) {
   const home = os.homedir();
-  switch (target) {
-    case 'claude-code':      return path.join(home, '.claude', 'commands');
-    case 'cursor':
+  switch (_canon(target)) {
+    case 'claude-home':      return path.join(home, '.claude', 'commands');
     case 'cursor-project':   return path.join(home, '.cursor', 'commands');
-    case 'windsurf-home':    return path.join(home, '.codeium', 'windsurf', 'commands');
+    case 'windsurf-home':
+    case 'windsurf-project': return path.join(home, '.codeium', 'windsurf', 'commands');
     case 'antigravity':      return path.join(home, '.antigravity', 'commands');
     case 'codex-home':       return path.join(home, '.codex', 'commands');
-    case 'gemini-cli':       return path.join(home, '.gemini', 'commands');
+    case 'gemini-home':      return path.join(home, '.gemini', 'commands');
+    case 'gemini-project':   return path.join(process.cwd(), '.gemini', 'commands');
     case 'opencode':         return path.join(home, '.config', 'opencode', 'commands');
     default: return null;
   }
@@ -1232,7 +1241,8 @@ if (isWin) {
     try {
       const rtk = require(path.join(ROOT, 'scripts', 'rtk', 'index.js'));
       const targetIdx = args.indexOf('--target');
-      const target = targetIdx >= 0 && args[targetIdx + 1] ? args[targetIdx + 1] : 'claude-code';
+      const rawTarget = targetIdx >= 0 && args[targetIdx + 1] ? args[targetIdx + 1] : 'claude-code';
+      const target = rtk.normalizeTarget(rawTarget);
       if (rtk.TARGET_MAP[target]) {
         const w = (m) => process.stdout.write(m + '\n');
         w('');
@@ -1261,7 +1271,8 @@ if (isWin) {
     try {
       const rtk2 = require(path.join(ROOT, 'scripts', 'rtk', 'index.js'));
       const targetIdx = args.indexOf('--target');
-      const target = targetIdx >= 0 && args[targetIdx + 1] ? args[targetIdx + 1] : 'claude-code';
+      const rawTarget = targetIdx >= 0 && args[targetIdx + 1] ? args[targetIdx + 1] : 'claude-code';
+      const target = rtk2.normalizeTarget(rawTarget);
       const skillsDir = getTargetSkillsDir(target);
       const cmdsDir   = getTargetCommandsDir(target);
       if (skillsDir && cmdsDir) {

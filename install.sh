@@ -233,7 +233,7 @@ HOME_DIR="$HOME"
 WINDSURFRULES_DEST=""  # only set for windsurf targets
 
 case "$TARGET" in
-  claude-home)
+  claude-home|claude-code)
     DEST="$HOME_DIR/.claude"
     AGENTS_DEST="$DEST/agents"
     SKILLS_DEST="$DEST/skills"
@@ -361,7 +361,7 @@ case "$TARGET" in
     ;;
   *)
     echo -e "${RED}Unknown target: $TARGET${RESET}"
-    echo "Valid targets: claude-home, antigravity, cursor-project, windsurf-project, windsurf-home, codex-home, opencode, cline, roocode, aider, kimi, gemini-project, gemini-home"
+    echo "Valid targets: claude-home (aka claude-code), antigravity, cursor-project, windsurf-project, windsurf-home, codex-home, opencode, cline, roocode, aider, kimi, gemini-project, gemini-home"
     exit 1
     ;;
 esac
@@ -375,8 +375,12 @@ fi
 echo ""
 
 # ── Confirm ───────────────────────────────────────────────────────────────────
-if [[ -e /dev/tty ]]; then
-  read -r -p "$(echo -e "${YELLOW}Proceed with install? [Y/n] ${RESET}")" CONFIRM </dev/tty
+# Honour KODELYTH_NONINTERACTIVE=1 for CI, npx pipes, and Windows powershell path.
+if [[ "${KODELYTH_NONINTERACTIVE:-}" == "1" ]]; then
+  CONFIRM="Y"
+  echo -e "${CYAN}  Non-interactive mode (KODELYTH_NONINTERACTIVE=1) — proceeding.${RESET}"
+elif [[ -e /dev/tty ]] && [[ -r /dev/tty ]]; then
+  read -r -p "$(echo -e "${YELLOW}Proceed with install? [Y/n] ${RESET}")" CONFIRM </dev/tty || CONFIRM="Y"
   CONFIRM="${CONFIRM:-Y}"
 else
   CONFIRM="Y"
@@ -476,7 +480,7 @@ echo -e "${BOLD}Installing components...${RESET}"
 echo ""
 
 case "$TARGET" in
-  claude-home)
+  claude-home|claude-code)
     install_dir  "$SCRIPT_DIR/agents"         "$AGENTS_DEST"            "Agents   ($AGENT_COUNT)"
     install_dir  "$SCRIPT_DIR/skills"         "$SKILLS_DEST"            "Skills   ($SKILL_COUNT)"
     install_dir  "$SCRIPT_DIR/commands"       "$COMMANDS_DEST"          "Commands ($CMD_COUNT)"
@@ -685,7 +689,7 @@ echo -e "${GREEN}${BOLD}  ARMED AND OPERATIONAL.${RESET}"
 echo ""
 
 case "$TARGET" in
-  claude-home)
+  claude-home|claude-code)
     echo -e "${BOLD}  Claude Code — what to do now:${RESET}"
     echo ""
     echo "  Open any project in Claude Code, then:"

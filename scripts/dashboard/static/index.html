@@ -220,8 +220,9 @@
       <button id="refreshBtn" class="btn-ghost" title="Refresh active tab  (R key)">Refresh</button>
       <nav class="tabs">
         <button data-tab="overview" class="active">Overview</button>
-        <button data-tab="rtk">RTK Savings</button>
+        <button data-tab="rtk">Token Savings</button>
         <button data-tab="memory">Memory</button>
+        <button data-tab="codebase">Codebase</button>
         <button data-tab="evolve">Evolve</button>
         <button data-tab="catalog">Catalog</button>
         <button data-tab="sessions">Sessions</button>
@@ -273,6 +274,29 @@
       <div class="card">
         <h2>Daily output savings (last 30 days)</h2>
         <div id="terseDaily">loading…</div>
+      </div>
+    </section>
+
+    <!-- ───────── CODEBASE GRAPH ───────── -->
+    <section data-panel="codebase" hidden>
+      <div class="grid" id="codebaseCards"></div>
+      <hr class="sep">
+      <div class="row">
+        <div class="card">
+          <h2>Architecture snapshot</h2>
+          <div id="codebaseArch">loading…</div>
+        </div>
+        <div class="card">
+          <h2>Try these queries</h2>
+          <pre style="font-size:12px; line-height:1.6; margin:0;">
+kodelyth-ecc codebase query search_graph '{"name_pattern": ".*Handler.*"}'
+kodelyth-ecc codebase query trace_path   '{"function_name": "main", "direction": "outbound"}'
+kodelyth-ecc codebase query get_architecture '{}'
+kodelyth-ecc codebase query detect_changes '{}'</pre>
+          <p class="muted" style="margin-top:8px;font-size:12px;">
+            All queries run locally via <code>codebase-memory-mcp cli</code> — real data, no LLM cost.
+          </p>
+        </div>
       </div>
     </section>
 
@@ -758,11 +782,52 @@
   }
   function fmtN(n) { return Number(n || 0).toLocaleString(); }
 
+  // ───── Codebase graph loader (DeusData codebase-memory-mcp) ─────
+  async function loadCodebase() {
+    try {
+      const r = await fetch('/api/codebase').then(r => r.json());
+      const cards = $('#codebaseCards');
+      if (!r.installed) {
+        cards.innerHTML = `<div class="empty">
+          codebase-memory-mcp not installed. AST-based code graph for 158 languages, 100% local.<br><br>
+          Install: <code>kodelyth-ecc codebase install</code>
+        </div>`;
+        $('#codebaseArch').innerHTML = '';
+        return;
+      }
+      const a = r.architecture_snapshot || {};
+      const langs = a.languages && typeof a.languages === 'object' ? Object.keys(a.languages).length : (Array.isArray(a.languages) ? a.languages.length : '—');
+      cards.innerHTML = [
+        statCard(escapeHtml((r.version || '—').replace(/^codebase-memory-mcp\s*/,'')), 'Binary version', 'AST graph engine'),
+        statCard(fmtN(r.indexed_projects || 0), 'Indexed projects', r.cache_dir ? 'cache present' : 'no cache yet'),
+        statCard(fmtN(a.nodes || 0), 'Graph nodes',   'functions / classes / routes'),
+        statCard(fmtN(a.edges || 0), 'Graph edges',   'CALLS / IMPORTS / IMPLEMENTS'),
+      ].join('');
+      if (a.nodes || a.edges || langs !== '—') {
+        $('#codebaseArch').innerHTML = `<table>
+          <tbody>
+            <tr><td class="muted">Languages</td><td><code>${escapeHtml(String(langs))}</code></td></tr>
+            <tr><td class="muted">Nodes</td><td>${fmtN(a.nodes || 0)}</td></tr>
+            <tr><td class="muted">Edges</td><td>${fmtN(a.edges || 0)}</td></tr>
+            ${(a.entry_points || []).length ? `<tr><td class="muted" style="vertical-align:top;">Entry points</td>
+              <td><div style="font-family:monospace;font-size:12px;line-height:1.6;">${a.entry_points.map(e => `<div>${escapeHtml(String(e.name || e))}</div>`).join('')}</div></td></tr>` : ''}
+          </tbody>
+        </table>`;
+      } else {
+        $('#codebaseArch').innerHTML = '<div class="empty">no active project graph yet — open a repo in your AI tool and say "Index this project"</div>';
+      }
+      setLastUpdated();
+    } catch (e) {
+      $('#codebaseCards').innerHTML = `<div class="empty">failed: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
   // ───── tab dispatcher ─────
   function onTabShown(tab) {
     if (tab === 'overview') loadOverview();
     if (tab === 'rtk')      loadRtk();
     if (tab === 'memory')   loadMemory();
+    if (tab === 'codebase') loadCodebase();
     if (tab === 'evolve')   loadEvolve();
     if (tab === 'catalog')  loadCatalog();
     if (tab === 'sessions') { loadIdeSessions(); loadSessions(); }

@@ -33,6 +33,73 @@ const args    = process.argv.slice(2).filter((a, i, arr) => {
 });
 const isWin   = os.platform() === 'win32';
 
+// ── Per-command help — runs BEFORE any subcommand block consumes --help ─────
+if (args[1] === '--help' || args[1] === '-h') {
+  const HELP_MAP = {
+    rtk: `
+  kodelyth-ecc rtk — Rust Token Killer integration (input token savings)
+
+  Usage:
+    kodelyth-ecc rtk install                install rtk binary (brew or curl)
+    kodelyth-ecc rtk enable [--target X]    wire rtk into an IDE (default: claude-code)
+    kodelyth-ecc rtk enable --all           wire rtk into every ECC-installed IDE
+    kodelyth-ecc rtk disable [--target X]   remove rtk hook
+    kodelyth-ecc rtk status [--json]        version + active integrations
+    kodelyth-ecc rtk gain [-a] [--format]   thin passthrough to \`rtk gain\`
+
+  Docs: https://github.com/rtk-ai/rtk
+`,
+    terse: `
+  kodelyth-ecc terse — output-token compressor
+
+  Usage:
+    kodelyth-ecc terse status                       shipped / installed / ledger paths
+    kodelyth-ecc terse stats [--json]               turns tracked, tokens saved, level breakdown
+    kodelyth-ecc terse compress <file> [--dry-run]  compress a memory file (byte-preserves code)
+    kodelyth-ecc terse enable [--target X | --all]  install skill + slash commands into an IDE
+
+  Once installed, type /terse [lite|full|ultra|off] in your AI tool to activate.
+`,
+    codebase: `
+  kodelyth-ecc codebase — DeusData code-graph MCP integration
+
+  Usage:
+    kodelyth-ecc codebase install            install codebase-memory-mcp + auto-configure agents
+    kodelyth-ecc codebase status [--json]    binary version + indexed projects + cache dir
+    kodelyth-ecc codebase register           re-run their auto-configure step
+    kodelyth-ecc codebase query <cmd> [json] pass through to \`codebase-memory-mcp cli <cmd>\`
+
+  Example queries after "Index this project" in your AI tool:
+    kodelyth-ecc codebase query search_graph '{"name_pattern": ".*Handler.*"}'
+    kodelyth-ecc codebase query trace_path   '{"function_name": "main"}'
+    kodelyth-ecc codebase query get_architecture '{}'
+
+  Docs: https://github.com/DeusData/codebase-memory-mcp
+`,
+    mcp: `
+  kodelyth-ecc mcp — MCP server (stdio JSON-RPC)
+
+  Usage:
+    kodelyth-ecc mcp                         start ECC's own MCP server (16 tools, 6 prompts, 381 resources)
+    kodelyth-ecc mcp-add <name> -- <cmd>     register an external MCP server
+    kodelyth-ecc mcp-list                    list all registered external servers
+    kodelyth-ecc mcp-remove <name>           unregister
+    kodelyth-ecc mcp-tools <name>            list tools on a registered server
+    kodelyth-ecc mcp-call <name> <tool>      call a tool (add --json for JSON args)
+`,
+    dashboard: `
+  kodelyth-ecc dashboard — local observability (real data only, zero telemetry)
+
+  Usage:
+    kodelyth-ecc dashboard [--port 5747] [--host 127.0.0.1] [--no-open]
+
+  Tabs: Overview · Token Savings (RTK + Terse) · Memory · Codebase · Evolve · Catalog · Sessions
+`,
+  };
+  const cmd = args[0];
+  if (HELP_MAP[cmd]) { console.log(HELP_MAP[cmd]); process.exit(0); }
+}
+
 // ── Subcommand: mcp (start MCP server over stdio) ────────────────────────────
 // Usage: npx kodelyth-ecc mcp
 // Exposes 70 agents, 194 skills, 97 commands, the routing rule, and the local
@@ -258,6 +325,57 @@ if (args[0] === 'rtk') {
     process.exit(1);
   }
   return;
+}
+
+// ── Subcommand: codebase (DeusData code-graph MCP integration) ───────────────
+// Usage:
+//   kodelyth-ecc codebase install                install the codebase-memory-mcp binary
+//   kodelyth-ecc codebase status                 binary version + indexed projects + cache dir
+//   kodelyth-ecc codebase register               re-run their auto-configure step for installed agents
+//   kodelyth-ecc codebase query <cli-cmd> [json] pass through to `codebase-memory-mcp cli`
+if (args[0] === 'codebase') {
+  const cb  = require(path.join(ROOT, 'scripts', 'codebase', 'index.js'));
+  const sub = args[1] || 'status';
+  const rest = args.slice(2);
+  const log = (m) => process.stdout.write(m + '\n');
+  try {
+    if (sub === 'install') {
+      const r = cb.install({ log });
+      log(r.installed ? `✓ installed (${r.method}) — ${r.version}` : `· ${r.reason}`);
+      if (r.installed) {
+        const cfg = cb.autoConfigureAgents({ log });
+        log(cfg.configured ? '✓ MCP entries auto-configured for installed agents' : `· auto-configure skipped: ${cfg.reason || 'unknown'}`);
+      }
+      process.exit(r.installed || r.skipped ? 0 : 1);
+    }
+    if (sub === 'register') {
+      const r = cb.autoConfigureAgents({ log });
+      log(r.configured ? '✓ registered' : `· ${r.reason || 'failed'}`);
+      process.exit(r.configured ? 0 : 1);
+    }
+    if (sub === 'status') {
+      const s = cb.status();
+      if (rest.includes('--json')) { log(JSON.stringify(s, null, 2)); process.exit(0); }
+      if (!s.installed) { log('codebase-memory-mcp: not installed'); log('  → install: kodelyth-ecc codebase install'); process.exit(0); }
+      log(`codebase-memory-mcp: ${s.version}`);
+      log(`  indexed projects: ${s.indexed_projects ?? '(none / cli not queryable)'}`);
+      log(`  cache dir:        ${s.cache_dir || '(none)'}`);
+      log(`  next: open a project in your AI tool and say "Index this project"`);
+      process.exit(0);
+    }
+    if (sub === 'query') {
+      const cliCmd = rest[0];
+      const json   = rest[1] || '{}';
+      if (!cliCmd) { process.stderr.write('usage: kodelyth-ecc codebase query <cli-cmd> [json-args]\n'); process.exit(2); }
+      log(JSON.stringify(cb.query(cliCmd, json), null, 2));
+      process.exit(0);
+    }
+    process.stderr.write('unknown codebase subcommand. try: install | status | register | query\n');
+    process.exit(2);
+  } catch (e) {
+    process.stderr.write(`[codebase] ${e.message}\n`);
+    process.exit(1);
+  }
 }
 
 // ── Subcommand: terse (output token compression) ─────────────────────────────
@@ -1042,6 +1160,91 @@ if (args[0] === 'evolve') {
   return;
 }
 
+// ── Per-command help shortcut ────────────────────────────────────────────────
+// This block is duplicated at the top of the file so it runs BEFORE any
+// subcommand dispatch consumes `--help` as its own argument. Anchor: HELP_MAP.
+// (Duplicate block below is dead code kept for readability but never reached.)
+if (args[1] === '--help' || args[1] === '-h') {
+  const cmd = args[0];
+  const HELP = {
+    rtk: `
+  kodelyth-ecc rtk — Rust Token Killer integration (input token savings)
+
+  Usage:
+    kodelyth-ecc rtk install                install rtk binary (brew or curl)
+    kodelyth-ecc rtk enable [--target X]    wire rtk into an IDE (default: claude-code)
+    kodelyth-ecc rtk enable --all           wire rtk into every ECC-installed IDE
+    kodelyth-ecc rtk disable [--target X]   remove rtk hook
+    kodelyth-ecc rtk status [--json]        version + active integrations
+    kodelyth-ecc rtk gain [-a] [--format]   thin passthrough to \`rtk gain\`
+
+  Docs: https://github.com/rtk-ai/rtk
+`,
+    terse: `
+  kodelyth-ecc terse — output-token compressor
+
+  Usage:
+    kodelyth-ecc terse status                       shipped / installed / ledger paths
+    kodelyth-ecc terse stats [--json]               turns tracked, tokens saved, level breakdown
+    kodelyth-ecc terse compress <file> [--dry-run]  compress a memory file (byte-preserves code)
+    kodelyth-ecc terse enable [--target X | --all]  install skill + slash commands into an IDE
+
+  Once installed, type /terse [lite|full|ultra|off] in your AI tool to activate.
+`,
+    codebase: `
+  kodelyth-ecc codebase — DeusData code-graph MCP integration
+
+  Usage:
+    kodelyth-ecc codebase install            install codebase-memory-mcp + auto-configure agents
+    kodelyth-ecc codebase status [--json]    binary version + indexed projects + cache dir
+    kodelyth-ecc codebase register           re-run their auto-configure step
+    kodelyth-ecc codebase query <cmd> [json] pass through to \`codebase-memory-mcp cli <cmd>\`
+
+  Example queries after "Index this project" in your AI tool:
+    kodelyth-ecc codebase query search_graph '{"name_pattern": ".*Handler.*"}'
+    kodelyth-ecc codebase query trace_path   '{"function_name": "main"}'
+    kodelyth-ecc codebase query get_architecture '{}'
+
+  Docs: https://github.com/DeusData/codebase-memory-mcp
+`,
+    mcp: `
+  kodelyth-ecc mcp — MCP server (stdio JSON-RPC)
+
+  Usage:
+    kodelyth-ecc mcp                         start ECC's own MCP server (16 tools, 6 prompts, 381 resources)
+    kodelyth-ecc mcp-add <name> -- <cmd>     register an external MCP server (Stripe, GitHub, Postgres, ...)
+    kodelyth-ecc mcp-list                    list all registered external servers
+    kodelyth-ecc mcp-remove <name>           unregister
+    kodelyth-ecc mcp-tools <name>            list tools on a registered server
+    kodelyth-ecc mcp-call <name> <tool> [--json '{...}']  call a tool
+
+  Docs: docs/mcp.md
+`,
+    dashboard: `
+  kodelyth-ecc dashboard — local observability (real data only, zero telemetry)
+
+  Usage:
+    kodelyth-ecc dashboard [--port 5747] [--host 127.0.0.1] [--no-open]
+
+  Tabs: Overview · Token Savings (RTK + Terse) · Memory · Codebase · Evolve · Catalog · Sessions
+`,
+    memory: `
+  Kodelyth Memory — BM25 self-learning memory (zero deps, zero telemetry)
+
+  This isn't a subcommand — it runs automatically via hooks:
+    - hooks/memory/auto-recall.js   fires on every UserPromptSubmit (3s timeout, sync)
+    - hooks/memory/capture-stop.js  fires on Stop (10s timeout, async)
+
+  Store:   ~/.kodelythecc/memory/memories.jsonl + index.json (BM25 inverted index)
+  Scoring: BM25 k1=1.5, b=0.75. camelCase / snake_case aware tokenizer.
+
+  Inspect from the CLI:
+    kodelyth-ecc dashboard             # Memory tab shows real BM25 stats + search
+`,
+  };
+  if (HELP[cmd]) { console.log(HELP[cmd]); process.exit(0); }
+}
+
 // ── Help shortcut ─────────────────────────────────────────────────────────────
 if (args.includes('--help') || args.includes('-h')) {
   console.log(`
@@ -1290,6 +1493,28 @@ if (isWin) {
       }
     } catch (e) {
       process.stderr.write(`[terse] setup skipped: ${e.message}\n`);
+    }
+
+    // Codebase-memory-mcp (DeusData) — AST code graph for 158 languages.
+    // Opt out with --no-codebase-graph. Off by default so users on tight PATH
+    // configs don't get surprise binaries.
+    if (args.includes('--codebase-graph') || args.includes('--all')) {
+      try {
+        const cb = require(path.join(ROOT, 'scripts', 'codebase', 'index.js'));
+        process.stdout.write('━ Codebase graph (codebase-memory-mcp) ' + '─'.repeat(21) + '\n');
+        const inst = cb.install({ log: (m) => process.stdout.write(m + '\n') });
+        if (inst.installed || inst.reason === 'already installed') {
+          const v = cb.getVersion() || 'unknown';
+          process.stdout.write(`  ✓ ${v} — MCP entries auto-configured across installed agents\n`);
+          process.stdout.write(`  · Say "Index this project" in your AI tool to build the graph\n\n`);
+          cb.autoConfigureAgents({ log: () => {} });
+        } else {
+          process.stdout.write(`  · install skipped: ${inst.reason}\n`);
+          process.stdout.write(`  → retry: kodelyth-ecc codebase install\n\n`);
+        }
+      } catch (e) {
+        process.stderr.write(`[codebase] setup skipped: ${e.message}\n`);
+      }
     }
   }
 

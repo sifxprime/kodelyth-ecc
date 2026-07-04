@@ -2,6 +2,71 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.2.0 — Codebase graph integration + self-documenting CLI (July 2026)
+
+ECC now stacks three complementary memory + savings layers, all local, all real:
+
+| Layer | What | Source |
+|---|---|---|
+| **BM25 session memory** | Problems + solutions you've solved before | ECC (built-in) |
+| **RTK** | Input-token compression on shell output | rtk-ai/rtk |
+| **Terse mode** | Output-token compression on AI replies | ECC (inspired by Caveman) |
+| **Codebase graph** | AST-parsed code graph, 158 languages, structural queries | DeusData/codebase-memory-mcp |
+
+Together: ~99% token reduction on structural code queries (their number), 55-65% on typical LLM turns (ours). No cloud, no telemetry, no API keys.
+
+### Added
+
+**Codebase graph MCP integration** (`scripts/codebase/index.js`)
+- Wraps [DeusData/codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) — MIT, single static binary, tree-sitter across 158 languages
+- Auto-install path: their official curl script → binary lands at `~/.local/bin/codebase-memory-mcp`
+- Their `install` command auto-registers MCP entries in every installed AI-coding agent
+- After install, users say **"Index this project"** in their AI tool — done
+
+**CLI** (`kodelyth-ecc codebase <cmd>`)
+- `install` — install binary + auto-register with all agents
+- `status [--json]` — version, indexed projects, cache dir
+- `register` — re-run their auto-configure step
+- `query <cli-cmd> [json]` — pass-through to `codebase-memory-mcp cli` (real graph queries)
+
+**Post-install auto-wire**
+- Opt-in on `--codebase-graph` or `--all` flag (off by default to avoid surprise binaries)
+- Idempotent — reuses existing install if present
+
+**Dashboard**
+- New **Codebase** tab: binary version, indexed project count, graph nodes/edges, languages, entry points — **all real data**, zero fallbacks
+- Renamed **RTK Savings** tab → **Token Savings** (RTK input + Terse output on one tab)
+
+**Self-documenting CLI**
+- `kodelyth-ecc rtk --help`
+- `kodelyth-ecc terse --help`
+- `kodelyth-ecc codebase --help`
+- `kodelyth-ecc mcp --help`
+- `kodelyth-ecc dashboard --help`
+
+No more "read the README" — every subcommand has focused inline help.
+
+### Verified live on this Mac
+
+- MCP server boot: `[kodelyth-mcp] ready · 2.2.0 · 16 tools · 6 prompts · 381 resources` in <1s
+- BM25 memory hooks confirmed wired: `UserPromptSubmit` (recall, sync, 3s timeout) + `Stop` (capture, async, 10s timeout)
+- Codebase status: `codebase-memory-mcp 0.8.1 · 8 indexed projects · cache at ~/.cache/codebase-memory-mcp`
+- Dashboard `/api/codebase` returns real snapshot, zero hardcoded values
+
+### Attribution
+
+- **DeusData/codebase-memory-mcp** — MIT. Their binary, their curl script, we wrap. If upstream disappears, we fork + vendor (MIT permits).
+- **rtk-ai/rtk** — Apache-2.0. Wrapped since v1.9.0.
+- **JuliusBrussee/caveman** — MIT. Design inspiration for terse-mode (independent implementation).
+
+### Compatibility
+
+- Backwards-compatible with v2.1.x
+- Codebase graph OFF by default (opt-in via `--codebase-graph` on install or `kodelyth-ecc codebase install`)
+- BM25 memory unchanged
+- RTK + Terse unchanged
+- Dashboard adds a tab; existing tabs preserved
+
 ## v2.1.2 — Install-flow fixes caught by live user testing (July 2026)
 
 Ran the actual `npx kodelyth-ecc --target claude-code` flow as a user would, end-to-end. Three real bugs surfaced and got fixed.

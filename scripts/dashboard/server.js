@@ -304,6 +304,11 @@ function handleRequest(req, res) {
       return jsonResponse(res, 200, { ok: true, ...s });
     }
 
+    if (p === '/api/codebase') {
+      const cb = require('../codebase/index.js');
+      return jsonResponse(res, 200, cb.dashboardSnapshot());
+    }
+
     if (p.startsWith('/api/')) return notFound(res);
 
     // ── static fallback ───────────────────────────────────────────────────

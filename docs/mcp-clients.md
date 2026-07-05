@@ -1,3 +1,24 @@
+---
+title: "External MCP Servers — Register Stripe, GitHub, Postgres, Redis"
+description: "Register external MCP servers with Kodelyth ECC. Auto-detect tools + prompts + resources from Stripe, GitHub, Postgres, Redis, Slack, and any MCP-compatible service."
+keywords:
+  - external MCP server
+  - Stripe MCP
+  - GitHub MCP
+  - Postgres MCP
+  - Redis MCP
+  - MCP client
+  - AI tool integration
+og_title: "External MCP Servers — Register Stripe, GitHub, Postgres, Redis"
+og_description: "Register external MCP servers with Kodelyth ECC. Auto-detect tools + prompts + resources from Stripe, GitHub, Postgres, Redis, Slack, and any MCP-compatible service."
+og_image: /social/section-mcp.svg
+og_type: article
+twitter_card: summary_large_image
+canonical: /docs/mcp-clients/
+last_updated: 2026-07-04
+version: 2.4.1
+category: feature
+---
 # Kodelyth ECC — MCP Client Mode
 
 The other half of the MCP story. While `npx kodelyth-ecc mcp` (Phase 2.1) **serves** ECC to any MCP-compatible client, MCP client mode lets ECC **consume** any external MCP server — Stripe, GitHub, Postgres, Redis, Brave, Filesystem, Shopify, Sentry, anything.

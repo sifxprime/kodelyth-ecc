@@ -1,3 +1,24 @@
+---
+title: "Local Observability Dashboard — Kodelyth ECC"
+description: "Localhost-only observability dashboard for Kodelyth ECC — Memory (BM25), RTK savings, Terse mode, Codebase graph, Evolve, Catalog, Sessions. Zero telemetry, zero external deps."
+keywords:
+  - ECC dashboard
+  - AI observability
+  - Claude Code dashboard
+  - localhost AI dashboard
+  - zero telemetry
+  - AI toolkit monitoring
+  - kodelythecc dashboard
+og_title: "Local Observability Dashboard — Kodelyth ECC"
+og_description: "Localhost-only observability dashboard for Kodelyth ECC — Memory (BM25), RTK savings, Terse mode, Codebase graph, Evolve, Catalog, Sessions. Zero telemetry, zero external deps."
+og_image: /social/section-dashboard.svg
+og_type: article
+twitter_card: summary_large_image
+canonical: /docs/dashboard/
+last_updated: 2026-07-04
+version: 2.4.1
+category: feature
+---
 # Local observability dashboard
 
 > A localhost-only single-page web UI that renders every local data source Kodelyth ECC produces. Zero telemetry. Zero external runtime dependencies. Read-only.

@@ -45,7 +45,7 @@
   </g>
 
   <!-- Header -->
-  <text x="540" y="82" font-size="13" font-weight="700" fill="#a78bfa" text-anchor="middle" letter-spacing="3">KODELYTH ECC v2.4.1</text>
+  <text x="540" y="82" font-size="13" font-weight="700" fill="#a78bfa" text-anchor="middle" letter-spacing="3">KODELYTH ECC v2.4.2</text>
   <text x="540" y="138" font-size="52" font-weight="900" letter-spacing="-2" fill="#ffffff" text-anchor="middle">What's inside the toolkit</text>
   <text x="540" y="178" font-size="20" font-weight="400" fill="#6e7681" text-anchor="middle">4 capabilities that change how you code every day</text>
 

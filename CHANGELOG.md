@@ -2,6 +2,45 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.4.2 — SEO-massive documentation refresh (July 2026)
+
+Full documentation rewrite for website-ready SEO. Every doc now ships with YAML frontmatter (title, description, keywords, Open Graph, Twitter card, canonical URL, last_updated, version, category). Six new feature docs cover subsystems shipped since v2.0 that were undocumented until now.
+
+### Added — 8 new docs
+
+- **`docs/index.md`** — SEO-optimized hub page with keyword-rich intro, platform support table, quick reference
+- **`docs/getting-started.md`** — one-command install, verify, first agent invocation, CLI commands, filesystem layout
+- **`docs/rtk.md`** — RTK integration deep-dive (auto-install, CLI, per-target flags, dashboard, live proof numbers)
+- **`docs/terse-mode.md`** — output-compression skill, 4-level dial, memory-file compressor, byte-preservation rules, ledger, Caveman attribution
+- **`docs/codebase-graph.md`** — 158-language AST intelligence via DeusData/codebase-memory-mcp, query examples, edge types, performance table
+- **`docs/interactive-cli.md`** — arrow-key menu, update check details, background daemon, TTY-detection rules, env-var reference
+- **`docs/uninstall.md`** — full cleanup procedure, dry-run mode, what gets removed vs preserved, programmatic API
+- **`docs/intent-routing.md`** — 10-tier signal system + 8 new routing dimensions, output-format examples, live routing table
+- **`docs/sitemap.md`** — complete documentation index for site builds
+
+### Changed — SEO frontmatter on all 7 existing docs
+
+Added YAML frontmatter with SEO metadata to:
+
+- `docs/dashboard.md`
+- `docs/evolve.md`
+- `docs/mcp.md`
+- `docs/mcp-clients.md`
+- `docs/replay.md`
+- `docs/supply-chain.md`
+- `docs/swarm.md`
+
+Every frontmatter block includes: `title`, `description`, `keywords[]`, `og_title`, `og_description`, `og_image`, `og_type`, `twitter_card`, `canonical`, `last_updated`, `version`, `category`. Format is SSG-agnostic — works with Astro, Next.js, Docusaurus, VitePress, Hugo without translation.
+
+### SVGs
+
+18 files version-bumped `v2.4.1 → v2.4.2`.
+
+### Doc count
+
+- Before: 7 docs, no frontmatter, 1,553 lines total, 4 empty subdirs
+- After: 16 docs (9 new), full SEO frontmatter, ~2,500 lines, still 4 empty subdirs (reserved for future `api/`, `architecture/`, `config/`, `guides/` expansion)
+
 ## v2.4.1 — Intent routing v2 (July 2026)
 
 Full design pass on `rules/common/agent-intent-routing.md` — the always-on rule that maps plain-language user intent to specialist agents. Deferred from 2.4.0.

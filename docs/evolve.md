@@ -1,3 +1,24 @@
+---
+title: "Self-Evolving Memory — Compound Learning in Kodelyth ECC"
+description: "Turn repeated memory hits and routing misses into PR-ready skill upgrades and rule additions. Never auto-applies — produces drafts you review."
+keywords:
+  - self-evolving memory
+  - AI compound learning
+  - ECC evolve
+  - agent proposals
+  - AI skill generation
+  - BM25 evolution
+  - AI toolkit learning
+og_title: "Self-Evolving Memory — Compound Learning in Kodelyth ECC"
+og_description: "Turn repeated memory hits and routing misses into PR-ready skill upgrades and rule additions. Never auto-applies — produces drafts you review."
+og_image: /social/hype-compound-learning.svg
+og_type: article
+twitter_card: summary_large_image
+canonical: /docs/evolve/
+last_updated: 2026-07-04
+version: 2.4.1
+category: feature
+---
 # Self-evolving memory
 
 > Phase 3.4 of the Devil Roadmap. Closes the learning loop on the BM25 memory system. Repeated memory hits become draft skills. Repeated routing misses become proposed routing-rule additions. Nothing is ever auto-applied.

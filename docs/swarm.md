@@ -1,3 +1,24 @@
+---
+title: "Swarm Orchestrator — Parallel AI Agents in Git Worktrees"
+description: "Run N specialist AI agents simultaneously in isolated git worktrees + tmux sessions. Auto-picks agents from task signals. Maximum parallelism for Kodelyth ECC."
+keywords:
+  - agent swarm
+  - parallel AI agents
+  - git worktrees AI
+  - tmux AI agents
+  - multi-agent AI
+  - ECC swarm
+  - AI orchestrator
+og_title: "Swarm Orchestrator — Parallel AI Agents in Git Worktrees"
+og_description: "Run N specialist AI agents simultaneously in isolated git worktrees + tmux sessions. Auto-picks agents from task signals. Maximum parallelism for Kodelyth ECC."
+og_image: /social/hype-parallel-agents.svg
+og_type: article
+twitter_card: summary_large_image
+canonical: /docs/swarm/
+last_updated: 2026-07-04
+version: 2.4.1
+category: feature
+---
 # Kodelyth ECC — Swarm Orchestrator
 
 Run N ECC specialist agents in parallel inside isolated git worktrees, coordinated by a tmux session.

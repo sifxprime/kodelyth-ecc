@@ -1,3 +1,24 @@
+---
+title: "Supply Chain Verification — SBOM, Manifest, SLSA L3 Provenance"
+description: "CycloneDX 1.5 SBOM, sha256 content manifest, SLSA L3 provenance verification for Kodelyth ECC. Verify your installed toolkit hasn't been tampered with."
+keywords:
+  - SBOM
+  - CycloneDX
+  - SLSA L3
+  - supply chain security
+  - AI toolkit verify
+  - manifest verify
+  - sha256 verification
+og_title: "Supply Chain Verification — SBOM, Manifest, SLSA L3 Provenance"
+og_description: "CycloneDX 1.5 SBOM, sha256 content manifest, SLSA L3 provenance verification for Kodelyth ECC. Verify your installed toolkit hasn't been tampered with."
+og_image: /social/hype-devil-mode.svg
+og_type: article
+twitter_card: summary_large_image
+canonical: /docs/supply-chain/
+last_updated: 2026-07-04
+version: 2.4.1
+category: feature
+---
 # Supply chain — SBOM, manifest, SLSA provenance
 
 > Phase 2.9 of the Devil Roadmap. Every kodelyth-ecc release ships with three independent supply-chain artifacts so any consumer (audit team, downstream agent, security tool) can answer "where does this code come from, can I trust it, and has it been tampered" without trusting kodelyth-ecc.

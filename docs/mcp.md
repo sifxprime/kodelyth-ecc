@@ -1,3 +1,25 @@
+---
+title: "MCP Server — Universal Adapter for AI Agents (Kodelyth ECC)"
+description: "ECC MCP server exposes 70 agents, 194 skills, 97 commands, 14 rules, BM25 memory to any MCP-compatible client — Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK."
+keywords:
+  - MCP server
+  - Model Context Protocol
+  - Claude Desktop MCP
+  - LangGraph MCP
+  - AutoGen MCP
+  - CrewAI MCP
+  - OpenAI Agents SDK
+  - AI universal adapter
+og_title: "MCP Server — Universal Adapter for AI Agents (Kodelyth ECC)"
+og_description: "ECC MCP server exposes 70 agents, 194 skills, 97 commands, 14 rules, BM25 memory to any MCP-compatible client — Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK."
+og_image: /social/hype-mcp-server.svg
+og_type: article
+twitter_card: summary_large_image
+canonical: /docs/mcp/
+last_updated: 2026-07-04
+version: 2.4.1
+category: feature
+---
 # Kodelyth ECC — MCP Server
 
 The Kodelyth ECC MCP (Model Context Protocol) server is the **universal adapter** that lets any MCP-compatible client consume the full ECC stack: 70 agents, 194 skills, 97 commands, 14 rules, 3 power bundles, and the local BM25 self-learning memory.

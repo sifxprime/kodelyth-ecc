@@ -1,3 +1,24 @@
+---
+title: "Session Replay — Deterministic AI Session Bundles (Kodelyth ECC)"
+description: "Export any Kodelyth ECC coordination session as a portable bundle. Deterministic replay with variations. Perfect for reproducing bugs and A/B testing agent workflows."
+keywords:
+  - AI session replay
+  - deterministic AI
+  - agent bundle
+  - ECC replay
+  - AI reproducibility
+  - session export
+  - AI debugging
+og_title: "Session Replay — Deterministic AI Session Bundles (Kodelyth ECC)"
+og_description: "Export any Kodelyth ECC coordination session as a portable bundle. Deterministic replay with variations. Perfect for reproducing bugs and A/B testing agent workflows."
+og_image: /social/hype-parallel-agents.svg
+og_type: article
+twitter_card: summary_large_image
+canonical: /docs/replay/
+last_updated: 2026-07-04
+version: 2.4.1
+category: feature
+---
 # Kodelyth ECC — Session Replay
 
 Bundle, share, and re-run swarm sessions for regression testing, reproducible bug reports, and A/B testing across harnesses, agents, and base refs.

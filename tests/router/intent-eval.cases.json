@@ -1,0 +1,31 @@
+{
+  "description": "Labeled routing eval — realistic user prompts mapped to the agent that SHOULD win. Used by intent-eval.test.js to measure route_intent top-1 / top-3 accuracy. Add cases freely; this is how routing quality becomes measurable instead of dummy.",
+  "cases": [
+    { "prompt": "I'm getting a TypeError: cannot read property 'map' of undefined on line 42", "expect": "debug-detective" },
+    { "prompt": "the build is failing with a typescript error TS2322 type mismatch", "expect": "build-error-resolver" },
+    { "prompt": "review this authentication code for security vulnerabilities", "expect": "security-reviewer" },
+    { "prompt": "is my JWT signing implementation secure against tampering", "expect": "security-reviewer" },
+    { "prompt": "this API endpoint is really slow, taking 3 seconds to respond", "expect": "performance-optimizer" },
+    { "prompt": "production is down, users getting 500 errors on login", "expect": "incident-commander" },
+    { "prompt": "write unit tests for this payment calculation function", "expect": "tdd-guide" },
+    { "prompt": "clean up the dead code and unused imports in this module", "expect": "refactor-cleaner" },
+    { "prompt": "help me plan the architecture for a new microservices system", "expect": "architect" },
+    { "prompt": "migrate this project from Next.js 12 to Next.js 15", "expect": "migration-guide" },
+    { "prompt": "the form doesn't work well on mobile and screen readers can't use it", "expect": "ux-reviewer" },
+    { "prompt": "will this system handle 10000 concurrent users at launch", "expect": "load-tester" },
+    { "prompt": "npm install keeps failing with peer dependency conflicts", "expect": "dependency-doctor" },
+    { "prompt": "I accidentally did a bad git rebase and lost my commits", "expect": "git-rescue" },
+    { "prompt": "cut a new release version with a proper changelog and tag", "expect": "release-captain" },
+    { "prompt": "this test passes locally but fails randomly on CI", "expect": "flake-hunter" },
+    { "prompt": "the code works but returns wrong data with no error thrown", "expect": "silent-failure-hunter" },
+    { "prompt": "check if this dependency could be a malicious typosquat", "expect": "supply-chain-auditor" },
+    { "prompt": "scan my code and git history for leaked API keys and secrets", "expect": "secret-hunter" },
+    { "prompt": "can my AI chatbot feature be jailbroken with prompt injection", "expect": "prompt-injection-hunter" },
+    { "prompt": "audit this vendored library for backdoors and hidden payloads", "expect": "backdoor-hunter" },
+    { "prompt": "does this API change break existing consumers", "expect": "api-guardian" },
+    { "prompt": "update the README and write documentation for this feature", "expect": "doc-updater" },
+    { "prompt": "explain how this unfamiliar codebase is structured", "expect": "code-explorer" },
+    { "prompt": "improve the type safety and remove all the any types", "expect": "type-design-analyzer" },
+    { "prompt": "this code is too complex and hard to read, simplify it", "expect": "code-simplifier" }
+  ]
+}

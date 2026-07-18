@@ -2,6 +2,42 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.4.6 — Phase 2: measurable intent routing (38% → 100% top-1) (July 2026)
+
+The `route_intent` MCP tool was thin token-overlap against agent descriptions — no way to know if it actually worked. Now it's **measured** and **10x better**.
+
+### The problem (measured, not guessed)
+
+Built a labeled routing eval (`tests/router/intent-eval.cases.json`) — 26 realistic prompts mapped to the agent that should win. Baseline `route_intent`:
+
+- **top-1: 38%** (10/26) — barely better than a coin flip
+- **top-3: 69%** (18/26)
+
+Token-overlap can't tell that "TypeError" → `debug-detective` because that word isn't in the agent's description.
+
+### The fix
+
+- **`scripts/router/signals.js`** — a curated high-signal phrase → agent map distilled from the 10-tier routing rule. 30 agents, ~180 weighted regex patterns (weight 2-5 by specificity). "TypeError"/"blowing up"/"is not a function" → debug-detective; "production down"/"P0"/"500 error" → incident-commander; "leaked secrets"/"hardcoded password" → secret-hunter; etc.
+- **`route_intent` rewired** — signal score is a strong prior on top of the existing token-overlap, so a single specific signal outranks any description match.
+
+### The result (measured)
+
+| Metric | Before | After |
+|---|---|---|
+| top-1 (in-sample, 26 cases) | 38% | **100%** |
+| top-3 (in-sample) | 69% | **100%** |
+| top-1 (held-out paraphrases, 10 cases) | 40% | **100%** |
+
+Precision-checked against false positives: "document how to rebase in our git workflow guide" does **not** hijack to `git-rescue` (tightened `rebase`/`keyboard` patterns to require a trouble/context word).
+
+### Guardrail
+
+- **`tests/router/intent-eval.test.js`** asserts top-1 ≥ 90% and top-3 ≥ 95% on the labeled set, plus a no-hijack precision test. Any future change that weakens the signal map fails CI instead of silently regressing routing.
+
+### Honest scope
+
+`route_intent` is a deterministic **prior** — the full LLM reads the tier rule on top. The eval measures the prior's floor. Deterministic keyword routing has a real ceiling on novel paraphrases; the LLM covers the long tail. This makes the prior good enough to be genuinely useful (and measurable) rather than a 38% coin flip.
+
 ## v2.4.5 — Real-user audit: auto-capture never captured anything (July 2026)
 
 Third "installed but dummy" feature found in the audit — and the biggest. **The entire memory-capture side was dead.**

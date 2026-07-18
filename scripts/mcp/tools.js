@@ -61,6 +61,12 @@ function tool_route_intent({ message, top_k = 3 } = {}) {
     return err('route_intent: message had no usable tokens after normalization.');
   }
 
+  // Curated signal prior — "TypeError" → debug-detective even though that word
+  // isn't in the agent description. Dominates token-overlap when it fires.
+  const { scoreSignals } = require('../router/signals');
+  const signalByAgent = {};
+  for (const s of scoreSignals(message)) signalByAgent[s.agent] = s.signalScore;
+
   const agents = catalog.loadAgents();
   const scored = agents.map(a => {
     const haystack = `${a.name} ${a.description}`;
@@ -68,8 +74,12 @@ function tool_route_intent({ message, top_k = 3 } = {}) {
     // Boost name-match heavily — direct mention of an agent name should dominate.
     const nameTokens = new Set(tokens(a.name));
     const nameHits = [...queryTokens].filter(t => nameTokens.has(t)).length;
-    const score = jaccard(queryTokens, aTokens) + nameHits * 0.5;
-    return { agent: a.name, score, description: a.description.slice(0, 200) };
+    const overlap = jaccard(queryTokens, aTokens) + nameHits * 0.5;
+    // Signal weight is scaled so a single strong signal (weight 4-5) outranks
+    // any pure token-overlap score (which is < 1 in practice).
+    const signal = (signalByAgent[a.name] || 0);
+    const score = overlap + signal;
+    return { agent: a.name, score, signal, overlap: Number(overlap.toFixed(3)), description: a.description.slice(0, 200) };
   })
   .filter(r => r.score > 0)
   .sort((a, b) => b.score - a.score)

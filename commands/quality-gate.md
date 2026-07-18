@@ -1,3 +1,7 @@
+---
+description: Run the full quality gate — build, lint, types, tests, security scan
+---
+
 # Quality Gate Command
 
 Run the ECC quality pipeline on demand for a file or project scope.

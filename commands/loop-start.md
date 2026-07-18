@@ -1,3 +1,8 @@
+---
+description: Start an autonomous agent loop with quality gates and recovery controls
+argument-hint: "<task>"
+---
+
 # Loop Start Command
 
 Start a managed autonomous loop pattern with safety defaults.

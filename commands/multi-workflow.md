@@ -1,3 +1,8 @@
+---
+description: Orchestrate a multi-step workflow across parallel agents
+argument-hint: "<workflow>"
+---
+
 # Workflow - Multi-Model Collaborative Development
 
 Multi-model collaborative development workflow (Research → Ideation → Plan → Execute → Optimize → Review), with intelligent routing: Frontend → Gemini, Backend → Codex.

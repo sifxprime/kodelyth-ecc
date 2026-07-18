@@ -1,3 +1,7 @@
+---
+description: Regenerate codemaps and architecture docs from the current source
+---
+
 # Update Codemaps
 
 Analyze the codebase structure and generate token-lean architecture documentation.

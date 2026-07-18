@@ -1,3 +1,8 @@
+---
+description: Fan out backend implementation across parallel specialist agents
+argument-hint: "<task>"
+---
+
 # Backend - Backend-Focused Development
 
 Backend-focused workflow (Research → Ideation → Plan → Execute → Optimize → Review), Codex-led.

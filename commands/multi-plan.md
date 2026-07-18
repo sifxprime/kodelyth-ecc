@@ -1,3 +1,8 @@
+---
+description: Plan a task for parallel multi-agent execution
+argument-hint: "<task>"
+---
+
 # Plan - Multi-Model Collaborative Planning
 
 Multi-model collaborative planning - Context retrieval + Dual-model analysis → Generate step-by-step implementation plan.

@@ -1,3 +1,8 @@
+---
+description: Manage long-running dev processes with pm2 (start, stop, logs, status)
+argument-hint: "[action]"
+---
+
 # PM2 Init
 
 Auto-analyze project and generate PM2 service commands.

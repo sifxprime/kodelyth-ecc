@@ -2,6 +2,32 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.4.7 — Command frontmatter + 8K asset regeneration (July 2026)
+
+Final review pass across every subsystem, plus asset refresh.
+
+### Fixed
+
+- **20 slash commands had no YAML frontmatter** — so they showed up in the `/` menu with no description (part of the earlier "commands don't show properly" complaint). Added `description` + `argument-hint` to all of them: `build-fix`, `checkpoint`, `gan-build`, `gan-design`, `harness-audit`, `learn`, `loop-start`, `loop-status`, `model-route`, `multi-backend`, `multi-execute`, `multi-frontend`, `multi-plan`, `multi-workflow`, `pm2`, `quality-gate`, `refactor-clean`, `test-coverage`, `update-codemaps`, `update-docs`. All 99 commands now carry frontmatter.
+
+### Assets
+
+- **Regenerated all 31 social images at 8K** (7680px wide, aspect-preserved) into `social/exports/8k/` — e.g. `hype-mcp-server.png` is a true 7680×4320 8K UHD frame.
+- **Removed the old 4K exports** (`social/exports/4k/`, 13 MB).
+- **`brand/` left untouched** (7 SVGs + 5 PNGs) as requested.
+- SVG version badges bumped to v2.4.7; PNGs re-rendered to match.
+- 8K PNGs stay git-only — `.npmignore` already excludes `social/` and `*.png`, so the npm tarball stays lean.
+
+### Review pass (all clean)
+
+- 384 tests, 0 failures across 27 files
+- Every JS file parses
+- Versions consistent (package.json / VERSION / npm all 2.4.7)
+- 70/70 agents valid frontmatter; all internal doc links resolve
+- All 58 hook command paths in hooks.json resolve to real files
+- All 13 MCP tools callable; 381 MCP resources readable; 12 dashboard endpoints serve real data
+- manifest→verify roundtrip works
+
 ## v2.4.6 — Phase 2: measurable intent routing (38% → 100% top-1) (July 2026)
 
 The `route_intent` MCP tool was thin token-overlap against agent descriptions — no way to know if it actually worked. Now it's **measured** and **10x better**.

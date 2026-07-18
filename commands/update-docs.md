@@ -1,3 +1,7 @@
+---
+description: Update README and documentation to match the current code
+---
+
 # Update Documentation
 
 Sync documentation with the codebase, generating from source-of-truth files.

@@ -1,3 +1,7 @@
+---
+description: Show the status of running autonomous agent loops
+---
+
 # Loop Status Command
 
 Inspect active loop state, progress, and failure signals.

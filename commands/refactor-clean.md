@@ -1,3 +1,7 @@
+---
+description: Remove dead code, duplicates, and tech debt with safe automated cleanup
+---
+
 # Refactor Clean
 
 Safely identify and remove dead code with test verification at every step.

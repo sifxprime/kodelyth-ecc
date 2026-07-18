@@ -1,3 +1,8 @@
+---
+description: Fan out frontend implementation across parallel specialist agents
+argument-hint: "<task>"
+---
+
 # Frontend - Frontend-Focused Development
 
 Frontend-focused workflow (Research → Ideation → Plan → Execute → Optimize → Review), Gemini-led.

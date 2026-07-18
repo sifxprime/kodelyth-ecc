@@ -1,3 +1,8 @@
+---
+description: GAN harness — expand a one-line prompt into a full product spec
+argument-hint: "<idea>"
+---
+
 Parse the following from $ARGUMENTS:
 1. `brief` — the user's description of the design to create
 2. `--max-iterations N` — (optional, default 10) maximum design-evaluate cycles

@@ -1,3 +1,8 @@
+---
+description: Save a git checkpoint commit of the current working state
+argument-hint: "[message]"
+---
+
 # Checkpoint Command
 
 Create or verify a checkpoint in your workflow.

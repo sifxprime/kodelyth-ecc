@@ -163,7 +163,7 @@
             "timeout": 3
           }
         ],
-        "description": "Kodelyth Safety: scan user prompts for jailbreak / instruction-override patterns. Opt-in via KODELYTH_PI_GUARD=warn|block (default off).",
+        "description": "Kodelyth Safety: scan user prompts for jailbreak / instruction-override patterns. Scans by default in warn mode (logs, never blocks). KODELYTH_PI_GUARD=off to silence, =block to hard-block critical.",
         "id": "kodelyth:user-prompt:prompt-injection-guard"
       }
     ],
@@ -387,7 +387,7 @@
             "timeout": 3
           }
         ],
-        "description": "Kodelyth Safety: scan Read/WebFetch/MCP tool responses for indirect prompt-injection. Opt-in via KODELYTH_PI_GUARD=warn|block (default off).",
+        "description": "Kodelyth Safety: scan Read/WebFetch/MCP tool responses for indirect prompt-injection. Scans by default in warn mode (logs, never blocks). KODELYTH_PI_GUARD=off to silence, =block to hard-block critical.",
         "id": "kodelyth:post-tool:prompt-injection-guard"
       }
     ],

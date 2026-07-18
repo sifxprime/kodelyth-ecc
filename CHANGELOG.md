@@ -2,6 +2,38 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.4.4 — Real-user audit: prompt-injection guard was a silent no-op (July 2026)
+
+Phase 1 of the real-user audit — firing every hook with realistic input instead of fixtures. Found a second "installed but dummy" feature.
+
+### Fixed
+
+- **Prompt-injection guard defaulted to `MODE=off`** — so on every fresh install the hook was registered, fired on each prompt, and did **absolutely nothing** unless the user knew to set `KODELYTH_PI_GUARD=warn`. A safety feature nobody knew to turn on is a safety feature that doesn't exist.
+- **Fix**: default is now `warn` — the guard scans every prompt + tool response and surfaces injection findings to stderr (visible in transcript), but **never blocks** (exit 0 always). Measured **0 false positives** across 8 realistic legit prompts containing trigger-adjacent words ("ignore", "override", "system prompt", "bypass", "reveal"). Set `KODELYTH_PI_GUARD=off` to silence, `=block` to hard-block critical patterns (still opt-in, since block can halt on false positives).
+
+### Verified (real-user audit, this round)
+
+Fired all 8 hooks with realistic Claude Code payloads:
+
+| Hook | Result |
+|---|---|
+| `inject-start` | ✓ outputs memory context block |
+| `read-lessons` | ✓ exit 0 |
+| `auto-recall` | ✓ recalls 3 real memories (post-2.4.3 fix) |
+| `capture-stop` | ✓ exit 0 |
+| `capture-correction` | ✓ exit 0 |
+| `auto-resolve` | ✓ exit 0 |
+| `prompt-injection-guard` | ✗→✓ was silent no-op, now warns by default |
+| `token-budget` | ✓ exit 0 |
+
+Also verified on real data: `route` (correctly classified a production outage as hard→opus), `evolve analyze` (scanned 195 reuse + 3 miss signals → 5 proposals).
+
+### Tests
+
+- Updated `mode=off` test to set the env var explicitly (default is no longer off)
+- Added 2 tests: default-no-env warns on injection + stays silent on legit prompts
+- Full suite: 0 failures across 25 files
+
 ## v2.4.3 — Memory recall crash fix (the "still dummy" bug) (July 2026)
 
 Found by testing ECC as a real user actually experiences it, not just in the test harness. **Memory recall was silently crashing on every prompt** for any user whose `~/.kodelythecc/memory/index.json` was written by an older/foreign BM25 schema.

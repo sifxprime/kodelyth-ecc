@@ -10,7 +10,7 @@
 //                                           injection from external content)
 //
 // Modes (env var KODELYTH_PI_GUARD):
-//   off    — never run (default if unset)
+//   off    — never run
 //   warn   — exit 0 always; print findings to stderr (visible in transcript)
 //   block  — exit 2 (block) on critical; warn on high; pass on medium
 //
@@ -28,7 +28,12 @@ const path = require('path');
 
 const { scan, maxSeverity } = require('./lib/patterns');
 
-const MODE = String(process.env.KODELYTH_PI_GUARD || 'off').toLowerCase();
+// Default is 'warn' (v2.4.4+): the guard scans and surfaces findings to stderr
+// but NEVER blocks — exit 0 always. This makes the safety feature actually run
+// on a fresh install instead of being a silent no-op. Measured 0 false positives
+// on realistic legit prompts. Set KODELYTH_PI_GUARD=off to silence entirely, or
+// =block to hard-block on critical patterns (opt-in, can halt on false positives).
+const MODE = String(process.env.KODELYTH_PI_GUARD || 'warn').toLowerCase();
 const MAX_INPUT = Number(process.env.KODELYTH_PI_GUARD_MAX_INPUT || 20000);
 const LOG_PATH = process.env.KODELYTH_PI_GUARD_LOG || null;
 

@@ -2,6 +2,31 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.4.3 — Memory recall crash fix (the "still dummy" bug) (July 2026)
+
+Found by testing ECC as a real user actually experiences it, not just in the test harness. **Memory recall was silently crashing on every prompt** for any user whose `~/.kodelythecc/memory/index.json` was written by an older/foreign BM25 schema.
+
+### Fixed
+
+- **`scripts/memory/store.js` — recall threw `Cannot read properties of undefined (reading '<token>')` on every UserPromptSubmit** when the on-disk `index.json` used the schema `{k1, b, corpusStats, index, documents, docFreq}` (from a prior BM25 implementation) instead of the current `{tokens, docCount, avgDocLength, totalLength}`. `search()` read `index.tokens[token]` where `index.tokens` was undefined.
+- **Root cause was a two-headed bug**:
+  1. `loadIndex()` blindly returned whatever JSON was on disk, with no schema validation
+  2. The canonical `rebuildIndex()` correctly rebuilt + saved a valid index but **returned `{count}` instead of the index object**
+- **Fix**: `loadIndex()` now validates the schema via `isValidIndexSchema()` and, on any mismatch/corruption, rebuilds from the append-only `memories.jsonl` (the source of truth). `rebuildIndex()` now returns the rebuilt index (with a `count` property preserved for its other caller). Recall self-heals on first call — no crash, no manual `index.json` deletion needed.
+
+### Added
+
+- **Regression test** in `tests/memory/store.test.js` — writes a foreign-schema `index.json`, asserts `recall()` does not throw and returns results, and asserts the on-disk index is rebuilt to the valid schema. This class of bug can no longer ship silently.
+
+### Impact
+
+- Every real user with a stale index had **zero working memory recall** — the hook fired, errored, and returned nothing. Auto-recall now works end-to-end.
+- Verified live: corrupted the index with the foreign schema, ran both `store.recall()` and the actual `hooks/memory/auto-recall.js` hook — both self-heal and return real Stripe/CORS memories.
+
+### Why this matters
+
+This is exactly the "is it real or is it dummy" gap. Files were installed, hooks were registered, rules loaded — but one core feature crashed on real input while passing every existing test. The lesson: test the installed experience with real data, not just unit fixtures.
+
 ## v2.4.2 — SEO-massive documentation refresh (July 2026)
 
 Full documentation rewrite for website-ready SEO. Every doc now ships with YAML frontmatter (title, description, keywords, Open Graph, Twitter card, canonical URL, last_updated, version, category). Six new feature docs cover subsystems shipped since v2.0 that were undocumented until now.

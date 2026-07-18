@@ -201,3 +201,33 @@ test('autoResolveOnEdit returns empty when no matching memory', () => {
   const resolved = store.autoResolveOnEdit('/no/memory/for/this/file.ts');
   assert.equal(resolved.length, 0);
 });
+
+test('recall self-heals from a stale/foreign index schema (regression)', () => {
+  // Seed at least one memory so there is something to recall.
+  store.capture({
+    problem:  'CORS preflight blocked on express API',
+    approach: 'Added cors() middleware with explicit origin allowlist',
+    tags:     ['cors', 'express', 'api'],
+    project:  '/test/project-cors',
+  });
+
+  // Simulate the pre-2.4.3 bug: an index.json written by a FOREIGN BM25 schema
+  // that lacks the `.tokens` / `.docCount` fields search() reads. Before the fix
+  // this made recall throw `Cannot read properties of undefined (reading '<token>')`.
+  const idxPath = path.join(TMP, 'index.json');
+  fs.writeFileSync(idxPath, JSON.stringify({
+    k1: 1.5, b: 0.75, corpusStats: {}, index: [], documents: [], docFreq: {},
+  }));
+
+  // Must NOT throw, and must return the seeded memory after self-heal.
+  let results;
+  assert.doesNotThrow(() => {
+    results = store.recall('cors express preflight', { limit: 3, minScore: 0.1 });
+  });
+  assert.ok(results.length >= 1, 'recall should self-heal and return results');
+
+  // The on-disk index should now be the valid schema (has .tokens + .docCount).
+  const healed = JSON.parse(fs.readFileSync(idxPath, 'utf8'));
+  assert.ok(healed.tokens && typeof healed.tokens === 'object', 'index rebuilt with .tokens');
+  assert.equal(typeof healed.docCount, 'number', 'index rebuilt with numeric .docCount');
+});

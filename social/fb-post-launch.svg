@@ -121,7 +121,7 @@
   <text x="370" y="777"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="12" font-weight="500" text-anchor="middle"
-        fill="#ffffff" opacity="0.30">v2.4.2</text>
+        fill="#ffffff" opacity="0.30">v2.4.3</text>
 
   <!-- Platform list -->
   <text x="330" y="860"

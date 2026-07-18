@@ -72,15 +72,37 @@ function newMemoryId() {
 }
 
 // ── Index ────────────────────────────────────────────────────────────────────
+function emptyIndex() {
+  return { tokens: {}, docCount: 0, avgDocLength: 0, totalLength: 0 };
+}
+
+// A valid index for the current schema MUST have a `tokens` object and a
+// numeric `docCount`. Older/foreign schemas (e.g. `{index, documents, docFreq}`
+// from a prior BM25 implementation) are unrecognised — we rebuild from the
+// append-only memories.jsonl rather than crash on `index.tokens[token]`.
+function isValidIndexSchema(idx) {
+  return !!idx
+    && typeof idx === 'object'
+    && idx.tokens && typeof idx.tokens === 'object'
+    && typeof idx.docCount === 'number';
+}
+
 function loadIndex() {
   if (!fs.existsSync(PATHS.index)) {
-    return { tokens: {}, docCount: 0, avgDocLength: 0, totalLength: 0 };
+    return rebuildIndex();
   }
+  let parsed;
   try {
-    return JSON.parse(fs.readFileSync(PATHS.index, 'utf8'));
+    parsed = JSON.parse(fs.readFileSync(PATHS.index, 'utf8'));
   } catch {
-    return { tokens: {}, docCount: 0, avgDocLength: 0, totalLength: 0 };
+    return rebuildIndex();
   }
+  if (!isValidIndexSchema(parsed)) {
+    // Stale or foreign schema on disk — rebuild from the source of truth
+    // (the canonical rebuildIndex defined below rebuilds AND persists a valid index).
+    return rebuildIndex();
+  }
+  return parsed;
 }
 
 function saveIndex(index) {
@@ -360,14 +382,19 @@ function autoResolveOnEdit(filePath, projectRoot = null) {
   return resolved;
 }
 
+// Rebuild the inverted index from memories.jsonl, persist it, and RETURN the
+// index object (with a `count` property for callers that want the memory total).
+// Returning the index lets loadIndex() self-heal a stale/foreign on-disk schema
+// in a single pass instead of returning a bare {count} that breaks search().
 function rebuildIndex() {
   const memories = readMemories();
-  let index = { tokens: {}, docCount: 0, avgDocLength: 0, totalLength: 0 };
+  let index = emptyIndex();
   for (const m of memories) {
-    index = indexMemory(index, m);
+    if (m && m.id) index = indexMemory(index, m);
   }
-  saveIndex(index);
-  return { count: memories.length };
+  try { saveIndex(index); } catch { /* read-only fs — keep in-memory index */ }
+  index.count = memories.length;
+  return index;
 }
 
 function stats() {

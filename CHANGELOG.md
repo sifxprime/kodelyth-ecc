@@ -2,6 +2,30 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.4.8 — Phase 3: agent polish + token-savings skill (July 2026)
+
+Phase 3 of the sequenced plan (audit → routing → skills/agents). Disciplined polish — fixed the one agent with a real actionable gap, added the one skill filling a real gap, and deliberately did **not** pad agents that are already complete.
+
+### Agent polish
+
+- **`security-reviewer` — added a validated Active Hunt command library.** The agent described what to check (OWASP checklist, severity table) but had almost no concrete detection commands, so it could only review code it was shown, not actively hunt. Added 15 copy-paste ripgrep patterns covering hardcoded secrets, SQL/shell/code injection, XSS/DOM sinks, SSRF, authZ gaps (alg=none, decode-without-verify), weak crypto, and unsafe deserialization / prototype pollution. **Every pattern was run against the repo to confirm it parses and executes** — caught and fixed one that used a negative lookahead ripgrep's Rust regex engine rejects.
+- **Assessed the other "thin" agents and left them alone.** `refactor-cleaner` (knip/depcheck/ts-prune + risk tiers) and `tdd-guide` (red-green-refactor + coverage) are short because those workflows are concise — they already have real commands. Padding them would be bloat, against KISS/YAGNI. Line count ≠ quality.
+
+### New skill
+
+- **`skills/ecc-token-savings/SKILL.md`** — 195 skills existed but **only one referenced the new 2.x features and none unified the savings stack**. A user on 2.4.7 has three shipped savings layers (RTK input, Terse output, codebase-graph structural queries) and no single guide. This skill is the playbook: which axis each layer cuts, how to verify/enable each, a per-session-type recommendation table, how to measure real savings in the dashboard, and honest caveats (Terse per-turn overhead, RTK not covering built-in file tools, graph needing an index). All commands verified real. Now 196 skills.
+
+### Assets
+
+- SVG version badges → v2.4.8, all 31 8K PNGs re-rendered to match.
+
+### Verified
+
+- 384 tests, 0 failures
+- All 15 security-reviewer detection patterns run clean against the repo
+- New skill's 11 referenced CLI subcommands all resolve to real handlers
+- Installed copies (agent + skill) synced to this machine
+
 ## v2.4.7 — Command frontmatter + 8K asset regeneration (July 2026)
 
 Final review pass across every subsystem, plus asset refresh.

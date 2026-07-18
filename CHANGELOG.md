@@ -2,6 +2,26 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.5.1 — ECC product identity (July 2026)
+
+Formalized ECC as the flagship product with its own visual identity — without changing the core Kodelyth `>` Ghost Depth mark.
+
+### Added — `brand/`
+
+- `ecc-icon.svg` + `ecc-icon-{512,192}.png` + `ecc-favicon.ico` — the app-icon badge (Kodelyth `>` mark in a rounded, blue-bordered square). Verified legible from 16px favicon to 512px.
+- `ecc-lockup-{dark,light}.{svg,png}` — the ECC product lockup: mark + a small `KODELYTH` kicker + a bold `ECC` hero + the "Elite Code Crew · AI coding toolkit" tagline. Light + dark variants.
+- `ecc-badge.{svg,png}` — square mark + ECC for npm / GitHub / social avatars.
+
+### Changed
+
+- README now leads with the ECC lockup (GitHub light/dark aware via `<picture>`), above the existing hero.
+- The companion site ([ecc.kodelyth.com](https://ecc.kodelyth.com)) adopts the new favicon, apple-touch-icon, PWA icons, and lockups.
+
+### Notes
+
+- The core Kodelyth `>` mark is unchanged — this is a product sub-brand, not a rebrand (parent brand → flagship product, like Adobe → Photoshop).
+- Nothing removed; all prior brand files remain.
+
 ## v2.5.0 — `kodelythecc doctor` live health check (July 2026)
 
 A self-diagnostic that verifies every subsystem is **actually wired and working** — the direct answer to "is it real or dummy?"

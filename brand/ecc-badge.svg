@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" font-family="Space Grotesk, Avenir Next, Inter, system-ui, sans-serif">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#141b28"/><stop offset="1" stop-color="#0a0e14"/></linearGradient></defs>
+  <rect width="240" height="240" rx="54" fill="url(#g)"/>
+  <rect x="3" y="3" width="234" height="234" rx="52" fill="none" stroke="#2d5bff" stroke-opacity="0.4" stroke-width="2"/>
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#ffffff" transform="translate(6,-8)">
+    <polyline points="80,58 108,104 80,150" stroke-width="9" stroke-opacity="0.16"/>
+    <polyline points="106,52 150,104 106,156" stroke-width="27"/>
+  </g>
+  <text x="120" y="205" font-size="34" font-weight="800" fill="#2d5bff" letter-spacing="8" text-anchor="middle">ECC</text>
+</svg>

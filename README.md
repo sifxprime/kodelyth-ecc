@@ -1,5 +1,12 @@
 <div align="center">
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="brand/ecc-lockup-dark.png">
+  <img src="brand/ecc-lockup-light.png" alt="Kodelyth ECC — Elite Code Crew" width="440"/>
+</picture>
+
+<br><br>
+
 <img src="social/readme-hero.svg" alt="Kodelyth ECC — AI Agent Toolkit" width="900"/>
 
 [![npm version](https://img.shields.io/npm/v/kodelyth-ecc.svg)](https://www.npmjs.com/package/kodelyth-ecc)

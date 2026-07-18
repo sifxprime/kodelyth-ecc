@@ -38,7 +38,7 @@
 
   <!-- Version + NEW badges -->
   <rect x="80" y="28" width="76" height="24" rx="12" fill="#a78bfa" fill-opacity="0.15" stroke="#a78bfa" stroke-opacity="0.5" stroke-width="1"/>
-  <text x="118" y="44" font-size="11" fill="#a78bfa" text-anchor="middle" font-weight="700" letter-spacing="0.5">v2.4.4</text>
+  <text x="118" y="44" font-size="11" fill="#a78bfa" text-anchor="middle" font-weight="700" letter-spacing="0.5">v2.4.5</text>
 
   <!-- Title -->
   <text x="80" y="120" font-size="52" font-weight="900" letter-spacing="-2" fill="#ffffff">Kodelyth ECC</text>
@@ -50,7 +50,7 @@
   <!-- Card 1: Compound Learning -->
   <rect x="80" y="250" width="315" height="120" rx="10" fill="url(#card1)" stroke="#059669" stroke-opacity="0.35" stroke-width="1"/>
   <rect x="80" y="250" width="4" height="120" rx="2" fill="#059669"/>
-  <text x="100" y="275" font-size="10" font-weight="700" fill="#10b981" letter-spacing="1">COMPOUND LEARNING  v2.4.4</text>
+  <text x="100" y="275" font-size="10" font-weight="700" fill="#10b981" letter-spacing="1">COMPOUND LEARNING  v2.4.5</text>
   <text x="100" y="296" font-size="13" fill="#e6edf3">Corrections → tasks/lessons.md</text>
   <text x="100" y="313" font-size="13" fill="#e6edf3">Next session: never repeats the mistake</text>
   <text x="100" y="334" font-size="11" fill="#484f58">capture-correction.js · read-lessons.js</text>
@@ -59,7 +59,7 @@
   <!-- Card 2: Parallel Agents -->
   <rect x="410" y="250" width="315" height="120" rx="10" fill="#161b22" stroke="#f59e0b" stroke-opacity="0.35" stroke-width="1"/>
   <rect x="410" y="250" width="4" height="120" rx="2" fill="#f59e0b"/>
-  <text x="430" y="275" font-size="10" font-weight="700" fill="#f59e0b" letter-spacing="1">PARALLEL AGENTS  v2.4.4</text>
+  <text x="430" y="275" font-size="10" font-weight="700" fill="#f59e0b" letter-spacing="1">PARALLEL AGENTS  v2.4.5</text>
   <text x="430" y="296" font-size="13" fill="#e6edf3">/project-launch → 5 agents, 10 min</text>
   <text x="430" y="313" font-size="13" fill="#e6edf3">/team-review → 4 agents, 15 min</text>
   <text x="430" y="334" font-size="11" fill="#484f58">image-architect: Gemini / DALL-E / SVG</text>
@@ -68,7 +68,7 @@
   <!-- Card 3: Semantic Routing -->
   <rect x="740" y="250" width="380" height="120" rx="10" fill="url(#card2)" stroke="#38bdf8" stroke-opacity="0.4" stroke-width="1"/>
   <rect x="740" y="250" width="4" height="120" rx="2" fill="#38bdf8"/>
-  <text x="760" y="275" font-size="10" font-weight="700" fill="#38bdf8" letter-spacing="1">SEMANTIC ROUTING  v2.4.4</text>
+  <text x="760" y="275" font-size="10" font-weight="700" fill="#38bdf8" letter-spacing="1">SEMANTIC ROUTING  v2.4.5</text>
   <text x="760" y="296" font-size="13" fill="#e6edf3">Paste code → auto-routes to code-reviewer</text>
   <text x="760" y="313" font-size="13" fill="#e6edf3">Paste error → auto-routes to debug-detective</text>
   <text x="760" y="334" font-size="11" fill="#484f58">Emotion as signal · 2–3× more patterns</text>

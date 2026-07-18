@@ -2,6 +2,24 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.4.5 — Real-user audit: auto-capture never captured anything (July 2026)
+
+Third "installed but dummy" feature found in the audit — and the biggest. **The entire memory-capture side was dead.**
+
+### Fixed
+
+- **`scripts/memory/extract.js` mined ZERO candidates from real transcripts.** Real Claude Code transcript events nest `role`, `content`, and tool calls under `.message` (e.g. `event.message.role`, `content[].type === 'tool_use'`). `extractCandidates()` read flat `ev.role` / `ev.tool_name` / `ev.tool_input`, so it skipped every event and never captured a single memory. The 52 memories in the store came from seeds and MCP `capture_memory` — the automatic Stop-hook capture had **never worked** on real data.
+- **Fix**: `readTranscript()` now normalizes every raw event to the flat shape downstream code expects — resolving `role` from `message.role`, surfacing the first `tool_use` as `tool_name`/`tool_input`, and exposing `tool_result` output for success scoring. Verified: a real transcript now mines **12 candidates** (was 0); the full `capture-stop` hook queues 3 to `pending-review.jsonl` end-to-end.
+- **Bonus quality fix**: `approach` extraction now finds the last assistant message *with text*, skipping trailing `tool_use`/`tool_result` events that carry no explanation. Previously a fix followed by a tool call produced an empty approach and got dropped.
+
+### Added
+
+- **`tests/memory/extract.test.js`** — `extract.js` was completely untested, which is exactly how this shipped. New tests cover: nested-message mining, no-success-signal → no capture, legacy flat shape still works, and empty/malformed safety.
+
+### Impact
+
+Memory now works **both ways** for real users: recall (fixed in 2.4.3) AND capture (fixed here). Before this session, a fresh install's memory system was effectively write-nothing / read-crash.
+
 ## v2.4.4 — Real-user audit: prompt-injection guard was a silent no-op (July 2026)
 
 Phase 1 of the real-user audit — firing every hook with realistic input instead of fixtures. Found a second "installed but dummy" feature.

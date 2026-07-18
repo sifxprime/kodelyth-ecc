@@ -36,12 +36,54 @@ const FAILURE_PHRASES = [
   /\bsame error\b/i,
 ];
 
+// Real Claude Code transcript events nest role/content/tool info under
+// `.message`; tool calls live as `content[].type === 'tool_use'` and tool
+// results come back in the next user message as `content[].type === 'tool_result'`.
+// Downstream code reads flat `ev.role`, `ev.tool_name`, `ev.tool_input`,
+// `ev.content` — so we normalise every raw event to that flat shape. Without
+// this, extractCandidates() skips every event and auto-capture never fires.
+function normalizeEvent(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const msg = raw.message && typeof raw.message === 'object' ? raw.message : null;
+
+  // role: prefer message.role, fall back to the top-level `type` (user/assistant)
+  const role = (msg && msg.role) || (raw.role) ||
+    (raw.type === 'user' || raw.type === 'assistant' ? raw.type : undefined);
+
+  // content: keep whatever extractText already understands (string | array | message)
+  const content = (msg && msg.content !== undefined) ? msg.content : raw.content;
+
+  const out = { ...raw, role, content };
+
+  // tool_use: surface the FIRST tool call in an assistant message as
+  // ev.tool_name / ev.tool_input so the flat readers see it.
+  if (Array.isArray(content)) {
+    const toolUse = content.find(c => c && c.type === 'tool_use');
+    if (toolUse) {
+      out.tool_name  = toolUse.name;
+      out.tool_input = toolUse.input || {};
+    }
+    // tool_result carries command output (exit codes, "tests passed", etc.)
+    const toolResult = content.find(c => c && c.type === 'tool_result');
+    if (toolResult && !out.tool_name) {
+      const rc = toolResult.content;
+      out._toolResultText = typeof rc === 'string'
+        ? rc
+        : Array.isArray(rc) ? rc.map(x => (typeof x === 'string' ? x : x?.text || '')).join('\n') : '';
+    }
+  }
+  return out;
+}
+
 function readTranscript(jsonlPath) {
   if (!fs.existsSync(jsonlPath)) return [];
   const lines = fs.readFileSync(jsonlPath, 'utf8').split('\n').filter(Boolean);
   const events = [];
   for (const line of lines) {
-    try { events.push(JSON.parse(line)); } catch { /* skip malformed */ }
+    try {
+      const norm = normalizeEvent(JSON.parse(line));
+      if (norm) events.push(norm);
+    } catch { /* skip malformed */ }
   }
   return events;
 }
@@ -49,11 +91,15 @@ function readTranscript(jsonlPath) {
 function extractText(event) {
   if (typeof event.content === 'string') return event.content;
   if (Array.isArray(event.content)) {
-    return event.content
+    const text = event.content
       .filter(c => c && (c.type === 'text' || typeof c.text === 'string'))
       .map(c => c.text || '')
       .join('\n');
+    if (text) return text;
+    // tool_result content (command output) — used for success scoring
+    if (event._toolResultText) return event._toolResultText;
   }
+  if (event._toolResultText) return event._toolResultText;
   if (event.message?.content) return extractText({ content: event.message.content });
   return '';
 }
@@ -148,8 +194,15 @@ function extractCandidates(jsonlPath) {
         .filter(Boolean)
     )).slice(0, 5);
 
-    const lastAssistant = window.reverse().find(e => e.role === 'assistant');
-    const approach = lastAssistant ? extractText(lastAssistant).slice(0, 600) : null;
+    // Find the last assistant message that actually has TEXT — skip trailing
+    // tool_use/tool_result events which carry no explanation of the fix.
+    const reversed = window.slice().reverse();
+    let approach = null;
+    for (const e of reversed) {
+      if (e.role !== 'assistant') continue;
+      const t = extractText(e).trim();
+      if (t) { approach = t.slice(0, 600); break; }
+    }
 
     if (!problem || !approach) continue;
 

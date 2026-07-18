@@ -78,6 +78,11 @@ async function buildOptions({ ROOT }) {
     run:   () => runSub(['codebase', 'status']),
   });
   opts.push({
+    label: 'Health check (doctor)',
+    hint:  'Live check every subsystem is actually wired — catches silent breakage',
+    run:   () => runSub(['doctor']),
+  });
+  opts.push({
     label: 'Memory stats (BM25 recall)',
     hint:  'Local BM25 memory — captures, projects, top tags',
     run:   () => runSub(['dashboard', '--port', '5747', '--no-open']),

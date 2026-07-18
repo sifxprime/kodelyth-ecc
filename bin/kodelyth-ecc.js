@@ -107,6 +107,18 @@ if (args[1] === '--help' || args[1] === '-h') {
 
   Tabs: Overview · Token Savings (RTK + Terse) · Memory · Codebase · Evolve · Catalog · Sessions
 `,
+    doctor: `
+  kodelyth-ecc doctor — live subsystem health check
+
+  Usage:
+    kodelyth-ecc doctor            human-readable report
+    kodelyth-ecc doctor --json     machine-readable (exit 1 if any check fails)
+
+  Exercises every subsystem for real (not just "file exists"): binaries,
+  install target, hook registration, memory recall, MCP registration + boot,
+  prompt-injection guard, RTK, Terse, codebase graph. Run it if anything
+  feels off — it pinpoints exactly what's not wired and how to fix it.
+`,
   };
   const cmd = args[0];
   if (HELP_MAP[cmd]) { console.log(HELP_MAP[cmd]); process.exit(0); }
@@ -337,6 +349,34 @@ if (args[0] === 'rtk') {
     process.exit(1);
   }
   return;
+}
+
+// ── Subcommand: doctor (live subsystem health check) ─────────────────────────
+// Usage: kodelythecc doctor [--json]
+if (args[0] === 'doctor') {
+  const { run, PASS, WARN, FAIL } = require(path.join(ROOT, 'scripts', 'doctor-health.js'));
+  const report = run();
+  if (args.includes('--json')) {
+    process.stdout.write(JSON.stringify(report, null, 2) + '\n');
+    process.exit(report.summary.fail > 0 ? 1 : 0);
+  }
+  const icon = (s) => (s === PASS ? '\x1b[32m✓\x1b[0m' : s === WARN ? '\x1b[33m!\x1b[0m' : '\x1b[31m✗\x1b[0m');
+  const w = (m) => process.stdout.write(m + '\n');
+  w('');
+  w('\x1b[1mKodelyth ECC — health check\x1b[0m');
+  w('─'.repeat(60));
+  for (const c of report.checks) {
+    w(`${icon(c.status)} \x1b[1m${c.id}\x1b[0m — ${c.detail}`);
+    if (c.status !== PASS && c.fix) w(`    \x1b[90m→ ${c.fix}\x1b[0m`);
+  }
+  w('─'.repeat(60));
+  const s = report.summary;
+  w(`${s.pass} pass · ${s.warn} warn · ${s.fail} fail  (of ${s.total} checks)`);
+  if (s.fail === 0 && s.warn === 0) w('\x1b[32mEverything is wired and working.\x1b[0m');
+  else if (s.fail === 0) w('\x1b[33mWorking, with optional features not yet enabled (warnings above).\x1b[0m');
+  else w('\x1b[31mSome subsystems are broken — see fixes above.\x1b[0m');
+  w('');
+  process.exit(s.fail > 0 ? 1 : 0);
 }
 
 // ── Subcommand: uninstall (full ECC removal) ────────────────────────────────

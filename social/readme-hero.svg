@@ -38,7 +38,7 @@
   <!-- LEFT — Brand block -->
   <!-- Version badge -->
   <rect x="32" y="22" width="72" height="20" rx="10" fill="#a78bfa" fill-opacity="0.15" stroke="#a78bfa" stroke-opacity="0.4" stroke-width="1"/>
-  <text x="68" y="36" font-size="9" fill="#a78bfa" text-anchor="middle" font-weight="700" letter-spacing="0.5">v2.4.8</text>
+  <text x="68" y="36" font-size="9" fill="#a78bfa" text-anchor="middle" font-weight="700" letter-spacing="0.5">v2.5.0</text>
 
   <!-- Title -->
   <text x="32" y="78" font-size="36" font-weight="900" letter-spacing="-1.5" fill="#ffffff">Kodelyth</text>
@@ -74,12 +74,12 @@
   <circle cx="344" cy="31" r="5" fill="#ff5f57"/>
   <circle cx="360" cy="31" r="5" fill="#febc2e"/>
   <circle cx="376" cy="31" r="5" fill="#28c840"/>
-  <text x="612" y="35" font-size="11" fill="#484f58" text-anchor="middle">kodelyth-ecc v2.4.8</text>
+  <text x="612" y="35" font-size="11" fill="#484f58" text-anchor="middle">kodelyth-ecc v2.5.0</text>
 
   <text x="348" y="66" font-family="'Courier New', Courier, monospace" font-size="11" fill="#10b981">$</text>
   <text x="360" y="66" font-family="'Courier New', Courier, monospace" font-size="11" fill="#e6edf3"> npx kodelyth-ecc</text>
 
-  <text x="348" y="84" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58">Installing Kodelyth ECC v2.4.8...</text>
+  <text x="348" y="84" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58">Installing Kodelyth ECC v2.5.0...</text>
 
   <text x="348" y="108" font-family="'Courier New', Courier, monospace" font-size="11" fill="#e6edf3"> Agents (70)         </text>
   <text x="494" y="108" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58">→ ~/.claude/agents/</text>
@@ -97,6 +97,6 @@
   <text x="494" y="180" font-family="'Courier New', Courier, monospace" font-size="11" fill="#484f58">→ ~/.kodelyth/memory/</text>
 
   <rect x="348" y="196" width="500" height="36" rx="6" fill="#0d2b1d" stroke="#059669" stroke-opacity="0.3" stroke-width="1"/>
-  <text x="368" y="212" font-size="9" font-weight="700" fill="#10b981" letter-spacing="1">v2.4.8 — SEMANTIC INTENT ROUTING</text>
+  <text x="368" y="212" font-size="9" font-weight="700" fill="#10b981" letter-spacing="1">v2.5.0 — SEMANTIC INTENT ROUTING</text>
   <text x="368" y="226" font-size="10" fill="#6b7280">Paste code or a stack trace — AI routes you automatically, no command needed</text>
 </svg>

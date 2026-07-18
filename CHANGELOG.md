@@ -2,6 +2,40 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.5.0 — `kodelythecc doctor` live health check (July 2026)
+
+A self-diagnostic that verifies every subsystem is **actually wired and working** — the direct answer to "is it real or dummy?"
+
+### Added — `kodelythecc doctor`
+
+```
+kodelythecc doctor          # human-readable report
+kodelythecc doctor --json   # machine-readable, exit 1 if any check fails
+```
+
+11 live checks that **exercise** each subsystem instead of just checking a file exists — so it catches the exact class of bug we hit in 2.4.3/2.4.4/2.4.0 (recall crash on stale index, prompt-injection guard silently off, MCP server never registered):
+
+| Check | What it actually does |
+|---|---|
+| `binaries` | both `kodelyth-ecc` + `kodelythecc` on PATH |
+| `install-target` | agents/skills/commands/hooks/rules populated in `~/.claude/` |
+| `hooks-registered` | required hook events present in `settings.json` (not just files) |
+| `memory-recall` | **runs a real recall** — must not throw (would have caught the 2.4.3 crash) |
+| `memory-index` | index schema valid or self-healing |
+| `mcp-registered` | ECC MCP entry in Claude Code + Desktop configs (would have caught 2.4.0) |
+| `mcp-server-boots` | spawns the server, confirms it returns a tools list |
+| `prompt-injection` | guard is active, not silently off (would have caught 2.4.4) |
+| `rtk` / `terse` / `codebase-graph` | installed + wired |
+
+Each non-pass carries a one-line fix. Wired into `doctor --help` and the interactive menu ("Health check").
+
+### Verified
+
+- Live on this Mac: **11/11 pass** — "Everything is wired and working."
+- Warn path tested (guard off → warns + shows fix), `--json` exits 1 only on failure
+- 4 new tests in `tests/doctor/health.test.js` including a regression that feeds the foreign index schema and asserts recall self-heals
+- Full suite: 0 failures
+
 ## v2.4.9 — Phase 4 audit + 6 new feature SVGs (July 2026)
 
 Final audit round + the visual gap: the six headline 2.x features had **zero illustrations** in the README or website.

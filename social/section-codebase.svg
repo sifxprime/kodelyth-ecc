@@ -1,0 +1,48 @@
+<svg viewBox="0 0 900 170" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <marker id="arrp" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L5,3 L0,6 Z" fill="#a78bfa" opacity="0.8"/>
+    </marker>
+  </defs>
+  <rect width="900" height="170" fill="url(#bg)" rx="12"/>
+  <rect width="900" height="170" fill="none" stroke="#21262d" stroke-width="1" rx="12"/>
+
+  <rect x="32" y="20" width="210" height="22" rx="11" fill="#a78bfa" fill-opacity="0.12" stroke="#a78bfa" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="137" y="35" font-size="10" fill="#a78bfa" text-anchor="middle" font-weight="700" letter-spacing="1">CODEBASE GRAPH · 158 LANGS</text>
+
+  <text x="32" y="70" font-size="22" font-weight="800" fill="#ffffff">Structural queries — 99% fewer tokens than grep</text>
+  <text x="32" y="92" font-size="12" fill="#6e7681">AST knowledge graph · tree-sitter · "who calls X" in ~3.4k tokens vs ~412k file-by-file</text>
+
+  <!-- graph nodes -->
+  <circle cx="70"  cy="134" r="14" fill="#a78bfa" fill-opacity="0.15" stroke="#a78bfa" stroke-opacity="0.6" stroke-width="1.5"/>
+  <text x="70" y="137" font-size="8" fill="#c4b5fd" text-anchor="middle" font-weight="700">main</text>
+  <circle cx="150" cy="118" r="13" fill="#a78bfa" fill-opacity="0.1" stroke="#a78bfa" stroke-opacity="0.45" stroke-width="1"/>
+  <text x="150" y="121" font-size="7.5" fill="#c4b5fd" text-anchor="middle">auth</text>
+  <circle cx="150" cy="150" r="13" fill="#a78bfa" fill-opacity="0.1" stroke="#a78bfa" stroke-opacity="0.45" stroke-width="1"/>
+  <text x="150" y="153" font-size="7.5" fill="#c4b5fd" text-anchor="middle">db</text>
+  <circle cx="230" cy="134" r="13" fill="#a78bfa" fill-opacity="0.1" stroke="#a78bfa" stroke-opacity="0.45" stroke-width="1"/>
+  <text x="230" y="137" font-size="7.5" fill="#c4b5fd" text-anchor="middle">order</text>
+  <line x1="84"  y1="128" x2="138" y2="120" stroke="#a78bfa" stroke-width="1" marker-end="url(#arrp)" opacity="0.5"/>
+  <line x1="84"  y1="140" x2="138" y2="148" stroke="#a78bfa" stroke-width="1" marker-end="url(#arrp)" opacity="0.5"/>
+  <line x1="163" y1="150" x2="218" y2="138" stroke="#a78bfa" stroke-width="1" marker-end="url(#arrp)" opacity="0.5"/>
+
+  <!-- query box -->
+  <rect x="300" y="114" width="250" height="42" rx="8" fill="#a78bfa" fill-opacity="0.1" stroke="#a78bfa" stroke-opacity="0.5" stroke-width="1.5"/>
+  <text x="425" y="131" font-size="10" fill="#c4b5fd" text-anchor="middle" font-weight="800">codebase query trace_path</text>
+  <text x="425" y="146" font-size="8" fill="#c4b5fd" text-anchor="middle" opacity="0.7">'{"function_name":"processOrder"}'</text>
+
+  <!-- token comparison -->
+  <text x="580" y="126" font-size="9" fill="#6e7681">grep sweep</text>
+  <text x="660" y="126" font-size="12" font-weight="800" fill="#71717a">~412k</text>
+  <text x="580" y="148" font-size="9" fill="#a78bfa">graph query</text>
+  <text x="660" y="148" font-size="14" font-weight="800" fill="#c4b5fd">~3.4k</text>
+
+  <g transform="translate(810, 28) scale(0.23)" opacity="0.14">
+    <polyline points="-44,4 12,100 -44,196" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <polyline points="0,0 88,100 0,200" stroke="#ffffff" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+</svg>

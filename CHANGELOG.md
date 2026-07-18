@@ -2,6 +2,34 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.4.9 — Phase 4 audit + 6 new feature SVGs (July 2026)
+
+Final audit round + the visual gap: the six headline 2.x features had **zero illustrations** in the README or website.
+
+### Phase 4 audit — findings
+
+- **End-to-end swept every advertised feature** with real invocations: all 9 CLI subcommands, 16 MCP tools, swarm (builds real 4-worker plans), replay (validates args), all 8 parallel commands present, 3 bundles valid. **No dummy features found** — the real bugs were all caught in Phases 1-3.
+- **Adversarial agents assessed** (`secret-hunter`, `backdoor-hunter`, `supply-chain-auditor`): already built with real detection commands (backdoor-hunter has 36, supply-chain-auditor has 8 real jq/npm lockfile-audit sections). No dummy gap like security-reviewer had — honest result, left them alone.
+
+### New — 6 feature SVGs (the visual gap)
+
+Created on-brand 900×170 illustrations matching the existing `section-*.svg` design system, each with real data and a diagram:
+
+- `section-rtk.svg` — input-savings pipeline (raw → RTK filter → compact, 5.1M/64% ledger)
+- `section-terse.svg` — 4-level output-compression dial with before/after
+- `section-codebase.svg` — AST graph nodes + query, 412k vs 3.4k token comparison
+- `section-cli.svg` — interactive menu terminal + arrow keys + update check
+- `section-token-savings.svg` — the three-layer stack combining to −55–65%
+- `section-uninstall.svg` — clean-removal checklist + dry-run
+
+All rendered to 8K PNG (37 exports total) and injected into the README's RTK / Terse / Codebase / Interactive-CLI sections.
+
+### Verified
+
+- 384 tests, 0 failures
+- All 6 SVGs render clean at 8K, no text overflow, on-brand
+- README references the 4 new section SVGs
+
 ## v2.4.8 — Phase 3: agent polish + token-savings skill (July 2026)
 
 Phase 3 of the sequenced plan (audit → routing → skills/agents). Disciplined polish — fixed the one agent with a real actionable gap, added the one skill filling a real gap, and deliberately did **not** pad agents that are already complete.

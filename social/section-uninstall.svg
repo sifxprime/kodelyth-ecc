@@ -1,0 +1,34 @@
+<svg viewBox="0 0 900 170" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="170" fill="url(#bg)" rx="12"/>
+  <rect width="900" height="170" fill="none" stroke="#21262d" stroke-width="1" rx="12"/>
+
+  <rect x="32" y="20" width="200" height="22" rx="11" fill="#f87171" fill-opacity="0.1" stroke="#f87171" stroke-opacity="0.4" stroke-width="1"/>
+  <text x="132" y="35" font-size="10" fill="#fca5a5" text-anchor="middle" font-weight="700" letter-spacing="1">CLEAN UNINSTALL  v2.4.8</text>
+
+  <text x="32" y="70" font-size="22" font-weight="800" fill="#ffffff">One command removes everything — nothing left behind</text>
+  <text x="32" y="92" font-size="12" fill="#6e7681">kodelythecc uninstall · dry-run preview · keeps your own files · removes only what ECC installed</text>
+
+  <!-- removal checklist -->
+  <g font-size="9.5" fill="#9ca3af">
+    <text x="42"  y="124">✓ 759 ECC files in ~/.claude/</text>
+    <text x="42"  y="142">✓ RTK hook · codebase-mcp configs</text>
+    <text x="300" y="124">✓ MCP entries (Code + Desktop)</text>
+    <text x="300" y="142">✓ ~/.kodelythecc/ memory + ledgers</text>
+  </g>
+
+  <!-- dry-run pill -->
+  <rect x="560" y="112" width="180" height="44" rx="8" fill="#f87171" fill-opacity="0.08" stroke="#f87171" stroke-opacity="0.4" stroke-width="1.5"/>
+  <text x="650" y="131" font-size="10.5" fill="#fca5a5" text-anchor="middle" font-weight="800">--dry-run</text>
+  <text x="650" y="147" font-size="8.5" fill="#fca5a5" text-anchor="middle" opacity="0.75">preview, change nothing</text>
+
+  <g transform="translate(810, 28) scale(0.23)" opacity="0.14">
+    <polyline points="-44,4 12,100 -44,196" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <polyline points="0,0 88,100 0,200" stroke="#ffffff" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+</svg>

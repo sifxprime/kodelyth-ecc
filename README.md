@@ -430,6 +430,8 @@ Full reference: [`docs/dashboard.md`](docs/dashboard.md).
 
 ## RTK — Input Token Savings (60-90%)
 
+<div align="center"><img src="social/section-rtk.svg" alt="RTK — Input Token Savings (60-90%)" width="900"/></div>
+
 [RTK (Rust Token Killer)](https://github.com/rtk-ai/rtk) — Apache-2.0, single Rust binary — intercepts shell commands before they run and filters the output. Common commands like `git status`, `ls`, `cargo test`, `docker ps` return ~80% less text with zero information loss for the LLM.
 
 ECC bundles RTK end-to-end:
@@ -461,6 +463,8 @@ total_saved:       5,107,394    ← 64.1% average reduction
 ---
 
 ## Terse Mode — Output Token Savings (40-70%)
+
+<div align="center"><img src="social/section-terse.svg" alt="Terse Mode — Output Token Savings (40-70%)" width="900"/></div>
 
 RTK compresses input. **Terse mode** compresses output. Together they stack — savings on both sides of every turn.
 
@@ -497,6 +501,8 @@ kodelythecc terse --help
 
 ## Codebase Graph — 158 Languages, Structural Queries
 
+<div align="center"><img src="social/section-codebase.svg" alt="Codebase Graph — 158 Languages, Structural Queries" width="900"/></div>
+
 Powered by [DeusData/codebase-memory-mcp](https://github.com/DeusData/codebase-memory-mcp) (MIT). AST-parsed knowledge graph via tree-sitter across **158 languages**, Hybrid LSP semantic type resolution for 11 major languages, cross-service HTTP/gRPC/GraphQL linking, 14 MCP tools for structural queries.
 
 **Why this matters**: "Who calls `ProcessOrder`?" via file-by-file grep = ~412k tokens. Same question via the graph = ~3.4k tokens. That's a **99% reduction** on structural questions.
@@ -526,6 +532,8 @@ kodelythecc codebase --help
 ---
 
 ## Interactive CLI Menu
+
+<div align="center"><img src="social/section-cli.svg" alt="Interactive CLI Menu" width="900"/></div>
 
 Type `kodelythecc` alone in a real terminal → arrow-key menu opens.
 

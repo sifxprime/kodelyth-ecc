@@ -2,6 +2,22 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.5.2 — Broken README image fix + brand polish (July 2026)
+
+### Fixed
+
+- **README lockup was a broken image on GitHub and npm.** The header referenced `brand/ecc-lockup-*.png`, but `.gitignore` excludes `brand/**/*.png` (SVG-only policy) so the PNGs were never committed. Switched the README `<picture>` to the committed SVG lockups — renders on both.
+- **Stale counts across social SVGs:** 194 → 196 skills, 373 → 388 tests (readme-hero, og-image, github-social-preview, fb-ad-main).
+
+### Added
+
+- `social/faq-mastermind.svg` — a "one mastermind across every IDE + CLI" illustration: the ECC core radiating to Claude Code, Cursor, Windsurf, Codex, Antigravity, and Gemini plus a CLI terminal node. Fills the previously-empty FAQ right column on the site.
+
+### Changed
+
+- SVG version badges v2.5.1 → v2.5.2; 8K PNGs re-rendered.
+- Site: taller feature cards (fixed cramped wide-banner proportions), header badge now matches the favicon (gradient + blue ring), FAQ is two-column with the mastermind illustration. Verified no horizontal overflow at 375px (mobile) or 1280px (desktop).
+
 ## v2.5.1 — ECC product identity (July 2026)
 
 Formalized ECC as the flagship product with its own visual identity — without changing the core Kodelyth `>` Ghost Depth mark.

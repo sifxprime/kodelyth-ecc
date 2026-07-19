@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="brand/ecc-lockup-dark.png">
-  <img src="brand/ecc-lockup-light.png" alt="Kodelyth ECC — Elite Code Crew" width="440"/>
+  <source media="(prefers-color-scheme: dark)" srcset="brand/ecc-lockup-dark.svg">
+  <img src="brand/ecc-lockup-light.svg" alt="Kodelyth ECC — Elite Code Crew" width="440"/>
 </picture>
 
 <br><br>

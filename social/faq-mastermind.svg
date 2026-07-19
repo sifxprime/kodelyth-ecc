@@ -1,0 +1,53 @@
+<svg viewBox="0 0 560 640" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0d1117"/><stop offset="1" stop-color="#161b22"/></linearGradient>
+    <radialGradient id="core" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#2d5bff" stop-opacity="0.35"/><stop offset="100%" stop-color="#2d5bff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="560" height="640" rx="20" fill="url(#bg)"/>
+  <rect width="560" height="640" rx="20" fill="none" stroke="#21262d" stroke-width="1.5"/>
+
+  <text x="40" y="58" font-size="12" fill="#7aa2ff" font-weight="700" letter-spacing="2">ONE MASTERMIND</text>
+  <text x="40" y="92" font-size="26" font-weight="800" fill="#ffffff">Genius in every IDE</text>
+  <text x="40" y="120" font-size="26" font-weight="800" fill="#ffffff">and on the CLI</text>
+
+  <!-- connection lines from core to each tool -->
+  <g stroke="#2d5bff" stroke-opacity="0.35" stroke-width="1.5" fill="none">
+    <line x1="280" y1="330" x2="110" y2="230"/>
+    <line x1="280" y1="330" x2="450" y2="230"/>
+    <line x1="280" y1="330" x2="90"  y2="360"/>
+    <line x1="280" y1="330" x2="470" y2="360"/>
+    <line x1="280" y1="330" x2="150" y2="470"/>
+    <line x1="280" y1="330" x2="410" y2="470"/>
+    <line x1="280" y1="330" x2="280" y2="540"/>
+  </g>
+
+  <!-- core: ECC brain -->
+  <circle cx="280" cy="330" r="86" fill="url(#core)"/>
+  <rect x="222" y="272" width="116" height="116" rx="28" fill="#111826" stroke="#2d5bff" stroke-opacity="0.5" stroke-width="2"/>
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" transform="translate(258,296) scale(0.42)">
+    <polyline points="8,0 60,64 8,128" stroke="#ffffff" stroke-opacity="0.18" stroke-width="12"/>
+    <polyline points="40,-8 96,64 40,136" stroke="#ffffff" stroke-width="34"/>
+  </g>
+  <text x="280" y="372" font-size="16" fill="#7aa2ff" text-anchor="middle" font-weight="800" letter-spacing="3">ECC</text>
+
+  <!-- tool nodes -->
+  <g font-size="11" font-weight="600" text-anchor="middle">
+    <g><rect x="52" y="212" width="116" height="34" rx="9" fill="#8b5cf6" fill-opacity="0.12" stroke="#8b5cf6" stroke-opacity="0.4"/><text x="110" y="234" fill="#c4b5fd">Claude Code</text></g>
+    <g><rect x="392" y="212" width="116" height="34" rx="9" fill="#3b82f6" fill-opacity="0.12" stroke="#3b82f6" stroke-opacity="0.4"/><text x="450" y="234" fill="#93c5fd">Cursor</text></g>
+    <g><rect x="34" y="344" width="112" height="34" rx="9" fill="#06b6d4" fill-opacity="0.12" stroke="#06b6d4" stroke-opacity="0.4"/><text x="90" y="366" fill="#67e8f9">Windsurf</text></g>
+    <g><rect x="414" y="344" width="116" height="34" rx="9" fill="#10b981" fill-opacity="0.12" stroke="#10b981" stroke-opacity="0.4"/><text x="472" y="366" fill="#6ee7b7">Codex CLI</text></g>
+    <g><rect x="92" y="452" width="116" height="34" rx="9" fill="#f59e0b" fill-opacity="0.12" stroke="#f59e0b" stroke-opacity="0.4"/><text x="150" y="474" fill="#fbbf24">Antigravity</text></g>
+    <g><rect x="352" y="452" width="116" height="34" rx="9" fill="#ec4899" fill-opacity="0.12" stroke="#ec4899" stroke-opacity="0.4"/><text x="410" y="474" fill="#f9a8d4">Gemini CLI</text></g>
+  </g>
+
+  <!-- CLI terminal node (bottom center) -->
+  <rect x="180" y="524" width="200" height="72" rx="12" fill="#0a0c10" stroke="#30363d"/>
+  <circle cx="196" cy="542" r="3.5" fill="#f87171"/><circle cx="208" cy="542" r="3.5" fill="#fbbf24"/><circle cx="220" cy="542" r="3.5" fill="#34d399"/>
+  <text x="196" y="566" font-size="11" font-family="monospace" fill="#38bdf8" font-weight="700">$ kodelythecc</text>
+  <text x="196" y="584" font-size="10" font-family="monospace" fill="#6e7681">70 agents ready</text>
+
+  <text x="280" y="622" font-size="11.5" fill="#6e7681" text-anchor="middle">11 platforms · 13 install targets · one brain</text>
+
+  <!-- brand mark -->
+  <g transform="translate(496,44) scale(0.16)" opacity="0.16"><polyline points="-44,4 12,100 -44,196" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/><polyline points="0,0 88,100 0,200" stroke="#fff" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>
+</svg>

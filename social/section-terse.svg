@@ -9,7 +9,7 @@
   <rect width="900" height="170" fill="none" stroke="#21262d" stroke-width="1" rx="12"/>
 
   <rect x="32" y="20" width="210" height="22" rx="11" fill="#34d399" fill-opacity="0.12" stroke="#34d399" stroke-opacity="0.4" stroke-width="1"/>
-  <text x="137" y="35" font-size="10" fill="#34d399" text-anchor="middle" font-weight="700" letter-spacing="1">TERSE · OUTPUT SAVINGS  v2.5.1</text>
+  <text x="137" y="35" font-size="10" fill="#34d399" text-anchor="middle" font-weight="700" letter-spacing="1">TERSE · OUTPUT SAVINGS  v2.5.2</text>
 
   <text x="32" y="70" font-size="22" font-weight="800" fill="#ffffff">Replies compressed 40–70% — code stays byte-exact</text>
   <text x="32" y="92" font-size="12" fill="#6e7681">4-level dial · /terse lite | full | ultra | off · preserves code, commands, URLs, paths</text>

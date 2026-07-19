@@ -13,7 +13,7 @@
 
   <!-- Label -->
   <rect x="32" y="20" width="200" height="22" rx="11" fill="#f59e0b" fill-opacity="0.12" stroke="#f59e0b" stroke-opacity="0.4" stroke-width="1"/>
-  <text x="132" y="35" font-size="10" fill="#fbbf24" text-anchor="middle" font-weight="700" letter-spacing="1">RTK · INPUT SAVINGS  v2.5.1</text>
+  <text x="132" y="35" font-size="10" fill="#fbbf24" text-anchor="middle" font-weight="700" letter-spacing="1">RTK · INPUT SAVINGS  v2.5.2</text>
 
   <text x="32" y="70" font-size="22" font-weight="800" fill="#ffffff">Shell output shrunk 60–90% before the model reads it</text>
   <text x="32" y="92" font-size="12" fill="#6e7681">git · ls · cargo test · docker · 100+ commands · auto-wired PreToolUse hook · zero telemetry</text>

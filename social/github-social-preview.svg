@@ -26,13 +26,13 @@
               fill="none"/>
   </g>
 
-  <!-- v2.5.1 pill — below mark -->
+  <!-- v2.5.2 pill — below mark -->
   <rect x="66" y="434" width="88" height="26" rx="13"
         fill="none" stroke="#ffffff" stroke-width="1" opacity="0.20"/>
   <text x="110" y="452"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="13" font-weight="500" text-anchor="middle"
-        fill="#ffffff" opacity="0.35">v2.5.1</text>
+        fill="#ffffff" opacity="0.35">v2.5.2</text>
 
   <!-- Wordmark -->
   <text x="210" y="276"
@@ -93,7 +93,7 @@
         font-size="13" font-weight="600" text-anchor="middle" letter-spacing="3"
         fill="#ffffff" opacity="0.38">AGENTS</text>
 
-  <!-- CARD: 194 SKILLS (top-right) — amber highlighted -->
+  <!-- CARD: 196 SKILLS (top-right) — amber highlighted -->
   <rect x="886" y="68" width="340" height="220" rx="8"
         fill="#f59e0b" fill-opacity="0.07"
         stroke="#f59e0b" stroke-width="1" stroke-opacity="0.25"/>

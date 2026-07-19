@@ -2,6 +2,27 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.5.4 — Memory: direct capture CLI + aggressive auto-capture (July 2026)
+
+Two memory improvements after an end-to-end verification pass confirmed the pipeline works but only captured when the user said "thanks".
+
+### Added
+
+- **`kodelythecc memory` subcommand** — manage the local BM25 memory directly:
+  - `memory capture --problem "…" --approach "…" [--tags a,b] [--language ts] [--files a,b]` — store a fix on the spot, **no review queue**
+  - `memory recall "<query>" [--limit N]` — BM25 search
+  - `memory list` · `memory stats`
+  - Wired into `--help` (`kodelythecc memory --help`).
+
+### Changed
+
+- **Auto-capture is now more aggressive.** Previously it only queued a memory when a user message contained a success phrase ("that worked", "perfect", "thanks"). It now **also** captures on a real verification signal — an `Edit`/`Write` followed by a passing test or successful build (`exit code 0`, `tests passed`, `build succeeded`, `PASS`, …) — even without a spoken acknowledgement. This catches fixes you verified but never verbally confirmed. Opt out with `KODELYTH_CAPTURE_AGGRESSIVE=0`.
+
+### Verified
+
+- End-to-end: capture → persist → recall across processes; `auto-recall` hook injects past fixes; `auto-capture` hook queues from a real `.message`-nested transcript; `doctor` memory checks pass.
+- New regression tests: aggressive path captures without "thanks"; opt-out flag disables it. Full suite 0 failures.
+
 ## v2.5.3 — Devil Mode + Memory cards for "How it works" (July 2026)
 
 ### Added

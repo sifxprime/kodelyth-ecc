@@ -172,19 +172,11 @@ function extractCandidates(jsonlPath) {
     }
   }
 
-  // Find user success messages — those mark candidate moments
-  for (let i = 0; i < events.length; i++) {
-    const ev = events[i];
-    if (ev.role !== 'user') continue;
-    const text = extractText(ev);
-    if (!SUCCESS_PHRASES.some(rx => rx.test(text))) continue;
-
-    const score = scoreCandidate(events, i);
-    if (score < 3) continue;
-
-    // Look back to find the problem and approach
-    const window = events.slice(Math.max(0, i - 20), i);
-    const problemEvent = window.find(e => e.role === 'user');
+  // Build a candidate from the window of events before a "solved" moment at
+  // index `i`. Returns null if there's no clear problem + approach.
+  function buildAt(i, score) {
+    const window = events.slice(Math.max(0, i - 20), i + 1);
+    const problemEvent = window.find(e => e.role === 'user' && extractText(e).trim());
     const problem = problemEvent ? extractText(problemEvent).split('\n')[0].slice(0, 280) : null;
 
     const filesTouched = Array.from(new Set(
@@ -194,26 +186,48 @@ function extractCandidates(jsonlPath) {
         .filter(Boolean)
     )).slice(0, 5);
 
-    // Find the last assistant message that actually has TEXT — skip trailing
-    // tool_use/tool_result events which carry no explanation of the fix.
-    const reversed = window.slice().reverse();
+    // Last assistant message with actual explanatory TEXT.
     let approach = null;
-    for (const e of reversed) {
+    for (const e of window.slice().reverse()) {
       if (e.role !== 'assistant') continue;
       const t = extractText(e).trim();
       if (t) { approach = t.slice(0, 600); break; }
     }
-
-    if (!problem || !approach) continue;
-
-    candidates.push({
-      problem,
-      approach,
+    if (!problem || !approach) return null;
+    return {
+      problem, approach,
       tags: extractTags(`${problem} ${approach}`),
       files: filesTouched,
       language: detectLanguage(filesTouched),
       score,
-    });
+    };
+  }
+
+  const PASS_SIGNAL = /\bexit code 0\b|\btests? passed\b|\ball (tests )?pass(ed)?\b|\b0 failing\b|\bbuild succeeded\b|✓|PASS\b/i;
+
+  for (let i = 0; i < events.length; i++) {
+    const ev = events[i];
+
+    // Path 1 — user says it worked ("that worked", "perfect", "thanks", ...).
+    if (ev.role === 'user' && SUCCESS_PHRASES.some(rx => rx.test(extractText(ev)))) {
+      const score = scoreCandidate(events, i);
+      if (score >= 3) { const c = buildAt(i, score); if (c) candidates.push(c); }
+      continue;
+    }
+
+    // Path 2 (aggressive, v2.5.4+) — a passing test / successful build that
+    // FOLLOWS at least one edit, even without an explicit user "thanks". This
+    // catches real fixes the user verified but never verbally acknowledged.
+    // Opt out with KODELYTH_CAPTURE_AGGRESSIVE=0.
+    if (process.env.KODELYTH_CAPTURE_AGGRESSIVE !== '0'
+        && PASS_SIGNAL.test(extractText(ev))) {
+      const priorWindow = events.slice(Math.max(0, i - 12), i);
+      const hadEdit = priorWindow.some(e => e.tool_name === 'Edit' || e.tool_name === 'Write');
+      if (hadEdit) {
+        const score = scoreCandidate(events, i) + 2; // verification is a strong signal
+        if (score >= 3) { const c = buildAt(i, score); if (c) candidates.push(c); }
+      }
+    }
   }
 
   // Dedupe by problem

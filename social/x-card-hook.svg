@@ -30,25 +30,25 @@
   <rect x="80" y="252" width="3" height="68" rx="1" fill="url(#mem)"/>
   <text x="96" y="276" font-size="11" font-weight="700" fill="#10b981" letter-spacing="1">SESSION START — read-lessons.js</text>
   <text x="96" y="296" font-size="13" fill="#8b949e">Reads tasks/lessons.md → injects hard rules + project DNA</text>
-  <text x="96" y="311" font-size="11" fill="#484f58">before your first message · fires first · v2.5.3</text>
+  <text x="96" y="311" font-size="11" fill="#484f58">before your first message · fires first · v2.5.4</text>
 
   <rect x="80" y="336" width="490" height="68" rx="8" fill="#0d1a0d" stroke="#059669" stroke-opacity="0.3" stroke-width="1"/>
   <rect x="80" y="336" width="3" height="68" rx="1" fill="url(#mem)"/>
   <text x="96" y="360" font-size="11" font-weight="700" fill="#10b981" letter-spacing="1">STOP — capture-correction.js</text>
   <text x="96" y="380" font-size="13" fill="#8b949e">Scans session JSONL for corrections → writes to lessons.md</text>
-  <text x="96" y="395" font-size="11" fill="#484f58">12 signal patterns · async · zero latency · v2.5.3</text>
+  <text x="96" y="395" font-size="11" fill="#484f58">12 signal patterns · async · zero latency · v2.5.4</text>
 
   <rect x="80" y="420" width="490" height="68" rx="8" fill="#161b22" stroke="#21262d" stroke-width="1"/>
   <rect x="80" y="420" width="3" height="68" rx="1" fill="#a78bfa"/>
   <text x="96" y="444" font-size="11" font-weight="700" fill="#a78bfa" letter-spacing="1">SESSION START — memory inject</text>
   <text x="96" y="464" font-size="13" fill="#8b949e">BM25 recall from ~/.kodelyth/memory/ → past solutions</text>
-  <text x="96" y="479" font-size="11" fill="#484f58">cache-friendly prefix · auto-fires · v2.5.3</text>
+  <text x="96" y="479" font-size="11" fill="#484f58">cache-friendly prefix · auto-fires · v2.5.4</text>
 
   <rect x="80" y="504" width="490" height="68" rx="8" fill="#161b22" stroke="#21262d" stroke-width="1"/>
   <rect x="80" y="504" width="3" height="68" rx="1" fill="#a78bfa"/>
   <text x="96" y="528" font-size="11" font-weight="700" fill="#a78bfa" letter-spacing="1">USER PROMPT — auto chat recall</text>
   <text x="96" y="548" font-size="13" fill="#8b949e">Watches every prompt → injects relevant memories before AI responds</text>
-  <text x="96" y="563" font-size="11" fill="#484f58">per-session dedup · skips trivial prompts · v2.5.3</text>
+  <text x="96" y="563" font-size="11" fill="#484f58">per-session dedup · skips trivial prompts · v2.5.4</text>
 
   <!-- Right column — quality hooks -->
   <rect x="606" y="252" width="514" height="68" rx="8" fill="#161b22" stroke="#21262d" stroke-width="1"/>
@@ -78,7 +78,7 @@
   <!-- Footer -->
   <text x="80" y="618" font-size="16" fill="#484f58">All hooks fire automatically after</text>
   <text x="340" y="618" font-size="16" fill="#10b981" font-weight="600"> npx kodelyth-ecc</text>
-  <text x="1120" y="618" font-size="14" fill="#484f58" text-anchor="end">v2.5.3</text>
+  <text x="1120" y="618" font-size="14" fill="#484f58" text-anchor="end">v2.5.4</text>
 
   <!-- Ghost Depth Mark — brand stamp (scale 0.55×) -->
   <g transform="translate(1044, 282) scale(0.55)" opacity="0.16">

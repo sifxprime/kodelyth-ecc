@@ -119,6 +119,21 @@ if (args[1] === '--help' || args[1] === '-h') {
   prompt-injection guard, RTK, Terse, codebase graph. Run it if anything
   feels off — it pinpoints exactly what's not wired and how to fix it.
 `,
+    memory: `
+  kodelyth-ecc memory — local BM25 self-learning memory
+
+  Usage:
+    kodelythecc memory capture --problem "<what was hard>" --approach "<what worked>" [--tags a,b] [--language ts] [--files a,b]
+    kodelythecc memory recall "<query>" [--limit N]
+    kodelythecc memory list
+    kodelythecc memory stats
+
+  'capture' stores directly (no review queue) — use it to remember a fix on
+  the spot. Auto-recall/auto-capture also run via hooks in your AI tool.
+  Storage: ~/.kodelythecc/memory/ · 100% local, zero telemetry.
+  Auto-capture aggressiveness: it also captures on edit + passing test even
+  without a spoken "thanks"; set KODELYTH_CAPTURE_AGGRESSIVE=0 to opt out.
+`,
   };
   const cmd = args[0];
   if (HELP_MAP[cmd]) { console.log(HELP_MAP[cmd]); process.exit(0); }
@@ -353,6 +368,62 @@ if (args[0] === 'rtk') {
 
 // ── Subcommand: doctor (live subsystem health check) ─────────────────────────
 // Usage: kodelythecc doctor [--json]
+// ── Subcommand: memory (direct capture / recall / stats, no review queue) ────
+// Usage:
+//   kodelythecc memory capture --problem "..." --approach "..." [--tags a,b] [--language ts]
+//   kodelythecc memory recall "<query>" [--limit N]
+//   kodelythecc memory list
+//   kodelythecc memory stats
+if (args[0] === 'memory') {
+  const store = require(path.join(ROOT, 'scripts', 'memory', 'store.js'));
+  const sub = args[1] || 'stats';
+  const rest = args.slice(2);
+  function flag(name, dflt) { const i = rest.indexOf('--' + name); return i >= 0 && rest[i + 1] && !rest[i + 1].startsWith('--') ? rest[i + 1] : dflt; }
+  const w = (m) => process.stdout.write(m + '\n');
+  try {
+    if (sub === 'capture' || sub === 'remember') {
+      const problem = flag('problem') || rest.find(a => !a.startsWith('--'));
+      const approach = flag('approach');
+      if (!problem || !approach) {
+        process.stderr.write('usage: kodelythecc memory capture --problem "<what was hard>" --approach "<what worked>" [--tags a,b] [--language ts] [--files a,b]\n');
+        process.exit(2);
+      }
+      const m = store.capture({
+        problem, approach,
+        tags: (flag('tags') || '').split(',').filter(Boolean),
+        language: flag('language') || null,
+        files: (flag('files') || '').split(',').filter(Boolean),
+        project: flag('project') || process.cwd(),
+        source: 'cli',
+      });
+      w(`✓ stored ${m.id} — "${m.problem.slice(0, 60)}"`);
+      process.exit(0);
+    }
+    if (sub === 'recall' || sub === 'search') {
+      const query = rest.find(a => !a.startsWith('--'));
+      if (!query) { process.stderr.write('usage: kodelythecc memory recall "<query>"\n'); process.exit(2); }
+      const results = store.recall(query, { limit: Number(flag('limit')) || 5, minScore: 0.1 });
+      if (!results.length) { w('No matching memories.'); process.exit(0); }
+      for (const m of results) w(`[${(m.score || 0).toFixed(2)}] ${m.problem}\n        → ${(m.approach || '').split('\n')[0].slice(0, 80)}  (${(m.tags || []).join(', ')})`);
+      process.exit(0);
+    }
+    if (sub === 'list') {
+      const all = store.listAll();
+      w(`${all.length} memories:`);
+      for (const m of all.slice(0, 50)) w(`  ${m.id}  ${(m.captured_at || '').slice(0, 10)}  ${(m.problem || '').slice(0, 60)}`);
+      process.exit(0);
+    }
+    if (sub === 'stats') {
+      const s = store.stats();
+      w(`Memories: ${s.total} · projects: ${s.projects} · dir: ${s.storageDir}`);
+      w(`Top tags: ${s.topTags.slice(0, 8).map(t => t[0] + '(' + t[1] + ')').join(', ')}`);
+      process.exit(0);
+    }
+    process.stderr.write('unknown memory subcommand. try: capture | recall | list | stats\n');
+    process.exit(2);
+  } catch (e) { process.stderr.write(`[memory] ${e.message}\n`); process.exit(1); }
+}
+
 if (args[0] === 'doctor') {
   const { run, PASS, WARN, FAIL } = require(path.join(ROOT, 'scripts', 'doctor-health.js'));
   const report = run();

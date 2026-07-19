@@ -62,3 +62,30 @@ test('extractCandidates is safe on empty / malformed transcript', () => {
   assert.doesNotThrow(() => extractCandidates(p));
   assert.equal(extractCandidates(p).length, 0);
 });
+
+test('aggressive: captures on edit + passing test even without a "thanks" (v2.5.4)', () => {
+  const p = writeTranscript([
+    { role: 'user',      content: 'The auth middleware lets expired JWTs through — past-exp tokens still authenticate.' },
+    { role: 'assistant', content: 'The verify call ignores expiry. Use jwt.verify and reject when exp < now.' },
+    { role: 'assistant', content: '', tool_name: 'Edit', tool_input: { file_path: '/tmp/p/src/auth.ts' } },
+    { role: 'user',      content: 'PASS src/auth.test.ts (12 tests) — exit code 0, all tests passed' },
+    { role: 'assistant', content: 'Fixed — expired tokens are now rejected.' },
+  ]);
+  const candidates = extractCandidates(p);
+  assert.ok(candidates.length >= 1, 'edit + passing test should yield a candidate without a user thanks');
+  assert.ok(/jwt|auth|expir/i.test(candidates[0].problem + candidates[0].approach));
+});
+
+test('aggressive capture can be disabled with KODELYTH_CAPTURE_AGGRESSIVE=0', () => {
+  const prev = process.env.KODELYTH_CAPTURE_AGGRESSIVE;
+  process.env.KODELYTH_CAPTURE_AGGRESSIVE = '0';
+  const p = writeTranscript([
+    { role: 'user',      content: 'flaky test fails 1 in 50 runs due to a timing assumption' },
+    { role: 'assistant', content: 'Replace the fixed sleep with an explicit wait-for condition.' },
+    { role: 'assistant', content: '', tool_name: 'Edit', tool_input: { file_path: '/tmp/p/spec.ts' } },
+    { role: 'user',      content: 'exit code 0, all tests passed' },
+  ]);
+  const candidates = extractCandidates(p);
+  if (prev === undefined) delete process.env.KODELYTH_CAPTURE_AGGRESSIVE; else process.env.KODELYTH_CAPTURE_AGGRESSIVE = prev;
+  assert.equal(candidates.length, 0, 'with aggressive off + no thanks, nothing is captured');
+});

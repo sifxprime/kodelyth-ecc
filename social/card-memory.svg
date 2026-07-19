@@ -1,0 +1,24 @@
+<svg viewBox="0 0 680 520" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0d1117"/><stop offset="1" stop-color="#161b22"/></linearGradient>
+  <marker id="am" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6 Z" fill="#a78bfa" opacity="0.85"/></marker></defs>
+  <rect width="680" height="520" rx="18" fill="url(#bg)"/><rect width="680" height="520" rx="18" fill="none" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="40" y="40" width="216" height="26" rx="13" fill="#a78bfa" fill-opacity="0.14" stroke="#a78bfa" stroke-opacity="0.4"/>
+  <text x="148" y="57" font-size="12" fill="#c4b5fd" text-anchor="middle" font-weight="700" letter-spacing="1.5">MEMORY · BM25 RECALL</text>
+  <text x="40" y="112" font-size="30" font-weight="800" fill="#ffffff">It remembers what</text>
+  <text x="40" y="150" font-size="30" font-weight="800" fill="#ffffff">worked last time</text>
+  <text x="40" y="184" font-size="14.5" fill="#8b949e">Local self-learning — auto-recalls past solutions.</text>
+  <!-- flow: prompt -> recall -> inject -->
+  <rect x="40" y="216" width="600" height="52" rx="10" fill="#161b22" stroke="#30363d"/>
+  <text x="60" y="240" font-size="13" fill="#c9d1d9" font-family="monospace">"stripe webhook signature failing…"</text>
+  <text x="60" y="258" font-size="10.5" fill="#6e7681">UserPromptSubmit hook fires</text>
+  <line x1="340" y1="272" x2="340" y2="292" stroke="#a78bfa" stroke-width="2" marker-end="url(#am)" opacity="0.7"/>
+  <rect x="40" y="300" width="600" height="72" rx="10" fill="#a78bfa" fill-opacity="0.1" stroke="#a78bfa" stroke-opacity="0.5"/>
+  <text x="60" y="326" font-size="13" fill="#c4b5fd" font-weight="800">↳ recalled from your history</text>
+  <text x="60" y="348" font-size="12" fill="#c4b5fd" opacity="0.85">"Switched body parser json → raw, validated with</text>
+  <text x="60" y="364" font-size="12" fill="#c4b5fd" opacity="0.85">constructEvent" · tags: payments, stripe, webhooks</text>
+  <line x1="340" y1="376" x2="340" y2="396" stroke="#a78bfa" stroke-width="2" marker-end="url(#am)" opacity="0.7"/>
+  <rect x="40" y="404" width="600" height="40" rx="10" fill="#059669" fill-opacity="0.1" stroke="#34d399" stroke-opacity="0.45"/>
+  <text x="60" y="429" font-size="13" fill="#34d399" font-weight="700">injected into context — before the AI answers</text>
+  <g font-size="12.5" fill="#8b949e"><text x="40" y="478">✓ BM25 keyword recall · ✓ captures on session end · ✓ 100% local, zero cloud</text></g>
+  <g transform="translate(600,48) scale(0.2)" opacity="0.16"><polyline points="-44,4 12,100 -44,196" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/><polyline points="0,0 88,100 0,200" stroke="#fff" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>
+</svg>

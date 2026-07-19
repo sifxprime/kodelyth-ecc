@@ -17,7 +17,7 @@
 
   <!-- Badge -->
   <rect x="28" y="24" width="72" height="20" rx="10" fill="#a78bfa" fill-opacity="0.15" stroke="#a78bfa" stroke-opacity="0.4" stroke-width="1"/>
-  <text x="64" y="38" font-size="9" fill="#a78bfa" text-anchor="middle" font-weight="700" letter-spacing="0.5">v2.5.2</text>
+  <text x="64" y="38" font-size="9" fill="#a78bfa" text-anchor="middle" font-weight="700" letter-spacing="0.5">v2.5.3</text>
 
   <!-- Title -->
   <text x="28" y="88" font-size="38" font-weight="900" letter-spacing="-1.5" fill="#ffffff">Kodelyth</text>

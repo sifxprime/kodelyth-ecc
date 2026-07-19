@@ -9,7 +9,7 @@
   <!-- terminal -->
   <rect x="40" y="212" width="600" height="200" rx="12" fill="#0a0c10" stroke="#30363d"/>
   <circle cx="62" cy="234" r="4" fill="#f87171"/><circle cx="78" cy="234" r="4" fill="#fbbf24"/><circle cx="94" cy="234" r="4" fill="#34d399"/>
-  <text x="300" y="238" font-size="10.5" fill="#6e7681" font-family="monospace">⚙ Kodelyth ECC v2.5.2 · up to date</text>
+  <text x="300" y="238" font-size="10.5" fill="#6e7681" font-family="monospace">⚙ Kodelyth ECC v2.5.3 · up to date</text>
   <g font-family="monospace" font-size="14">
    <text x="62" y="272" fill="#38bdf8" font-weight="700">▸ Open Dashboard</text>
    <text x="62" y="298" fill="#8b949e">  Install for another IDE</text>

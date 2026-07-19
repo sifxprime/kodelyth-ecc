@@ -2,6 +2,19 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.5.3 — Devil Mode + Memory cards for "How it works" (July 2026)
+
+### Added
+
+- `social/card-devil.svg` — Devil Mode feature card: "8 agents that attack your code first", the 8-agent adversarial grid + `/devil-mode --all`. Red accent.
+- `social/card-memory.svg` — Compound Memory card: "It remembers what worked last time", the BM25 recall flow (prompt → recalled fix → injected into context). Violet accent.
+- Both wired into the site's "How it works" showcase — now 8 features (routing, RTK, Terse, codebase, MCP, CLI, devil mode, memory), all in the taller card format with summaries.
+
+### Changed
+
+- SVG version badges v2.5.2 → v2.5.3; 8K PNGs re-rendered across the set.
+- Fresh GitHub social preview render (196 skills, v2.5.3) at 8K + upload-ready 2×.
+
 ## v2.5.2 — Broken README image fix + brand polish (July 2026)
 
 ### Fixed

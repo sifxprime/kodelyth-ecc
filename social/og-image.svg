@@ -60,7 +60,7 @@
   <text x="210" y="383"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="12" font-weight="400"
-        fill="#ffffff" opacity="0.28">70 agents · 194 skills · 97 commands</text>
+        fill="#ffffff" opacity="0.28">70 agents · 196 skills · 97 commands</text>
   <text x="210" y="399"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="12" font-weight="400"
@@ -100,7 +100,7 @@
   <text x="987" y="172"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="76" font-weight="700" text-anchor="middle"
-        fill="#f59e0b">194</text>
+        fill="#f59e0b">196</text>
   <text x="987" y="250"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="12" font-weight="600" text-anchor="middle" letter-spacing="3"

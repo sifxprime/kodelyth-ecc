@@ -1,0 +1,20 @@
+<svg viewBox="0 0 680 520" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0d1117"/><stop offset="1" stop-color="#161b22"/></linearGradient></defs>
+  <rect width="680" height="520" rx="18" fill="url(#bg)"/><rect width="680" height="520" rx="18" fill="none" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="40" y="40" width="176" height="26" rx="13" fill="#2d5bff" fill-opacity="0.14" stroke="#2d5bff" stroke-opacity="0.4"/>
+  <text x="128" y="57" font-size="12" fill="#7aa2ff" text-anchor="middle" font-weight="700" letter-spacing="1.5">INTENT ROUTING</text>
+  <text x="40" y="112" font-size="30" font-weight="800" fill="#ffffff">Plain words in,</text>
+  <text x="40" y="150" font-size="30" font-weight="800" fill="#ffffff">the right expert out</text>
+  <text x="40" y="184" font-size="14.5" fill="#8b949e">70 specialists · picked by intent, not keywords.</text>
+  <rect x="40" y="222" width="600" height="52" rx="10" fill="#161b22" stroke="#30363d"/>
+  <text x="60" y="253" font-size="14" fill="#c9d1d9" font-family="monospace">"been stuck on this bug for hours…"</text>
+  <text x="340" y="300" font-size="20" fill="#2d5bff" text-anchor="middle">↓</text>
+  <rect x="40" y="312" width="290" height="60" rx="10" fill="#2d5bff" fill-opacity="0.1" stroke="#2d5bff" stroke-opacity="0.5"/>
+  <text x="60" y="338" font-size="13" fill="#7aa2ff" font-weight="800">→ debug-detective</text>
+  <text x="60" y="358" font-size="11.5" fill="#7aa2ff" opacity="0.7">error + frustration signals</text>
+  <rect x="350" y="312" width="290" height="60" rx="10" fill="#161b22" stroke="#30363d"/>
+  <text x="370" y="338" font-size="12.5" fill="#8b949e">10 priority tiers</text>
+  <text x="370" y="358" font-size="12.5" fill="#8b949e">8 confidence dimensions</text>
+  <g font-size="13" fill="#8b949e"><text x="40" y="418">✓ No agent names to memorize</text><text x="40" y="446">✓ Announces which specialist took over</text><text x="40" y="474">✓ Never routes silently</text></g>
+  <g transform="translate(600,48) scale(0.2)" opacity="0.16"><polyline points="-44,4 12,100 -44,196" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/><polyline points="0,0 88,100 0,200" stroke="#fff" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+
+  <!-- Payth App Icon — emerald Payment Loop on rounded dark tile -->
+  <rect width="512" height="512" rx="112" fill="#0a0a0a"/>
+
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#34D399">
+    <!-- ghost — mirror, apex left (ghost lifts to 0.30 on dark so it still reads) -->
+    <polyline points="284,156 196,256 284,356"
+              stroke-width="13" stroke-opacity="0.30"/>
+    <!-- solid — forward, apex right -->
+    <polyline points="228,156 316,256 228,356"
+              stroke-width="40"/>
+  </g>
+
+</svg>

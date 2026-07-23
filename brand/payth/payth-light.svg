@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 120" width="340" height="120"
+     font-family="'Space Grotesk','Inter',system-ui,-apple-system,sans-serif">
+
+  <rect width="340" height="120" fill="#F4F6F5"/>
+
+  <!-- Payth Mark — Payment Loop (emerald on light, ghost 0.15) -->
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#059669">
+    <!-- ghost — mirror, apex left -->
+    <polyline points="83.6,22 50.2,60 83.6,98"
+              stroke-width="4" stroke-opacity="0.18"/>
+    <!-- solid — forward, apex right -->
+    <polyline points="62.4,22 95.8,60 62.4,98"
+              stroke-width="12"/>
+  </g>
+
+  <!-- Wordmark — vertically centered on mark axis (y=60) -->
+  <text x="126" y="73"
+        font-size="36" font-weight="700" fill="#0f172a"
+        letter-spacing="3">PAYTH</text>
+
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+
+  <!-- Veltix Facebook profile - 400x400, crops to circle, mark centered -->
+  <rect width="400" height="400" fill="#0a0a0a"/>
+
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#ffffff">
+    <polyline points="104,134 200,190 296,134" stroke-width="10" stroke-opacity="0.22"/>
+    <polyline points="100,178 200,266 300,178" stroke-width="32"/>
+  </g>
+
+</svg>

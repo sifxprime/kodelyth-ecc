@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 385 120" width="385" height="120"
+     font-family="'Space Grotesk','Inter',system-ui,-apple-system,sans-serif">
+
+  <rect width="385" height="120" fill="#0a0a0a"/>
+
+  <!-- Veltix Mark - Ghost Depth (white on dark) -->
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#ffffff">
+
+    <!-- ghost - reduced arm span, tighter stroke, optical depth layer -->
+    <polyline points="57,33 73,57 89,33"
+              stroke-width="3.5" stroke-opacity="0.2"/>
+
+    <!-- solid - reduced arm to balance mark:cap ratio -->
+    <polyline points="52,43 73,77 94,43"
+              stroke-width="11"/>
+
+  </g>
+
+  <!-- Wordmark - baseline lifted to optically align with mark center y=60 -->
+  <text x="125" y="73"
+        font-size="36" font-weight="700" fill="#ffffff"
+        letter-spacing="3">VELTIX</text>
+
+</svg>

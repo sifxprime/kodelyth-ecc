@@ -424,6 +424,103 @@ if (args[0] === 'memory') {
   } catch (e) { process.stderr.write(`[memory] ${e.message}\n`); process.exit(1); }
 }
 
+// ── Subcommand: god / evil / arena (the adversarial arena) ──────────────────
+// Usage:
+//   kodelythecc god  --task "<task>" [--json]        plan a GOD-mode build
+//   kodelythecc evil [scope] [--all|--license|...]   plan an EVIL-mode sweep
+//   kodelythecc arena list                           list past arena runs
+//   kodelythecc arena report <run-id>                show a run's report
+if (args[0] === 'god' || args[0] === 'evil' || args[0] === 'arena') {
+  const mode = args[0];
+  const rest = args.slice(1);
+  const w = (m) => process.stdout.write(m + '\n');
+  const wantJson = rest.includes('--json');
+  function flag(name, dflt) {
+    const i = rest.indexOf('--' + name);
+    return i >= 0 && rest[i + 1] && !rest[i + 1].startsWith('--') ? rest[i + 1] : dflt;
+  }
+  try {
+    if (mode === 'god') {
+      const god = require(path.join(ROOT, 'scripts', 'arena', 'god.js'));
+      const task = flag('task') || rest.find(a => !a.startsWith('--'));
+      if (!task) { process.stderr.write('usage: kodelythecc god --task "<what to build>"\n'); process.exit(2); }
+      const plan = god.planBuild({ task });
+      if (wantJson) { w(JSON.stringify(plan, null, 2)); process.exit(0); }
+      w('');
+      w(`\x1b[1mGOD mode\x1b[0m — ${plan.task}`);
+      w('─'.repeat(60));
+      for (const s of plan.stages) {
+        const agents = s.agents.length ? s.agents.join(', ') : '(no agent — local operation)';
+        w(`\x1b[32m${String(s.id).padEnd(9)}\x1b[0m ${s.label.padEnd(14)} ${s.parallel ? '∥' : '→'} ${agents}`);
+      }
+      w('─'.repeat(60));
+      w(`${plan.stages.length} stages · est. ~${(plan.estimatedTokens / 1000).toFixed(0)}k tokens`);
+      w(`Run it in your AI tool with: \x1b[36m/god-mode ${plan.task}\x1b[0m`);
+      w('');
+      process.exit(0);
+    }
+
+    if (mode === 'evil') {
+      const evil = require(path.join(ROOT, 'scripts', 'arena', 'evil.js'));
+      const scope = rest.find(a => !a.startsWith('--')) || '.';
+      const plan = evil.planSweep({ scope, flags: rest.filter(a => a.startsWith('--')) });
+      if (wantJson) { w(JSON.stringify(plan, null, 2)); process.exit(0); }
+      w('');
+      w(`\x1b[1mEVIL mode\x1b[0m — adversarial sweep of \x1b[33m${scope}\x1b[0m`);
+      w('─'.repeat(60));
+      for (const agent of plan.crew) {
+        w(`\x1b[31m✗\x1b[0m ${agent.padEnd(26)} ${evil.CREW[agent].hunts}`);
+      }
+      w('─'.repeat(60));
+      w(`${plan.crew.length} hunters · est. ~${(plan.estimatedTokens / 1000).toFixed(0)}k tokens`);
+      w('Findings are scored (severity × confidence × exploitability) and');
+      w('adversarially verified — unreproducible findings get refuted.');
+      w(`Run it in your AI tool with: \x1b[36m/evil-mode ${scope}\x1b[0m`);
+      w('');
+      process.exit(0);
+    }
+
+    // arena
+    const state = require(path.join(ROOT, 'scripts', 'arena', 'state.js'));
+    const sub = rest[0] || 'list';
+    if (sub === 'list') {
+      const runs = state.listRuns();
+      if (!runs.length) { w('No arena runs yet.'); process.exit(0); }
+      w('');
+      w(`\x1b[1mArena runs\x1b[0m (${runs.length})`);
+      for (const r of runs.slice(0, 20)) {
+        const icon = r.status === 'converged' ? '\x1b[32m✓\x1b[0m' : r.status === 'running' ? '\x1b[33m•\x1b[0m' : '\x1b[31m✗\x1b[0m';
+        w(`  ${icon} ${r.runId}  ${String(r.rounds).padStart(2)} rounds  risk ${String(r.openRisk).padStart(6)}  ${r.task.slice(0, 40)}`);
+      }
+      w('');
+      process.exit(0);
+    }
+    if (sub === 'report') {
+      const runId = rest[1];
+      if (!runId) { process.stderr.write('usage: kodelythecc arena report <run-id>\n'); process.exit(2); }
+      const run = state.load(runId);
+      if (!run) { process.stderr.write(`no such run: ${runId}\n`); process.exit(1); }
+      const s = state.summarize(run);
+      if (wantJson) { w(JSON.stringify({ summary: s, rounds: run.rounds }, null, 2)); process.exit(0); }
+      w('');
+      w(`\x1b[1mArena report\x1b[0m — ${s.runId}`);
+      w(`  task:        ${s.task}`);
+      w(`  status:      ${s.status}${s.stopReason ? ` (${s.stopReason})` : ''}`);
+      w(`  rounds:      ${s.rounds}`);
+      w(`  new/round:   ${s.trend.join(' → ') || '—'}   ${s.trend.length > 1 && s.trend[s.trend.length - 1] === 0 ? '\x1b[32m(attacker gave up)\x1b[0m' : ''}`);
+      w(`  open issues: ${s.openFindings} (${s.confirmed} confirmed) · open risk ${s.openRisk}`);
+      w(`  tokens:      ${s.tokensSpent.toLocaleString()}`);
+      w('');
+      process.exit(0);
+    }
+    process.stderr.write('unknown arena subcommand. try: list | report <run-id>\n');
+    process.exit(2);
+  } catch (e) {
+    process.stderr.write(`[${mode}] ${e.message}\n`);
+    process.exit(1);
+  }
+}
+
 if (args[0] === 'doctor') {
   const { run, PASS, WARN, FAIL } = require(path.join(ROOT, 'scripts', 'doctor-health.js'));
   const report = run();

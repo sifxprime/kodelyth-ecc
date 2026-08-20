@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+
+  <rect width="400" height="400" fill="#ffffff"/>
+
+  <!-- Veltix Mark - Descent V (Kodelyth chevron rotated to point down) -->
+  <!-- Ghost trails ABOVE the solid - peeks out from behind toward the open (top) side -->
+  <!-- Solid is the dominant forward-facing mark -->
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#0f172a">
+
+    <!-- ghost - above solid, lighter stroke, recedes behind -->
+    <polyline points="104,156 200,212 296,156"
+              stroke-width="10" stroke-opacity="0.15"/>
+
+    <!-- solid - primary mark, full weight, forward -->
+    <polyline points="100,200 200,288 300,200"
+              stroke-width="32"/>
+
+  </g>
+
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630"
+     font-family="'Space Grotesk','Inter',system-ui,-apple-system,sans-serif">
+
+  <!-- Veltix OG / social card - 1200x630 -->
+  <rect width="1200" height="630" fill="#0a0a0a"/>
+
+  <!-- Descent V mark, centered above wordmark -->
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#ffffff">
+    <polyline points="552,150 600,205 648,150" stroke-width="8" stroke-opacity="0.22"/>
+    <polyline points="544,175 600,255 656,175" stroke-width="22"/>
+  </g>
+
+  <text x="600" y="368" text-anchor="middle"
+        font-size="96" font-weight="700" fill="#ffffff"
+        letter-spacing="8">VELTIX</text>
+
+  <text x="600" y="422" text-anchor="middle"
+        font-size="26" font-weight="400" fill="#ffffff" fill-opacity="0.55"
+        letter-spacing="5">by Kodelyth</text>
+
+</svg>

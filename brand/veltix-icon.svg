@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+
+  <!-- Veltix App Icon - white Descent V on rounded dark tile -->
+  <rect width="512" height="512" rx="112" fill="#0a0a0a"/>
+
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#ffffff"
+     transform="translate(256,262)">
+    <!-- ghost -->
+    <polyline points="-96,-56 0,0 96,-56" stroke-width="13" stroke-opacity="0.22"/>
+    <!-- solid -->
+    <polyline points="-104,-4 0,84 104,-4" stroke-width="40"/>
+  </g>
+
+</svg>

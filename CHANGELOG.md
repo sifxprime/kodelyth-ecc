@@ -2,6 +2,65 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.6.0 — GOD mode + EVIL mode v2 (Arena phases 0-2) (August 2026)
+
+The foundation of the **adversarial arena**: two opposed crews that will eventually fight each other until the attacker gives up. Phases 0-2 of 6 — the contract, the adversary, and the builder. The arena loop itself lands in a later release, only once it is verified end-to-end.
+
+### Added — Phase 0: the contract (`scripts/arena/`)
+
+- **`contract.js`** — the shared schema GOD and EVIL exchange. `Finding` (severity × confidence × exploitability → risk), `Artifact`, `RoundVerdict`, stable FNV-1a fingerprints so the same issue dedupes across rounds even when wording drifts, and `hasConverged()`.
+  - **Refuted findings carry zero effective risk** — verification can genuinely zero out a false positive.
+  - Certainty outweighs raw severity: a *confirmed/high/trivial* outranks a *speculative/critical/theoretical*, so noise sinks.
+- **`state.js`** — resumable run state in `~/.kodelythecc/arena/`. Rounds are appended, so a crash or budget abort never loses rounds already paid for.
+  - **Hard stops, not advisory:** max rounds, token budget, wall-clock. `canAffordRound()` refuses *before* spending.
+
+### Added — Phase 1: EVIL mode v2 (`scripts/arena/evil.js`, `/evil-mode`)
+
+The 8 adversarial agents already hunted well; what they lacked was judgment.
+
+- **Scoring** — every finding gets a risk score instead of landing in a flat pile.
+- **Adversarial verification** — each top finding is challenged by a fresh agent told to **REFUTE it**, defaulting to refuted when uncertain. False positives die before they can waste GOD mode's next round.
+- **Loop-until-dry** — later rounds tell each agent what is already known and to hunt what the last pass *missed*.
+- `selectForVerification()` is budget-bounded (default 12) and skips settled or near-zero-risk findings.
+- `/devil-mode` still works — `/evil-mode` is the upgraded entry point.
+
+### Added — Phase 2: GOD mode (`scripts/arena/god.js`, `/god-mode`)
+
+Not "fire nine agents at once" — that is `/project-launch`. A six-stage pipeline with three things the parallel commands lack:
+
+| Stage | Agents |
+|---|---|
+| **Recall** | — (memory lookup; never invents a memory) |
+| **Design** ∥ | `architect` + `code-architect` |
+| **Build** → | `pair-programmer` + `tdd-guide` |
+| **Self-critique** ∥ | `type-design-analyzer` + `api-guardian` + `ux-reviewer` |
+| **Harden** ∥ | `performance-optimizer` + `refactor-cleaner` |
+| **Prove** | — (runs the verification command) |
+
+- **It recalls before it builds.**
+- **Proof gate:** `verifyArtifacts()` marks work verified only when a command actually ran and exited clean — a truthy claim is explicitly not proof.
+- **`roundComplete()` blocks** on any unverified artifact or unaddressed critical/high finding. A refuted finding never blocks.
+
+### Added — CLI
+
+```bash
+kodelythecc god  --task "add rate limiting"    # plan + cost estimate
+kodelythecc evil src/auth --all                # crew + cost estimate
+kodelythecc arena list                         # past runs
+kodelythecc arena report <run-id>              # rounds, trend, open risk
+```
+
+### Verified
+
+- **444 tests, 0 failures** across 32 files (up from 388) — 56 new arena tests
+- Simulated a 4-round run: new-findings trend **[2, 1, 0, 0] → converged**, stop reason *"attacker gave up"*
+- Both CLI surfaces render real plans with real cost estimates
+- Traversal-safe run ids, budget refusal, and convergence-streak reset all covered by tests
+
+### Assets
+
+- `social/card-god.svg` + `social/card-evil.svg`; SVG badges → v2.6.0; 8K PNGs re-rendered.
+
 ## v2.5.4 — Memory: direct capture CLI + aggressive auto-capture (July 2026)
 
 Two memory improvements after an end-to-end verification pass confirmed the pipeline works but only captured when the user said "thanks".

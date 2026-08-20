@@ -482,7 +482,46 @@ if (args[0] === 'god' || args[0] === 'evil' || args[0] === 'arena') {
 
     // arena
     const state = require(path.join(ROOT, 'scripts', 'arena', 'state.js'));
+    const arena = require(path.join(ROOT, 'scripts', 'arena', 'arena.js'));
     const sub = rest[0] || 'list';
+
+    if (sub === 'start') {
+      const task = flag('task') || rest.slice(1).find(a => !a.startsWith('--'));
+      if (!task) { process.stderr.write('usage: kodelythecc arena start --task "<goal>" [--scope src/] [--max-rounds 3] [--budget 400000]\n'); process.exit(2); }
+      const limits = {};
+      if (flag('max-rounds')) limits.maxRounds = Number(flag('max-rounds'));
+      if (flag('budget')) limits.tokenBudget = Number(flag('budget'));
+      const run = arena.startArena({
+        task,
+        scope: flag('scope', '.'),
+        flags: rest.filter(a => ['--all', '--license', '--theft', '--jailbreak', '--chaos', '--pre-public', '--pre-launch'].includes(a)),
+        limits,
+      });
+      const first = arena.nextAction(run);
+      if (wantJson) { w(JSON.stringify({ run: state.summarize(run), next: first }, null, 2)); process.exit(0); }
+      w('');
+      w(`\x1b[1mArena started\x1b[0m — ${run.task}`);
+      w(`  run id:   \x1b[36m${run.runId}\x1b[0m`);
+      w(`  scope:    ${run.scope}`);
+      w(`  limits:   ${run.limits.maxRounds} rounds · ${run.limits.tokenBudget.toLocaleString()} tokens · ${Math.round(run.limits.wallClockMs / 60000)} min`);
+      w(`  next:     \x1b[32m${first.action}\x1b[0m (round ${first.round}, ~${((first.estimatedTokens || 0) / 1000).toFixed(0)}k tokens)`);
+      w('');
+      w(`Drive the loop in your AI tool: \x1b[36m/arena ${run.task}\x1b[0m`);
+      w(`Inspect anytime:                kodelythecc arena report ${run.runId}`);
+      w('');
+      process.exit(0);
+    }
+
+    if (sub === 'next') {
+      const runId = rest[1];
+      if (!runId) { process.stderr.write('usage: kodelythecc arena next <run-id>\n'); process.exit(2); }
+      const run = state.load(runId);
+      if (!run) { process.stderr.write(`no such run: ${runId}\n`); process.exit(1); }
+      const action = arena.nextAction(run);
+      w(JSON.stringify(action, null, 2));
+      process.exit(0);
+    }
+
     if (sub === 'list') {
       const runs = state.listRuns();
       if (!runs.length) { w('No arena runs yet.'); process.exit(0); }
@@ -502,6 +541,7 @@ if (args[0] === 'god' || args[0] === 'evil' || args[0] === 'arena') {
       if (!run) { process.stderr.write(`no such run: ${runId}\n`); process.exit(1); }
       const s = state.summarize(run);
       if (wantJson) { w(JSON.stringify({ summary: s, rounds: run.rounds }, null, 2)); process.exit(0); }
+      if (rest.includes('--md')) { w(arena.buildReport(run)); process.exit(0); }
       w('');
       w(`\x1b[1mArena report\x1b[0m — ${s.runId}`);
       w(`  task:        ${s.task}`);

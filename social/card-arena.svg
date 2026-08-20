@@ -1,0 +1,36 @@
+<svg viewBox="0 0 680 520" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, sans-serif">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0d1117"/><stop offset="1" stop-color="#161b22"/></linearGradient>
+  <linearGradient id="vs" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fbbf24"/><stop offset="1" stop-color="#f87171"/></linearGradient>
+  <marker id="aa" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6 Z" fill="#8b949e" opacity="0.8"/></marker></defs>
+  <rect width="680" height="520" rx="18" fill="url(#bg)"/><rect width="680" height="520" rx="18" fill="none" stroke="#21262d" stroke-width="1.5"/>
+  <rect x="40" y="40" width="188" height="26" rx="13" fill="#8b5cf6" fill-opacity="0.14" stroke="url(#vs)" stroke-opacity="0.5"/>
+  <text x="134" y="57" font-size="12" fill="#e5e7eb" text-anchor="middle" font-weight="700" letter-spacing="1.5">THE ARENA</text>
+  <text x="40" y="112" font-size="30" font-weight="800" fill="#ffffff">Ship when the</text>
+  <text x="40" y="150" font-size="30" font-weight="800" fill="#ffffff">attacker gives up</text>
+  <text x="40" y="184" font-size="14.5" fill="#8b949e">GOD builds · EVIL attacks · repeat until nothing new surfaces.</text>
+  <!-- the loop -->
+  <rect x="40" y="212" width="160" height="56" rx="10" fill="#fbbf24" fill-opacity="0.12" stroke="#fbbf24" stroke-opacity="0.5"/>
+  <text x="120" y="236" font-size="13" fill="#fbbf24" text-anchor="middle" font-weight="800">GOD</text>
+  <text x="120" y="255" font-size="10.5" fill="#fbbf24" text-anchor="middle" opacity="0.75">builds · fixes · proves</text>
+  <line x1="204" y1="230" x2="252" y2="230" stroke="#8b949e" stroke-width="1.6" marker-end="url(#aa)" opacity="0.6"/>
+  <rect x="256" y="212" width="160" height="56" rx="10" fill="#f87171" fill-opacity="0.1" stroke="#f87171" stroke-opacity="0.5"/>
+  <text x="336" y="236" font-size="13" fill="#fca5a5" text-anchor="middle" font-weight="800">EVIL</text>
+  <text x="336" y="255" font-size="10.5" fill="#fca5a5" text-anchor="middle" opacity="0.75">hunts · verifies</text>
+  <path d="M336 272 Q336 292 228 292 Q120 292 120 274" stroke="#8b949e" stroke-width="1.6" fill="none" marker-end="url(#aa)" opacity="0.55"/>
+  <text x="228" y="307" font-size="10" fill="#6e7681" text-anchor="middle">verified findings return as mandatory fixes</text>
+  <rect x="440" y="212" width="200" height="56" rx="10" fill="#059669" fill-opacity="0.12" stroke="#34d399" stroke-opacity="0.5"/>
+  <text x="540" y="236" font-size="13" fill="#34d399" text-anchor="middle" font-weight="800">CONVERGED</text>
+  <text x="540" y="255" font-size="10.5" fill="#34d399" text-anchor="middle" opacity="0.8">2 quiet rounds → ship</text>
+  <!-- trend -->
+  <rect x="40" y="322" width="600" height="102" rx="12" fill="#0a0c10" stroke="#30363d"/>
+  <text x="60" y="345" font-size="11" fill="#6e7681" letter-spacing="1">NEW FINDINGS PER ROUND</text>
+  <g font-family="monospace" font-size="11">
+    <text x="60" y="366" fill="#8b949e">r1  12</text><rect x="112" y="357" width="200" height="9" rx="2" fill="#f87171" fill-opacity="0.75"/>
+    <text x="60" y="384" fill="#8b949e">r2   4</text><rect x="112" y="375" width="67"  height="9" rx="2" fill="#fbbf24" fill-opacity="0.75"/>
+    <text x="60" y="402" fill="#8b949e">r3   0</text><rect x="112" y="393" width="6"   height="9" rx="2" fill="#34d399" fill-opacity="0.8"/>
+    <text x="60" y="420" fill="#8b949e">r4   0</text><rect x="112" y="411" width="6"   height="9" rx="2" fill="#34d399" fill-opacity="0.8"/>
+  </g>
+  <text x="616" y="420" font-size="11.5" fill="#34d399" text-anchor="end" font-weight="700">attacker gave up</text>
+  <g font-size="12.5" fill="#8b949e"><text x="40" y="452">✓ Hard stops: rounds · token budget · wall-clock — refuses before spending</text><text x="40" y="478">✓ Resumable — a crash never loses rounds you already paid for</text></g>
+  <g transform="translate(600,48) scale(0.2)" opacity="0.16"><polyline points="-44,4 12,100 -44,196" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/><polyline points="0,0 88,100 0,200" stroke="#fff" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>
+</svg>

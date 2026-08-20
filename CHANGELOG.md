@@ -2,6 +2,62 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.7.0 — The Arena: GOD vs EVIL loop (phase 3) (August 2026)
+
+The two crews now fight. GOD builds, EVIL attacks, verified findings return to GOD as mandatory work, and the loop repeats **until the attacker gives up**.
+
+### Added — `scripts/arena/arena.js` + `/arena`
+
+A **state machine**, not an agent dispatcher — it decides what happens next and grades what comes back, so the entire loop is testable without spending a token. Agent invocation is driven by the AI through `/arena`.
+
+```
+round N:  god_build → evil_hunt → evil_verify → round_close
+                                                     │
+                   converged / out of budget / out of rounds? ──→ report
+```
+
+- **`nextAction(run)`** — the loop's brain. Returns the next step, its briefs, and a token estimate the budget can veto.
+- **Findings carry forward.** Round 1 builds; every later round *fixes what EVIL proved*, with the findings injected into GOD's brief as mandatory items. **Refuted findings are never carried** — a false positive can no longer consume an entire fix round.
+- **Later EVIL rounds know what's already known** and are told to hunt what the last pass missed.
+- **Phase guards** — submitting out of order throws instead of silently corrupting a run.
+- **`affordOrAbort()`** — aborts cleanly *before* an unaffordable step. A readable partial result beats a surprise bill.
+- **Resumable** — a crash mid-loop reloads from disk with phase and spend intact.
+- **`buildReport()`** — markdown report with the trend histogram, per-round detail, still-open findings ranked by real risk, and a refuted section so the same false positive is never re-litigated.
+
+### Added — CLI
+
+```bash
+kodelythecc arena start --task "harden the webhook" --scope src/ --max-rounds 3
+kodelythecc arena next <run-id>          # what the loop wants next (JSON)
+kodelythecc arena report <run-id> --md   # full markdown report
+```
+
+### Verified end-to-end
+
+Simulated a realistic run at true cost (~191k tokens/round):
+
+```
+round 1    3 new  ████████████████████████
+round 2    1 new  ████████
+round 3    0 new  ·
+round 4    0 new  ·
+**Converged** — two consecutive rounds surfaced nothing new.
+```
+
+- Convergence fires on 2 quiet rounds; a fresh finding **restarts** the streak
+- Rounds where GOD left an artifact unproven or a critical unaddressed are flagged **incomplete** in the report
+- A refuting verdict zeroed the finding and kept `openRisk` honest
+- **The budget guard fired for real** — an earlier run at the 400k default aborted at round 3 with a clean partial report, exactly as designed
+- **463 tests, 0 failures** across 33 files (up from 444) — 19 new arena-loop tests
+
+### Honest cost note
+
+~200k tokens per round (GOD ≈ 90k + EVIL ≈ 96k + verification). Defaults are deliberately conservative: **3 rounds, 400k tokens, 45 min**. Use `/god-mode` or `/evil-mode` alone when you don't need the full loop — the arena is for work that must not break.
+
+### Assets
+
+`social/card-arena.svg`; SVG badges → v2.7.0; 8K PNGs re-rendered.
+
 ## v2.6.0 — GOD mode + EVIL mode v2 (Arena phases 0-2) (August 2026)
 
 The foundation of the **adversarial arena**: two opposed crews that will eventually fight each other until the attacker gives up. Phases 0-2 of 6 — the contract, the adversary, and the builder. The arena loop itself lands in a later release, only once it is verified end-to-end.

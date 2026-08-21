@@ -12,6 +12,7 @@
 const fs   = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const safeFs = require('../lib/safe-fs.js');
 
 // ── Substitutions: wordy connective → short form ────────────────────────────
 // These run BEFORE deletions. Order matters: "due to the fact that" must become
@@ -258,27 +259,6 @@ function compressText(source) {
   };
 }
 
-// Write `data` to `dest` with the given mode, refusing to follow a symlink and
-// refusing to overwrite anything that already exists.
-//
-// `wx` is O_CREAT|O_EXCL|O_WRONLY: if `dest` exists — including as a *dangling*
-// symlink, which `fs.existsSync` reports as absent — the open fails instead of
-// silently writing through the link to a path the attacker chose. The mode is
-// applied at create time so the file is never briefly world-readable.
-// The mode is passed to `open` so the file is never briefly world-readable, and
-// then applied again with fchmod: `open` filters its mode argument through the
-// process umask, so under `umask 077` a 0644 original would come back 0600.
-// fchmod ignores the umask, so the original permissions survive exactly.
-function writeNewFile(dest, data, mode) {
-  const fd = fs.openSync(dest, 'wx', mode);
-  try {
-    fs.writeFileSync(fd, data);
-    fs.fchmodSync(fd, mode);
-  } finally {
-    fs.closeSync(fd);
-  }
-}
-
 // ── Public: compress a file, optionally write ───────────────────────────────
 //
 // Note on paths: `filePath` is deliberately unconfined — compressing
@@ -289,21 +269,9 @@ function writeNewFile(dest, data, mode) {
 function compressFile(filePath, { write = false, backup = true } = {}) {
   const abs = path.resolve(filePath);
 
-  // lstat, not existsSync: we need to know whether this is a symlink *before*
-  // reading through it. Following one would copy the link target's bytes into a
-  // backup beside the link — which is how a 0600 secret ends up in a 0644 file.
-  let st;
-  try {
-    st = fs.lstatSync(abs);
-  } catch {
-    throw new Error(`file not found: ${abs}`);
-  }
-  if (st.isSymbolicLink()) {
-    throw new Error(`refusing to compress a symlink: ${abs}`);
-  }
-  if (!st.isFile()) {
-    throw new Error(`not a regular file: ${abs}`);
-  }
+  // Refuses symlinks: following one would copy the link target's bytes into a
+  // backup beside the link, which is how a 0600 secret ends up in a 0644 file.
+  const st = safeFs.statRegularFile(abs);
 
   // Check the size from the stat we already have, before reading. Otherwise an
   // oversized file is pulled fully into memory only to be rejected a line later.
@@ -336,7 +304,7 @@ function compressFile(filePath, { write = false, backup = true } = {}) {
     backupPath = `${abs}.pre-terse.bak`;
     for (let n = 1; ; n++) {
       try {
-        writeNewFile(backupPath, source, mode);
+        safeFs.writeNewFile(backupPath, source, mode);
         break;
       } catch (err) {
         if (err.code !== 'EEXIST') throw err;
@@ -346,19 +314,8 @@ function compressFile(filePath, { write = false, backup = true } = {}) {
     }
   }
 
-  // Write via temp + rename so a crash cannot truncate the user's file. The
-  // suffix is random rather than the pid: a predictable name lets another
-  // process pre-plant a symlink there and capture the write.
-  const tmp = `${abs}.terse-tmp-${crypto.randomBytes(8).toString('hex')}`;
-  let renamed = false;
-  try {
-    writeNewFile(tmp, output, mode);
-    fs.renameSync(tmp, abs);
-    renamed = true;
-  } finally {
-    // A failed rename leaves the document's content sitting in a stray file.
-    if (!renamed) { try { fs.unlinkSync(tmp); } catch { /* nothing to clean */ } }
-  }
+  // Atomic replace preserving the original mode — see scripts/lib/safe-fs.js.
+  safeFs.replaceFileAtomic(abs, output, mode);
 
   return { path: abs, output, stats, wrote: true, backupPath };
 }

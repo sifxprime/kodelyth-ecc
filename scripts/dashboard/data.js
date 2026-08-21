@@ -19,6 +19,7 @@
 const fs   = require('fs');
 const os   = require('os');
 const path = require('path');
+const safeFs = require('../lib/safe-fs.js');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 
@@ -305,30 +306,12 @@ function sessionsList({ coordRoot = defaultCoordRoot(), limit = 30 } = {}) {
 
 function sessionDetail({ session, coordRoot = defaultCoordRoot() } = {}) {
   if (!session || session === '..' || session === '.') return null;
-  const dir = path.join(coordRoot, session);
-  // Containment check — ensure the resolved path stays within coordRoot.
-  // path.join normalises "..", so a textual escape is caught here.
-  if (!dir.startsWith(coordRoot + path.sep) && dir !== coordRoot) return null;
-  if (!fs.existsSync(dir)) return null;
-
-  // ...but a SYMLINK is not a textual escape: the link itself sits inside
-  // coordRoot and passes the check above, while its target does not. Reading
-  // through it hands the API task/handoff/status excerpts from anywhere on
-  // disk. realpath resolves the link so containment is checked against the
-  // real destination, which is the only location that matters.
-  let realDir;
-  try {
-    realDir = fs.realpathSync(dir);
-  } catch {
-    return null;   // dangling or unreadable link
-  }
-  let realRoot;
-  try {
-    realRoot = fs.realpathSync(coordRoot);
-  } catch {
-    realRoot = coordRoot;   // root itself may legitimately not be a link
-  }
-  if (!realDir.startsWith(realRoot + path.sep) && realDir !== realRoot) return null;
+  // Containment, including symlink resolution — see scripts/lib/safe-fs.js.
+  // A link sitting inside coordRoot passes a lexical check while pointing
+  // anywhere on disk, which handed the API task/handoff/status excerpts from
+  // outside the root.
+  const dir = safeFs.resolveContained(session, coordRoot);
+  if (!dir) return null;
   const workers = safeReadDir(dir).filter(e => e.isDirectory());
   return {
     session,

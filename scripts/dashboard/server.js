@@ -24,6 +24,7 @@ const http = require('http');
 const fs   = require('fs');
 const path = require('path');
 const os   = require('os');
+const safeFs = require('../lib/safe-fs.js');
 const { execFileSync } = require('child_process');
 
 const data = require('./data.js');
@@ -153,27 +154,13 @@ function resolveStatic(reqPath, baseDir = STATIC_DIR) {
   const decoded = decodeURIComponent(reqPath.replace(/^\/+/, ''));
   if (decoded.includes('..')) return null;
   if (decoded === '' || decoded === '/') return path.join(baseDir, 'index.html');
-  const abs = path.resolve(baseDir, decoded);
-  if (!abs.startsWith(baseDir + path.sep) && abs !== path.join(baseDir, 'index.html')) return null;
-
-  // The check above is purely lexical, and path.resolve does not resolve
-  // symlinks — so a link sitting lexically inside baseDir passes it while
-  // readFile follows it to a target anywhere on disk. Canonicalize and re-check
-  // against the real destination, which is the only one that matters.
-  let real;
-  try {
-    real = fs.realpathSync(abs);
-  } catch {
-    return null;   // missing file or dangling link — 404 either way
-  }
-  let realBase;
-  try {
-    realBase = fs.realpathSync(baseDir);
-  } catch {
-    realBase = baseDir;
-  }
-  if (!real.startsWith(realBase + path.sep) && real !== path.join(realBase, 'index.html')) return null;
-  return abs;
+  // Containment, including symlink resolution — see scripts/lib/safe-fs.js.
+  // path.resolve normalises ".." but does not resolve symlinks, so a link
+  // sitting lexically inside baseDir used to pass while readFile followed it
+  // anywhere on disk.
+  return safeFs.resolveContained(decoded, baseDir, {
+    allowExact: path.join(baseDir, 'index.html'),
+  });
 }
 
 // ── route handlers ───────────────────────────────────────────────────────────

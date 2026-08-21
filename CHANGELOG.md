@@ -2,6 +2,54 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.12.0 — `scripts/lib/safe-fs.js`: the guard the arena asked for (August 2026)
+
+Across two arena runs the **same containment bug was confirmed four times** in
+three unrelated files — `terse/compress.js`, `dashboard/data.js`,
+`dashboard/server.js`. Every instance was this shape:
+
+```js
+const abs = path.join(root, userInput);
+if (!abs.startsWith(root + path.sep)) return null;   // lexical only
+fs.readFileSync(abs);                                // follows symlinks
+```
+
+`path.join` and `path.resolve` normalise `..`, so a *textual* escape is caught.
+Neither resolves symlinks. A link sitting lexically inside the root passes the
+check while its target is anywhere on disk.
+
+Four spot fixes would have been a fifth bug waiting. The arena's guard proposal
+said to build the guard instead, so here it is.
+
+### Added — `scripts/lib/safe-fs.js`
+
+- **`resolveContained(candidate, root)`** — canonicalises both sides, so a link
+  is judged by where it *points*, not where it sits. Rejects intermediate
+  directory symlinks and dangling links; still allows a symlinked root to serve
+  its own files, and a link that stays inside.
+- **`statRegularFile(abs)`** — refuses symlinks and non-regular files outright,
+  for callers about to rewrite a file.
+- **`safeConfigDir(value, fallback)`** — inspects the **raw** env value for `..`
+  before resolving. (The first draft resolved first and then looked for `..` —
+  dead code, since `path.resolve` collapses it. Its own test caught that.)
+- **`writeNewFile(dest, data, mode)`** — `O_EXCL` so a dangling symlink cannot
+  redirect the write, plus `fchmod` so a restrictive umask cannot silently
+  narrow the mode.
+- **`replaceFileAtomic(abs, contents, mode)`** — random temp name, rename, and
+  `finally`-unlink so a crash leaves no stray copy of the document.
+
+**13 raw `realpath`/`lstat`/`openSync`/`rename` calls across four files became
+zero.** All four now route through one 157-line module with **19 tests**.
+
+### Fixed — the ledger env var, which was never actually fixed
+
+`KODELYTH_TERSE_DIR` was confirmed unvalidated in the first arena run, and the
+run recorded it as *addressed* when no fix had been written. That accounting was
+wrong. It now goes through `safeConfigDir`: a raw `..` falls back to the default,
+a clean absolute path is still honoured.
+
+**554 tests passing**, up from 535.
+
 ## v2.11.0 — Arena run #2: three containment bugs in the dashboard (August 2026)
 
 Pointed the arena at `scripts/dashboard` — the localhost HTTP server that serves

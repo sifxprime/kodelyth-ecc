@@ -12,9 +12,15 @@
 const fs   = require('fs');
 const os   = require('os');
 const path = require('path');
+const safeFs = require('../lib/safe-fs.js');
 
-const DIR = process.env.KODELYTH_TERSE_DIR
-  || path.join(os.homedir(), '.kodelythecc', 'terse');
+// The env var is a trusted-config surface — anyone who can set your environment
+// already has leverage — but an unnormalised value silently creates a ledger
+// tree wherever ".." points. safeConfigDir rejects those and falls back.
+const DIR = safeFs.safeConfigDir(
+  process.env.KODELYTH_TERSE_DIR,
+  path.join(os.homedir(), '.kodelythecc', 'terse'),
+);
 const LEDGER = path.join(DIR, 'ledger.jsonl');
 
 function ensureDir() { fs.mkdirSync(DIR, { recursive: true }); }

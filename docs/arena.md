@@ -120,6 +120,32 @@ the third one later.
 
 Proposal ids are deterministic, so re-analysis never spawns duplicates.
 
+## What it produced: `scripts/lib/safe-fs.js`
+
+The guard-proposal mechanism is not decorative. Across two runs the arena
+confirmed the **same containment bug four times** in three unrelated files —
+`terse/compress.js`, `dashboard/data.js`, `dashboard/server.js`. Every instance
+was this shape:
+
+```js
+const abs = path.join(root, userInput);
+if (!abs.startsWith(root + path.sep)) return null;   // lexical only
+fs.readFileSync(abs);                                // follows symlinks
+```
+
+`path.join` and `path.resolve` normalise `..`, so a *textual* escape is caught.
+Neither resolves symlinks. A link sitting lexically inside the root passes the
+check while its target is anywhere on disk.
+
+The proposal said to stop patching instances and build the guard. That is
+`scripts/lib/safe-fs.js`: `resolveContained`, `statRegularFile`, `safeConfigDir`,
+`writeNewFile`, `replaceFileAtomic`. Thirteen raw `realpath`/`lstat`/`openSync`
+calls across four files became zero — all four now route through one module with
+19 tests.
+
+That is the difference between an audit and a loop: an audit hands you four
+findings, and the loop tells you they were one.
+
 ## Cost control
 
 This is the expensive command: roughly **200k tokens per round**. Defaults are 3

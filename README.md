@@ -33,7 +33,7 @@
 
 </div>
 
-**Kodelyth ECC** is a production-grade AI coding toolkit — **70 specialist agents (incl. an 8-agent devil-mode adversarial crew), 194 skills, 97 commands**, a god-tier **semantic intent-routing system**, local self-learning memory, MCP server, swarm orchestrator, and an observability dashboard — all local, zero telemetry.
+**Kodelyth ECC** is a production-grade AI coding toolkit — **70 specialist agents (incl. an 8-agent devil-mode adversarial crew), 196 skills, 102 commands**, a god-tier **semantic intent-routing system**, local self-learning memory, MCP server, swarm orchestrator, and an observability dashboard — all local, zero telemetry.
 
 Now bundled with:
 
@@ -73,7 +73,7 @@ You never typed `use debug-detective`. You didn't have to. The toolkit read the 
 | **Intent routing** | Plain-language → right specialist via 10-tier priority rules | Mostly missing — you memorize names |
 | **70 agents** | Specialists with playbooks, severity calibration, real commands | Often persona-only ("you are a senior engineer...") |
 | **194 skills** | Domain knowledge files agents read on demand | Rarely separated from agents |
-| **97 commands** | Slash workflows (`/tdd`, `/devil-mode`, `/team-review`) | Limited or none |
+| **102 commands** | Slash workflows (`/tdd`, `/arena`, `/devil-mode`, `/team-review`) | Limited or none |
 | **8 parallel commands** | Fire 3-8 agents simultaneously, aggregate results | Rare |
 | **Compound memory** | BM25 local recall + auto-inject + project lessons | Cloud-only or absent |
 | **22+ hooks** | Quality gates, secret scan, project-DNA detection | Often missing |
@@ -92,6 +92,7 @@ You never typed `use debug-detective`. You didn't have to. The toolkit read the 
 | **Local BM25 self-learning memory** | ✅ | ❌ | ❌ | ❌ |
 | **Compound learning from corrections** | ✅ `tasks/lessons.md` | ❌ | ❌ | ❌ |
 | **Adversarial / red-team agents** | ✅ 8 (devil-mode) | ❌ | ❌ | ❌ |
+| **Adversarial build/attack loop** | ✅ `/arena` — scored, verified, converges | ❌ | ❌ | ❌ |
 | Quality hooks | ✅ 22+ | Some | ❌ | ❌ |
 | IDE platforms | **11** (Claude Code, Windsurf, Cursor, Codex, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI) | 1-2 | 1 | Varies |
 | Telemetry | ❌ none | Varies | ❌ | Varies |
@@ -372,6 +373,7 @@ Eight commands fire multiple specialist agents simultaneously and aggregate thei
 | `/pre-release` | release-captain + security-reviewer + code-reviewer | 30 min → 8 min |
 | `/onboard` | code-explorer + architect + doc-updater | 45 min → 12 min |
 | `/devil-mode` | 8 adversarial agents (see below) | Hours → 20 min |
+| `/arena` | GOD crew vs EVIL crew, looped until the attacker gives up | Days → 1 session |
 
 Each command waits for all agents to complete, then returns a single **Team Review Report** with findings bucketed by severity: CRITICAL → HIGH → MEDIUM → LOW.
 

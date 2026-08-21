@@ -223,6 +223,7 @@
         <button data-tab="rtk">Token Savings</button>
         <button data-tab="memory">Memory</button>
         <button data-tab="codebase">Codebase</button>
+        <button data-tab="arena">Arena</button>
         <button data-tab="evolve">Evolve</button>
         <button data-tab="catalog">Catalog</button>
         <button data-tab="sessions">Sessions</button>
@@ -320,6 +321,50 @@ kodelyth-ecc codebase query detect_changes '{}'</pre>
     </section>
 
     <!-- ───────── EVOLVE ───────── -->
+    <!-- ───────── ARENA ───────── -->
+    <section data-panel="arena" hidden>
+      <div class="grid" id="arenaCards"></div>
+      <hr class="sep">
+      <div class="card">
+        <h2>Did the attacker give up?</h2>
+        <p class="muted" style="font-size:12.5px;margin:-4px 0 14px;">
+          New findings per round. Falling to zero means EVIL ran out of ideas.
+          A flat or rising line means stop and look — either the code has deeper
+          problems, or the scope is too broad to ever exhaust.
+        </p>
+        <div id="arenaRuns">loading…</div>
+      </div>
+      <hr class="sep">
+      <div class="row">
+        <div class="card">
+          <h2>Still open</h2>
+          <p class="muted" style="font-size:12.5px;margin:-4px 0 12px;">
+            Confirmed and not yet answered for, worst risk first.
+          </p>
+          <div id="arenaOpen">loading…</div>
+        </div>
+        <div class="card">
+          <h2>Recurring bug classes</h2>
+          <p class="muted" style="font-size:12.5px;margin:-4px 0 12px;">
+            One is an incident. Several is a process gap — the guard belongs upstream.
+          </p>
+          <div id="arenaClasses">loading…</div>
+        </div>
+      </div>
+      <hr class="sep">
+      <div class="card">
+        <h2>Compound learning</h2>
+        <p class="muted" style="font-size:12.5px;margin:-4px 0 10px;">
+          Store what a run proved so the next run on that scope starts informed:
+        </p>
+        <div><code>kodelyth-ecc arena learn &lt;run-id&gt; --commit</code></div>
+        <p class="muted" style="margin-top:12px;font-size:12.5px;">
+          Nothing is written without <code>--commit</code>. The dashboard NEVER
+          writes to your memory store.
+        </p>
+      </div>
+    </section>
+
     <section data-panel="evolve" hidden>
       <div class="grid" id="evolveCards"></div>
       <hr class="sep">
@@ -527,6 +572,86 @@ kodelyth-ecc codebase query detect_changes '{}'</pre>
   }
 
   // ───── evolve ─────
+  // A compact sparkline made of block characters — no chart library, no CDN,
+  // and it stays legible when the run has one round or twenty.
+  function trendBar(trend) {
+    if (!trend || !trend.length) return '<span class="dim">no rounds yet</span>';
+    const max = Math.max(...trend, 1);
+    const blocks = '▁▂▃▄▅▆▇█';
+    return trend.map((n, i) => {
+      const idx = n === 0 ? 0 : Math.min(blocks.length - 1, Math.ceil((n / max) * (blocks.length - 1)));
+      const colour = n === 0 ? '#22c55e' : (i > 0 && n < trend[i - 1] ? '#eab308' : '#ef4444');
+      return `<span title="round ${i + 1}: ${n} new" style="color:${colour};font-size:18px;line-height:1;">${blocks[idx]}</span>`;
+    }).join('');
+  }
+
+  function arenaStatusPill(status) {
+    const map = {
+      converged: ['ok', 'converged'],
+      running:   ['', 'running'],
+      exhausted: ['pending', 'max rounds'],
+      aborted:   ['pending', 'stopped'],
+    };
+    const [cls, label] = map[status] || ['', status || 'unknown'];
+    return `<span class="pill ${cls}">${escapeHtml(label)}</span>`;
+  }
+
+  async function loadArena() {
+    try {
+      const a = await api('/api/arena');
+      if (!a.available) {
+        $('#arenaCards').innerHTML = '';
+        $('#arenaRuns').innerHTML = '<div class="empty">Arena is not installed.</div>';
+        $('#arenaOpen').innerHTML = '';
+        $('#arenaClasses').innerHTML = '';
+        return;
+      }
+
+      $('#arenaCards').innerHTML = [
+        statCard(a.totals.runs,      'Runs'),
+        statCard(a.totals.confirmed, 'Bugs confirmed'),
+        statCard(a.totals.refuted,   'False positives caught'),
+        statCard(a.open.length,      'Still open'),
+        statCard(a.totals.artifacts, 'Verified fixes'),
+      ].join('');
+
+      $('#arenaRuns').innerHTML = a.runs.length
+        ? `<div class="table-wrap"><table>
+            <thead><tr><th>Run</th><th>Scope</th><th>Trend</th><th>Rounds</th><th>Confirmed</th><th>Refuted</th><th>Tokens</th><th>Status</th></tr></thead>
+            <tbody>${a.runs.map(r => `<tr>
+              <td><span class="strong">${escapeHtml(r.task || r.runId)}</span>${r.recalled ? ' <span class="pill" title="started with recalled memories from past runs">recalled</span>' : ''}</td>
+              <td><code>${escapeHtml(r.scope)}</code></td>
+              <td>${trendBar(r.trend)}</td>
+              <td>${r.rounds}</td>
+              <td>${r.confirmed}</td>
+              <td>${r.refuted}</td>
+              <td>${(r.tokens || 0).toLocaleString()}</td>
+              <td>${arenaStatusPill(r.status)}</td>
+            </tr>`).join('')}</tbody></table></div>`
+        : '<div class="empty">No arena runs yet. Start one with <code>kodelyth-ecc arena start --task "..."</code></div>';
+
+      $('#arenaOpen').innerHTML = a.open.length
+        ? a.open.map(f => `<div style="margin-bottom:12px;">
+            <div class="strong">${escapeHtml(f.title)}</div>
+            <div class="muted" style="font-size:12px;margin-top:3px;">
+              <span class="pill">${escapeHtml(f.severity)}</span>
+              risk ${f.risk}${f.class ? ` · ${escapeHtml(f.class)}` : ''}
+              ${f.file ? ` · <code>${escapeHtml(f.file)}${f.line ? ':' + f.line : ''}</code>` : ''}
+            </div>
+          </div>`).join('')
+        : '<div class="empty">Nothing open. Every confirmed finding was either fixed or refuted.</div>';
+
+      $('#arenaClasses').innerHTML = a.classes.length
+        ? a.classes.map(c => `<div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+            <span>${escapeHtml(c.name)}${c.count > 1 ? ' <span class="pill pending">recurring</span>' : ''}</span>
+            <span class="strong">${c.count}</span>
+          </div>`).join('')
+        : '<div class="empty">No confirmed findings yet.</div>';
+    } catch (err) {
+      $('#arenaRuns').innerHTML = `<div class="empty">Could not load arena data: ${escapeHtml(String(err.message || err))}</div>`;
+    }
+  }
+
   async function loadEvolve() {
     try {
       const e = await api('/api/evolve');
@@ -838,6 +963,7 @@ kodelyth-ecc codebase query detect_changes '{}'</pre>
     if (tab === 'rtk')      loadRtk();
     if (tab === 'memory')   loadMemory();
     if (tab === 'codebase') loadCodebase();
+    if (tab === 'arena')    loadArena();
     if (tab === 'evolve')   loadEvolve();
     if (tab === 'catalog')  loadCatalog();
     if (tab === 'sessions') { loadIdeSessions(); loadSessions(); }

@@ -65,6 +65,7 @@ Two independent compression layers stack for **55-65% total token reduction** on
 
 ## Local, self-learning memory
 
+- **[The Arena](./arena.md)** — GOD vs EVIL adversarial loop until the attacker gives up
 - **[Evolve](./evolve.md)** — the self-evolving memory pipeline that turns repeated captures into proposed skill upgrades
 - **[Dashboard](./dashboard.md)** — localhost-only observability across Memory, RTK, Terse, Codebase, Evolve, Catalog, Sessions
 

@@ -1,6 +1,6 @@
 ---
 title: "Local Observability Dashboard — Kodelyth ECC"
-description: "Localhost-only observability dashboard for Kodelyth ECC — Memory (BM25), RTK savings, Terse mode, Codebase graph, Evolve, Catalog, Sessions. Zero telemetry, zero external deps."
+description: "Localhost-only observability dashboard for Kodelyth ECC — Memory (BM25), RTK savings, Terse mode, Codebase graph, Arena, Evolve, Catalog, Sessions. Zero telemetry, zero external deps."
 keywords:
   - ECC dashboard
   - AI observability
@@ -10,7 +10,7 @@ keywords:
   - AI toolkit monitoring
   - kodelythecc dashboard
 og_title: "Local Observability Dashboard — Kodelyth ECC"
-og_description: "Localhost-only observability dashboard for Kodelyth ECC — Memory (BM25), RTK savings, Terse mode, Codebase graph, Evolve, Catalog, Sessions. Zero telemetry, zero external deps."
+og_description: "Localhost-only observability dashboard for Kodelyth ECC — Memory (BM25), RTK savings, Terse mode, Codebase graph, Arena, Evolve, Catalog, Sessions. Zero telemetry, zero external deps."
 og_image: /social/section-dashboard.svg
 og_type: article
 twitter_card: summary_large_image
@@ -84,6 +84,22 @@ A wall of stat cards: agents · skills · commands · rules · bundles · captur
 - BM25 search box (proxies through `/api/memory/search`)
 - Recent captures table with tags + source
 
+### Arena tab
+
+- Run, confirmed, refuted, still-open, and verified-fix counts
+- **Convergence trend** per run as a sparkline: new findings per round, coloured
+  green when a round surfaces nothing. Falling to zero means the attacker gave
+  up; a flat or rising line means look before shipping.
+- **Still open** — confirmed findings GOD has not yet answered for, ranked by
+  real risk (`severity × confidence × exploitability`). A finding that was fixed
+  is not open, so a healthy run reads as healthy.
+- **Recurring bug classes** — the same class twice is a process gap, flagged so
+  the guard can go upstream instead of into a third spot fix.
+- Runs started with recalled memories are marked `recalled`.
+
+The tab is read-only. It never writes to your memory store — storing what a run
+proved is an explicit `arena learn <run-id> --commit`.
+
 ### Evolve tab
 
 - Reuse + miss + proposal counts
@@ -114,6 +130,7 @@ The frontend is just a consumer of these endpoints. They're curl-friendly:
 | `GET /api/overview` | counts + storage paths |
 | `GET /api/memory[?limit=N]` | `{ stats, recent }` |
 | `GET /api/memory/search?q=…[&limit=N]` | `{ query, results }` |
+| `GET /api/arena[?limit=N]` | `{ available, runs, open, classes, totals }` |
 | `GET /api/evolve[?limit=N]` | `{ reuse, miss, proposals }` |
 | `GET /api/catalog?kind=…[&q=…&limit=N]` | `{ kind, counts, items }` (kind ∈ agents/skills/commands/rules/bundles) |
 | `GET /api/sessions[?limit=N]` | `{ sessions }` |

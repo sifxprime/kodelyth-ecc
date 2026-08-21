@@ -2,6 +2,48 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.10.0 — Arena dashboard tab + docs (phases 5 & 6) (August 2026)
+
+### Added — Arena tab in the dashboard
+
+The tab answers one question: **did the attacker give up?**
+
+- **Convergence trend** per run, drawn as a block-character sparkline — no chart
+  library, no CDN, legible at one round or twenty. Rounds that surface nothing
+  render green; a round worse than the last renders red.
+- **Still open** — confirmed findings GOD has *not* answered for, ranked by real
+  risk (`severity × confidence × exploitability`).
+- **Recurring bug classes** — the same class twice is flagged `recurring`, because
+  one is an incident and several is a process gap.
+- Runs that began with recalled memories are marked `recalled`.
+
+Read-only. The dashboard never writes to your memory store.
+
+`GET /api/arena[?limit=N]` → `{ available, runs, open, classes, totals }`. Raw
+findings are stripped from the wire payload — the page needs counts and the open
+list, not every finding on every run.
+
+### Fixed — a confirmed finding is not the same as an open one
+
+`closeRound` recorded *how many* findings were left outstanding but not *which
+ones*, so nothing downstream could tell a confirmed-and-fixed bug from a
+confirmed-and-ignored one. The dashboard's first draft reported all ten fixed
+findings as open risk — a healthy run reading as alarming, which is exactly
+backwards. Rounds now persist `addressedIds`.
+
+### Added — `docs/arena.md`
+
+A full feature doc: why a loop beats a review pass, what makes a finding count,
+how convergence is decided, the compound-learning return path, guard proposals,
+and cost control. Wired into the sitemap, the docs index, and `dashboard.md`.
+
+### Fixed — stale counts
+
+The README and `CLAUDE.md` advertised 194 skills and 97 commands; the real
+figures are 196 and 102. Both now match what is on disk.
+
+**525 tests passing**, up from 516.
+
 ## v2.9.0 — Compound learning: the arena now remembers (phase 4) (August 2026)
 
 A finished arena run used to be knowledge thrown away. Every new run started from

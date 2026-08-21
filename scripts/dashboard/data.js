@@ -580,9 +580,120 @@ function tokenBudgetSnapshot({ budgetDir = defaultBudgetDir() } = {}) {
   return { sessions: sessions.slice(0, 50), total_tokens: total };
 }
 
+// ── Arena ────────────────────────────────────────────────────────────────────
+//
+// The dashboard's job here is to make ONE thing legible: did the attacker give
+// up? A run whose new-finding count falls to zero is converging. A flat or
+// rising line means the code has deeper problems, or the scope is too broad for
+// EVIL to ever exhaust — either way, look before shipping.
+
+function arenaSnapshot({ runLimit = 20 } = {}) {
+  let arenaState = null;
+  let learn = null;
+  try { arenaState = require('../arena/state.js'); } catch { /* arena is optional */ }
+  try { learn = require('../arena/learn.js'); } catch { /* */ }
+  if (!arenaState) return { available: false, runs: [], classes: [], open: [], totals: {} };
+
+  let list = [];
+  try { list = arenaState.listRuns() || []; } catch { /* no runs yet */ }
+
+  const runs = list.slice(0, Math.max(1, Math.min(100, runLimit))).map(meta => {
+    let run = null;
+    try { run = arenaState.load(meta.runId); } catch { /* skip unreadable */ }
+    if (!run) return null;
+
+    const rounds = run.rounds || [];
+    const settled = [];
+    const seen = new Set();
+    for (const r of rounds) {
+      for (const f of r.findings || []) {
+        if (seen.has(f.id)) continue;
+        seen.add(f.id);
+        settled.push(f);
+      }
+    }
+
+    return {
+      runId: run.runId,
+      task: run.task,
+      scope: run.scope || '.',
+      status: run.status,
+      stopReason: run.stopReason || null,
+      startedAt: run.startedAt,
+      rounds: rounds.length,
+      tokens: run.spent?.tokens || 0,
+      // The trend IS the story: new findings per round, which should fall to zero.
+      trend: rounds.map(r => r.counts?.new || 0),
+      confirmed: settled.filter(f => f.verdict === 'confirmed').length,
+      refuted: settled.filter(f => f.verdict === 'refuted').length,
+      unverified: settled.filter(f => f.verdict === 'unverified').length,
+      artifacts: rounds.reduce((n, r) => n + (r.artifacts?.length || 0), 0),
+      recalled: run.priorKnowledge ? true : false,
+      findings: settled,
+    };
+  }).filter(Boolean);
+
+  // Still-open risk across every run, worst first. A confirmed finding nobody
+  // fixed is the single most useful thing this page can surface.
+  const open = [];
+  // Findings GOD answered for are not open risk. Counting a confirmed-and-fixed
+  // bug as outstanding would make a healthy run look alarming.
+  const addressed = new Set();
+  for (const meta of list.slice(0, runLimit)) {
+    try {
+      const full = arenaState.load(meta.runId);
+      for (const rd of full?.rounds || []) for (const id of rd.addressedIds || []) addressed.add(id);
+    } catch { /* */ }
+  }
+  for (const r of runs) {
+    for (const f of r.findings) {
+      if (f.verdict !== 'confirmed') continue;
+      if (addressed.has(f.id)) continue;   // GOD answered for this one
+      open.push({
+        runId: r.runId, scope: r.scope, title: f.title,
+        file: f.file, line: f.line, severity: f.severity,
+        risk: f.risk || 0,
+        class: learn ? learn.classify(f) : null,
+      });
+    }
+  }
+  open.sort((a, b) => b.risk - a.risk);
+
+  // Which bug classes keep coming back — the signal that a guard belongs upstream.
+  const classCount = new Map();
+  if (learn) {
+    for (const r of runs) {
+      for (const f of r.findings) {
+        if (f.verdict !== 'confirmed') continue;
+        const c = learn.classify(f);
+        classCount.set(c, (classCount.get(c) || 0) + 1);
+      }
+    }
+  }
+  const classes = [...classCount.entries()]
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
+
+  const totals = {
+    runs: runs.length,
+    converged: runs.filter(r => r.status === 'converged').length,
+    confirmed: runs.reduce((n, r) => n + r.confirmed, 0),
+    refuted: runs.reduce((n, r) => n + r.refuted, 0),
+    artifacts: runs.reduce((n, r) => n + r.artifacts, 0),
+    tokens: runs.reduce((n, r) => n + r.tokens, 0),
+  };
+
+  // Drop the raw findings from the wire payload — the page needs the counts and
+  // the open list, not every finding on every run.
+  const wireRuns = runs.map(({ findings, ...rest }) => rest);
+  return { available: true, runs: wireRuns, open: open.slice(0, 40), classes, totals };
+}
+
 module.exports = {
   // overview
   overview,
+  // arena
+  arenaSnapshot,
   // memory
   memoryStats,
   recentMemories,

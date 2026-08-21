@@ -304,6 +304,10 @@ function handleRequest(req, res) {
       return jsonResponse(res, 200, { ok: true, ...s });
     }
 
+    if (p === '/api/arena') {
+      return jsonResponse(res, 200, data.arenaSnapshot({ runLimit: Number(q.get('limit')) || 20 }));
+    }
+
     if (p === '/api/codebase') {
       const cb = require('../codebase/index.js');
       return jsonResponse(res, 200, cb.dashboardSnapshot());

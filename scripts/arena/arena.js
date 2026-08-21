@@ -176,6 +176,10 @@ function closeRound(run) {
   });
 
   // Attach whether GOD actually finished its side of the round.
+  // Persist WHICH findings GOD answered for, not just how many are left over.
+  // Without the ids, nothing downstream can tell a confirmed-and-fixed finding
+  // from confirmed-and-ignored — the dashboard would report every fix as open risk.
+  verdict.addressedIds = [...(run.pending.addressedIds || [])];
   verdict.godComplete = completion.complete;
   verdict.unverifiedArtifacts = completion.unverifiedArtifacts;
   verdict.outstandingFindings = completion.outstandingFindings;

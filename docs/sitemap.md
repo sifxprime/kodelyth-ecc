@@ -33,6 +33,7 @@ Every page in the Kodelyth ECC documentation, grouped by category. Newest docs f
 - **[MCP Server](./mcp.md)** — Universal adapter for MCP-compatible clients
 - **[External MCP Servers](./mcp-clients.md)** — Register Stripe, GitHub, Postgres, Redis
 - **[Dashboard](./dashboard.md)** — Localhost observability, real data only
+- **[The Arena](./arena.md)** — GOD vs EVIL adversarial loop until the attacker gives up
 - **[Evolve](./evolve.md)** — Self-evolving memory pipeline
 - **[Swarm](./swarm.md)** — Parallel agents in git worktrees + tmux
 - **[Replay](./replay.md)** — Deterministic session replay from portable bundles

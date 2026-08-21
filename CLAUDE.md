@@ -7,8 +7,8 @@ Guidance for Claude Code when working with this repository.
 **Kodelyth ECC** — a production-grade AI coding toolkit:
 
 - **70 specialist agents** — debug-detective, incident-commander, load-tester, image-architect, kodelyth-memory, security-reviewer, plus 8 adversarial devil-mode agents
-- **194 skills** — domain knowledge, patterns, testing, security, intent routing, local memory, swarm orchestration, MCP integration
-- **97 commands** — slash workflows (`/tdd`, `/plan`, `/code-review`, `/team-review`, `/devil-mode`, `/debug-blitz`, `/security-audit`, ...)
+- **196 skills** — domain knowledge, patterns, testing, security, intent routing, local memory, swarm orchestration, MCP integration
+- **102 commands** — slash workflows (`/tdd`, `/plan`, `/code-review`, `/team-review`, `/devil-mode`, `/debug-blitz`, `/security-audit`, ...)
 - **22+ hooks** — quality gates, memory inject + capture, correction encoding, prompt-injection guard, token-budget enforcer
 - **14 rules** — always-on coding standards + semantic intent routing + memory protocol + self-improvement
 
@@ -18,15 +18,15 @@ Works with Claude Code, Windsurf, Cursor, Codex CLI, Antigravity, OpenCode, Clin
 
 ```
 agents/      → 70 specialist subagents (planner, code-reviewer, debug-detective, devil-mode crew, ...)
-commands/    → 97 slash commands (8 parallel multi-agent, rest single-agent)
-skills/      → 194 workflow + domain knowledge files (loadable via slash commands)
+commands/    → 102 slash commands (8 parallel multi-agent, 1 adversarial loop, rest single-agent)
+skills/      → 196 workflow + domain knowledge files (loadable via slash commands)
 hooks/       → 22+ automations (pre-commit, session memory, prompt-injection guard, token-budget)
 rules/       → 14 always-on guidelines (agent-intent-routing, self-improvement, memory-protocol, ...)
 scripts/     → Node.js utilities: MCP server, dashboard, swarm, replay, router, memory, supply-chain
 bundles/     → 3 power bundles (indie-hacker, red-team, enterprise)
 actions/     → GitHub Action (CI/CD integration for PR review)
-docs/        → Feature docs (mcp.md, dashboard.md, swarm.md, replay.md, evolve.md, supply-chain.md)
-tests/       → 516 passing tests across 27 test files
+docs/        → Feature docs (arena.md, mcp.md, dashboard.md, swarm.md, replay.md, evolve.md, supply-chain.md)
+tests/       → 525 passing tests across 29 test files
 ```
 
 ## Running Tests
@@ -80,6 +80,7 @@ These fire multiple specialist agents simultaneously:
 | `/pre-release` | release-captain + security-reviewer + code-reviewer | Go/no-go verdict before shipping |
 | `/onboard` | code-explorer + architect + doc-updater | Understand any codebase in 15 minutes |
 | `/devil-mode` | prompt-injection-hunter + supply-chain-auditor + secret-hunter + backdoor-hunter | Adversarial sweep (use `--all` for all 8) |
+| `/arena` | GOD crew vs EVIL crew, looped | Ship something that must not break — runs until the attacker gives up |
 
 ## Key Commands
 

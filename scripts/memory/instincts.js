@@ -31,6 +31,7 @@ const fs     = require('fs');
 const os     = require('os');
 const path   = require('path');
 const crypto = require('crypto');
+const safeFs = require('../lib/safe-fs.js');
 
 const MEMORY_DIR = process.env.KODELYTH_MEMORY_DIR
   || path.join(os.homedir(), '.kodelythecc', 'memory');
@@ -95,11 +96,15 @@ function loadAll() {
 
 function saveAll(instincts) {
   ensureDir();
-  fs.writeFileSync(
-    INSTINCTS_FILE,
-    instincts.map(i => JSON.stringify(i)).join('\n') + '\n',
-    'utf8'
-  );
+  // Atomic replace, not writeFileSync. 'w' truncates to zero before writing, so
+  // a crash or a concurrent reader can observe an empty file — the same defect
+  // that was measured wiping the memory log mid-rewrite. rename(2) is atomic:
+  // a reader sees either the old file or the new one, never a torn one.
+  const body = instincts.map(i => JSON.stringify(i)).join('\n') + '\n';
+  const mode = (() => {
+    try { return fs.statSync(INSTINCTS_FILE).mode & 0o7777; } catch { return 0o644; }
+  })();
+  safeFs.replaceFileAtomic(INSTINCTS_FILE, body, mode);
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────

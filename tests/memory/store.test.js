@@ -231,3 +231,202 @@ test('recall self-heals from a stale/foreign index schema (regression)', () => {
   assert.ok(healed.tokens && typeof healed.tokens === 'object', 'index rebuilt with .tokens');
   assert.equal(typeof healed.docCount, 'number', 'index rebuilt with numeric .docCount');
 });
+
+// ── Prototype-key collisions ────────────────────────────────────────────────
+
+test('regression: a memory mentioning "constructor" does not break the index', () => {
+  // The index used a plain object keyed by user tokens. `tokens['constructor']`
+  // returns Object.prototype's constructor — TRUTHY — so the `if (!tokens[t])`
+  // guard never fired and the next line read `.docs` off a function. "constructor"
+  // is ordinary programming vocabulary, so this bricked recall() for good with no
+  // attacker involved.
+  const words = [
+    'the constructor takes two arguments',
+    'override toString for better logging',
+    'valueOf returns a primitive',
+    'check hasOwnProperty before reading',
+    'the __proto__ chain was broken',
+    'call isPrototypeOf to compare',
+  ];
+  for (const problem of words) {
+    assert.doesNotThrow(
+      () => store.capture({ problem, approach: 'notes', tags: [] }),
+      `capture threw on: ${problem}`,
+    );
+  }
+  // Not crashing is not enough — those tokens must actually be searchable.
+  assert.doesNotThrow(() => store.recall('constructor', { limit: 3 }));
+  const hits = store.recall('constructor', { limit: 3 });
+  assert.ok(hits.some(m => /constructor takes two/.test(m.problem)), 'token not searchable');
+});
+
+test('regression: a prototype-key TAG does not break the index', () => {
+  assert.doesNotThrow(() => store.capture({
+    problem: 'tagged with a prototype key', approach: 'x',
+    tags: ['constructor', '__proto__', 'toString'],
+  }));
+  assert.doesNotThrow(() => store.recall('tagged', { limit: 3 }));
+});
+
+test('capturing a prototype key never pollutes Object.prototype', () => {
+  store.capture({ problem: 'pollution probe', approach: 'x', tags: ['__proto__', 'constructor'] });
+  assert.equal({}.polluted, undefined);
+  assert.equal(Object.prototype.pwned, undefined);
+});
+
+// ── Input bounds ────────────────────────────────────────────────────────────
+
+test('regression: every stored field is length-bounded, not just the count', () => {
+  // tags/files/gotchas capped their COUNT but not the length of each entry, so a
+  // single multi-megabyte tag was stored whole — bloating the log, the index, and
+  // the memory block injected at session start.
+  const huge = 'a'.repeat(2 * 1024 * 1024);
+  const m = store.capture({
+    problem: huge, approach: huge,
+    tags: [huge], files: [huge], gotchas: [huge],
+  });
+  assert.equal(m.problem.length, 500);
+  assert.equal(m.approach.length, 2000);
+  assert.ok(m.tags[0].length <= 60, `tag was ${m.tags[0].length} chars`);
+  assert.ok(m.files[0].length <= 500, `file was ${m.files[0].length} chars`);
+  assert.ok(m.gotchas[0].length <= 500, `gotcha was ${m.gotchas[0].length} chars`);
+});
+
+test('a huge capture does not bloat the log', () => {
+  const before = fs.statSync(store.PATHS.log).size;
+  const huge = 'a'.repeat(2 * 1024 * 1024);
+  store.capture({ problem: huge, approach: huge, tags: [huge], files: [huge], gotchas: [huge] });
+  const grew = fs.statSync(store.PATHS.log).size - before;
+  assert.ok(grew < 8192, `one row added ${grew} bytes to the log`);
+});
+
+// ── Durability: the log is append-only ──────────────────────────────────────
+
+test('regression: forget() appends a tombstone instead of rewriting the log', () => {
+  // forget() used to read the WHOLE log, mutate it in memory, and write it back
+  // with fs.writeFileSync — which opens with 'w' and truncates to zero BEFORE
+  // writing. A concurrent reader was measured observing a 6.3 MB store at 0
+  // bytes mid-write, and any reader doing its own read-modify-write would then
+  // persist that emptiness.
+  const m = store.capture({ problem: 'tombstone probe', approach: 'x', tags: [] });
+  const sizeBefore = fs.statSync(store.PATHS.log).size;
+  assert.equal(store.forget(m.id), true);
+  const sizeAfter = fs.statSync(store.PATHS.log).size;
+  assert.ok(sizeAfter > sizeBefore, 'the log shrank — forget() rewrote instead of appending');
+  assert.ok(!store.listAll().some(x => x.id === m.id), 'forgotten memory still listed');
+});
+
+test('regression: a no-op forget() does not touch the log at all', () => {
+  // The write sat OUTSIDE the `found` guard, so deleting a non-existent id still
+  // rewrote the entire store — paying the full destruction window for nothing.
+  const sizeBefore = fs.statSync(store.PATHS.log).size;
+  assert.equal(store.forget('id-that-does-not-exist'), false);
+  assert.equal(fs.statSync(store.PATHS.log).size, sizeBefore, 'a no-op delete wrote to the log');
+});
+
+test('patch rows fold onto the original by id, last write wins', () => {
+  const m = store.capture({ problem: 'fold probe', approach: 'original', tags: ['fold'] });
+  store.resolveMemory(m.id, true);
+  const found = store.listAll().find(x => x.id === m.id);
+  assert.ok(found, 'memory vanished after a patch');
+  assert.equal(found.resolved, true, 'patch not applied');
+  assert.equal(found.approach, 'original', 'patch clobbered the original fields');
+  assert.equal(store.listAll().filter(x => x.id === m.id).length, 1, 'memory appears twice');
+});
+
+test('regression: findMemoriesForFile sees patch rows', () => {
+  // It read the log line-by-line instead of via readMemories, so an appended
+  // {resolved} patch was never applied and a resolved memory kept coming back.
+  const m = store.capture({
+    problem: 'patch visibility probe', approach: 'x', tags: [],
+    project: '/proj-z', files: ['/proj-z/src/thing.ts'],
+  });
+  assert.ok(store.findMemoriesForFile('/proj-z/src/thing.ts').some(x => x.id === m.id));
+  store.resolveMemory(m.id, true);
+  assert.ok(!store.findMemoriesForFile('/proj-z/src/thing.ts').some(x => x.id === m.id),
+    'resolved memory still returned');
+});
+
+// ── Index integrity ─────────────────────────────────────────────────────────
+
+test('regression: a memory is indexed once, not twice, on a cold start', () => {
+  // capture() appended the row BEFORE loadIndex(). With no index on disk,
+  // loadIndex() fell through to rebuildIndex(), which re-read the log and
+  // indexed the brand-new row — then indexMemory() counted it again. docCount
+  // was permanently inflated and the doubled document scored exactly 2x.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kodelyth-cold-'));
+  const prev = process.env.KODELYTH_MEMORY_DIR;
+  try {
+    // A fresh require is needed because PATHS are frozen at module load.
+    process.env.KODELYTH_MEMORY_DIR = dir;
+    delete require.cache[require.resolve('../../scripts/memory/store')];
+    const cold = require('../../scripts/memory/store');
+    cold.capture({ problem: 'alpha unique widget', approach: 'x', tags: [] });
+    const idx = JSON.parse(fs.readFileSync(cold.PATHS.index, 'utf8'));
+    assert.equal(idx.docCount, 1, `docCount was ${idx.docCount} for one memory`);
+    assert.equal(idx.tokens.alpha.df, 1, 'token indexed twice');
+  } finally {
+    process.env.KODELYTH_MEMORY_DIR = prev;
+    delete require.cache[require.resolve('../../scripts/memory/store')];
+    require('../../scripts/memory/store');
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('regression: an index that drifts from the log self-heals', () => {
+  // A failed index write left the memory in the log but invisible to recall()
+  // forever — for a recall-driven store that is indistinguishable from loss.
+  const orphan = {
+    id: 'orphan-probe-1', captured_at: new Date().toISOString(),
+    problem: 'orphaned unsearchable widget', approach: 'y',
+    tags: [], files: [], gotchas: [],
+  };
+  fs.appendFileSync(store.PATHS.log, JSON.stringify(orphan) + '\n');
+  assert.ok(store.listAll().some(m => m.id === orphan.id), 'orphan not in the log');
+  assert.ok(
+    store.recall('orphaned unsearchable widget', { limit: 5 }).some(m => m.id === orphan.id),
+    'index did not self-heal — memory is in the log but unsearchable',
+  );
+});
+
+test('regression: an interrupted append does not swallow the next memory', () => {
+  // A crash mid-append leaves a row with no terminator. The next append used to
+  // concatenate onto the fragment, fusing two records into one dead line — and
+  // capture() still returned an id, reporting success for a memory that was
+  // never stored.
+  fs.appendFileSync(store.PATHS.log, '{"id":"PARTIAL","problem":"half-written ro');
+  const m = store.capture({ problem: 'the very next memory', approach: 'z', tags: [] });
+  assert.ok(store.listAll().some(x => x.id === m.id), 'the memory after a torn row was lost');
+  assert.ok(
+    store.recall('very next memory', { limit: 3 }).some(x => x.id === m.id),
+    'the memory after a torn row is unsearchable',
+  );
+});
+
+test('regression: an orphan patch row is not promoted to a phantom memory', () => {
+  // The fold set folded[id] = row even with no prior, so a bare {id, resolved}
+  // patch whose original was missing surfaced as a memory with problem=undefined
+  // — and would have flowed into recall(), the dashboard, and the injected
+  // session-start block.
+  const before = store.listAll().length;
+  fs.appendFileSync(store.PATHS.log, JSON.stringify({ id: 'ghost-orphan', resolved: true }) + '\n');
+  const after = store.listAll();
+  assert.equal(after.length, before, 'an orphan patch became a memory');
+  assert.ok(!after.some(m => m.id === 'ghost-orphan'));
+});
+
+test('a patch cannot resurrect a tombstoned memory', () => {
+  const m = store.capture({ problem: 'resurrect probe', approach: 'x', tags: [] });
+  store.forget(m.id);
+  fs.appendFileSync(store.PATHS.log, JSON.stringify({ id: m.id, resolved: true }) + '\n');
+  assert.ok(!store.listAll().some(x => x.id === m.id), 'a deleted memory came back');
+});
+
+test('a memory whose id is a prototype key does not break the fold', () => {
+  for (const id of ['__proto__', 'constructor', 'toString']) {
+    fs.appendFileSync(store.PATHS.log, JSON.stringify({ id, problem: 'proto id ' + id, approach: 'x', tags: [] }) + '\n');
+  }
+  assert.doesNotThrow(() => store.listAll());
+  assert.doesNotThrow(() => store.recall('proto id', { limit: 5 }));
+  assert.equal({}.polluted, undefined);
+});

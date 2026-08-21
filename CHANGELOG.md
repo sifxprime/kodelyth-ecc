@@ -2,6 +2,84 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.13.0 — Arena run #3: eight bugs in the memory store (August 2026)
+
+Pointed the arena at `scripts/memory` — the persistent BM25 store every other
+subsystem trusts, and the one place where a bug costs the user real accumulated
+work. Round 1 found **8 findings, all 8 confirmed by executed repro**. Round 2
+attacked the fixes across 7 vectors and found **1 regression, which is fixed**.
+
+### Fixed — a single English word bricked memory search
+
+Capturing a memory containing the word **"constructor"** crashed indexing, and
+`recall()` then threw on every subsequent call:
+
+```js
+if (!index.tokens[token]) index.tokens[token] = { docs: [], df: 0 };
+index.tokens[token].docs.push(...)   // .docs is undefined
+```
+
+`index.tokens['constructor']` returns `Object.prototype.constructor` — **truthy**
+— so the guard never fires. Same for `toString`, `valueOf`, `hasOwnProperty`,
+`__proto__`, `isPrototypeOf`. No attacker required: writing one memory about a
+constructor, or about overriding `toString`, was enough. The blast radius was
+everything that reads memory — MCP server, dashboard, CLI, and the session-start
+injection hook.
+
+Fixed at 7 sites with null-prototype maps, including sanitising the index after
+`JSON.parse` (which re-introduces a normal prototype). Those tokens are now
+searchable, not merely non-crashing.
+
+### Fixed — the log is genuinely append-only now
+
+`forget()` and `resolveMemory()` read the **entire** log, mutated it in memory,
+and wrote it back with `fs.writeFileSync` — which opens with `'w'`, truncating to
+zero before writing. Measured directly: sampling file size during a rewrite of a
+6.3 MB store observed it at **0.00 MB**, with 32 torn reads in 1423 samples.
+
+Both now **append a patch row**, and `readMemories()` folds rows by id with
+last-write-wins. That is what the file's own header always claimed it was. The
+truncate window is gone — 0 torn reads across 1477 samples — and 8 concurrent
+deletions now all apply, where previously only 3 of 8 survived.
+
+*Honest scope:* the truncate window is proven, and a reader doing its own
+read-modify-write inside it would persist the emptiness. I could **not**
+reproduce a full store wipe end-to-end; what I measured was lost deletions.
+
+### Fixed — memories that were invisible to search, forever
+
+The log and the index were written by separate calls with no reconciliation, and
+`loadIndex()` only rebuilt when the index was *missing* or schema-invalid — never
+when merely incomplete. A memory could sit in the log and return zero hits for
+its own exact text, permanently. The index now stamps the log size it was built
+from and rebuilds on any drift, which self-heals every cause at the price of one
+`stat()`.
+
+### Also fixed
+
+- `forget()` rewrote the whole store even when the id was **not found**.
+- A crash mid-append left a newline-less row; the next `capture()` fused into it
+  and was silently lost while returning an id and reporting success.
+- `capture()` double-indexed on every cold start, inflating `docCount` and giving
+  that memory exactly 2x its true BM25 score.
+- `tags`/`files`/`gotchas` capped their *count* but not each entry's length — a
+  single 5 MB tag was stored whole.
+- `instincts.js` had the identical rewrite pattern; it now uses
+  `safeFs.replaceFileAtomic`.
+
+### Round 2 — one regression, caught and fixed
+
+The new fold promoted an orphan patch row to a phantom memory with
+`problem: undefined`, which would have flowed into `recall()`, the dashboard, and
+the injected session block. A row with no prior and no `problem` is a patch, not
+a memory.
+
+**Backward compatible:** existing logs read correctly — old full-row tombstones
+fold the same way. One real duplicate id in the test store is now correctly
+deduped rather than returned twice.
+
+**569 tests passing**, up from 554.
+
 ## v2.12.0 — `scripts/lib/safe-fs.js`: the guard the arena asked for (August 2026)
 
 Across two arena runs the **same containment bug was confirmed four times** in

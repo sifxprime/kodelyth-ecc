@@ -389,3 +389,54 @@ test('getMaxIdeMtime: picks up windsurf-next + cursor + extra dirs', () => {
     cleanup(o.windsurfNextDir); cleanup(o.cursorDir); cleanup(extra); o._cleanup();
   }
 });
+
+test('regression: sessionDetail refuses a symlink that escapes the coord root', () => {
+  // The containment check compared the JOINED path, which for a symlink is the
+  // link's own location — inside the root, so it passed — while the target was
+  // anywhere on disk. Reading through it handed the API task/handoff/status
+  // excerpts from outside. realpath resolves the link before the check.
+  const root = tmpDir('kodelyth-dash-symlink-');
+  const outside = tmpDir('kodelyth-dash-victim-');
+  try {
+    const victimWorker = path.join(outside, 'worker-a');
+    fs.mkdirSync(victimWorker, { recursive: true });
+    fs.writeFileSync(path.join(victimWorker, 'task.md'), 'SECRET-OUTSIDE-CONTENT');
+
+    fs.symlinkSync(outside, path.join(root, 'evil-link'));
+
+    const d = data.sessionDetail({ session: 'evil-link', coordRoot: root });
+    assert.equal(d, null, 'a symlink out of the coord root must not resolve');
+    assert.ok(
+      !JSON.stringify(d).includes('SECRET-OUTSIDE-CONTENT'),
+      'content from outside the coord root leaked into the response',
+    );
+  } finally {
+    cleanup(root); cleanup(outside);
+  }
+});
+
+test('a dangling symlink is refused rather than throwing', () => {
+  const root = tmpDir('kodelyth-dash-dangling-');
+  try {
+    fs.symlinkSync(path.join(root, 'does-not-exist'), path.join(root, 'broken'));
+    assert.equal(data.sessionDetail({ session: 'broken', coordRoot: root }), null);
+  } finally {
+    cleanup(root);
+  }
+});
+
+test('a real session still resolves after the symlink hardening', () => {
+  // The fix must not break the feature it protects.
+  const root = tmpDir('kodelyth-dash-legit-');
+  try {
+    const wdir = path.join(root, 'sess-ok', 'worker-1');
+    fs.mkdirSync(wdir, { recursive: true });
+    fs.writeFileSync(path.join(wdir, 'task.md'), 'REAL TASK BODY');
+    const d = data.sessionDetail({ session: 'sess-ok', coordRoot: root });
+    assert.ok(d, 'legitimate session stopped resolving');
+    assert.equal(d.workers.length, 1);
+    assert.match(JSON.stringify(d), /REAL TASK BODY/);
+  } finally {
+    cleanup(root);
+  }
+});

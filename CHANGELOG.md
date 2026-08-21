@@ -2,6 +2,64 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.11.0 — Arena run #2: three containment bugs in the dashboard (August 2026)
+
+Pointed the arena at `scripts/dashboard` — the localhost HTTP server that serves
+static files and returns your private memory store. Round 1 found **3 findings,
+all 3 confirmed by executed repro**. Round 2 attacked the fixes across 7 vectors
+and found **nothing new**.
+
+All three are **low severity** and the reasoning matters: the server is
+localhost-only, read-only, GET-only, and each finding needs local write access
+that already grants the same data. None is a browser-reachable hole. They are
+containment bugs worth closing, not emergencies.
+
+### Fixed — three containment gaps
+
+- **`sessionDetail` followed symlinks out of the coordination root.** The check
+  compared the *joined* path, which for a symlink is the link's own location —
+  inside the root, so it passed — while the target was anywhere on disk. It
+  returned real `task.md` / `handoff.md` / `status.md` excerpts from outside.
+- **`resolveStatic` followed symlinks out of `STATIC_DIR`.** Same class:
+  `path.resolve` does not resolve symlinks, so a lexically-contained link passed
+  the guard and `readFile` followed it. `/etc/hosts` was readable through it.
+- **An empty or absent `Host` header bypassed the DNS-rebinding guard.** The
+  condition read `reqHost !== '' && ...`, so a missing Host short-circuited the
+  whole check to false. An HTTP/1.0 request reached the private-data APIs with
+  `200 OK`. Browsers always send Host, so this was never browser-reachable.
+
+All three now canonicalize with `realpathSync` and re-check against the real
+destination; the Host guard denies by default.
+
+### Fixed — `Host` comparison is now case-insensitive
+
+Hostnames are case-insensitive per RFC 3986, so `Host: LOCALHOST` was a
+legitimate spelling being rejected.
+
+### Fixed — arena recall ignored scope
+
+Every arena memory carries the tag `arena`, and recall is BM25 — so a query
+mentioning the arena matched **all** of them regardless of origin. The first
+dashboard run was handed all 10 `scripts/terse` findings and told they were
+*"confirmed here previously."* That is false, and it would have sent EVIL hunting
+for `compress.js` bugs in an HTTP server. Recall is now filtered to memories
+whose files actually live in the scope.
+
+### Added — `access-control` bug class
+
+The Host-header bypass classified as `uncategorized`. Its guard advice: *deny by
+default — an allowlist, with every absent or empty case treated as invalid rather
+than waved through.*
+
+### Compound learning is earning its keep
+
+`filesystem-symlink` is now confirmed **4 times across 3 files** — `compress.js`,
+`data.js`, and `server.js`. Every one is the same mistake: a lexical containment
+check that a symlink walks straight through. The guard proposal says what to do
+about it — a shared path-safety helper, rather than a fourth spot fix.
+
+**535 tests passing**, up from 525.
+
 ## v2.10.0 — Arena dashboard tab + docs (phases 5 & 6) (August 2026)
 
 ### Added — Arena tab in the dashboard

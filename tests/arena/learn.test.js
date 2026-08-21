@@ -210,3 +210,51 @@ test('every bug class has guard advice', () => {
     assert.ok(L.GUARD_ADVICE[name], `no guard advice for class "${name}"`);
   }
 });
+
+// ── Scope filtering ─────────────────────────────────────────────────────────
+
+test('regression: recall is filtered to the scope actually being audited', () => {
+  // Recall is BM25 over the whole store, and EVERY arena memory carries the tag
+  // "arena" — so a query mentioning the arena matched all of them regardless of
+  // origin. A run against scripts/dashboard was handed scripts/terse findings
+  // and told they were "confirmed here previously", which is simply false.
+  const mems = [
+    { problem: 'terse bug', files: ['scripts/terse/compress.js'], tags: ['arena', 'confirmed'] },
+    { problem: 'dash bug', files: ['scripts/dashboard/server.js'], tags: ['arena', 'confirmed'] },
+  ];
+  assert.deepEqual(
+    L.filterToScope(mems, 'scripts/dashboard').map(m => m.problem),
+    ['dash bug'],
+  );
+});
+
+test('scope filtering does not bleed across a shared name prefix', () => {
+  // "scripts/dash" must not match "scripts/dashboard" — only a whole path
+  // segment counts.
+  const mems = [{ problem: 'x', files: ['scripts/dashboard/server.js'], tags: ['arena'] }];
+  assert.deepEqual(L.filterToScope(mems, 'scripts/dash'), []);
+  assert.equal(L.filterToScope(mems, 'scripts/dashboard').length, 1);
+});
+
+test('a whole-repo scope keeps every memory', () => {
+  const mems = [
+    { problem: 'a', files: ['x.js'], tags: ['arena'] },
+    { problem: 'b', files: [], tags: ['arena'] },
+  ];
+  for (const scope of ['.', './', '', null, undefined]) {
+    assert.equal(L.filterToScope(mems, scope).length, 2, `scope=${scope}`);
+  }
+});
+
+test('a memory with no files is not attributed to a narrow scope', () => {
+  // Without a file there is no evidence it belongs here, and a false "confirmed
+  // here before" is worse than no prior knowledge at all.
+  const mems = [{ problem: 'unattributed', files: [], tags: ['arena', 'confirmed'] }];
+  assert.deepEqual(L.filterToScope(mems, 'scripts/dashboard'), []);
+});
+
+test('trailing slashes and ./ prefixes are handled', () => {
+  const mems = [{ problem: 'x', files: ['./scripts/dashboard/server.js'], tags: ['arena'] }];
+  assert.equal(L.filterToScope(mems, 'scripts/dashboard/').length, 1);
+  assert.equal(L.filterToScope(mems, './scripts/dashboard').length, 1);
+});

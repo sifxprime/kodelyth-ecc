@@ -147,12 +147,32 @@ function serveStaticFile(res, filePath) {
 }
 
 // Defensive — block path traversal, only allow files under STATIC_DIR.
-function resolveStatic(reqPath) {
+// baseDir is injectable so the containment logic can be tested against a real
+// symlink without planting one in the shipped static/ directory.
+function resolveStatic(reqPath, baseDir = STATIC_DIR) {
   const decoded = decodeURIComponent(reqPath.replace(/^\/+/, ''));
   if (decoded.includes('..')) return null;
-  if (decoded === '' || decoded === '/') return path.join(STATIC_DIR, 'index.html');
-  const abs = path.resolve(STATIC_DIR, decoded);
-  if (!abs.startsWith(STATIC_DIR + path.sep) && abs !== path.join(STATIC_DIR, 'index.html')) return null;
+  if (decoded === '' || decoded === '/') return path.join(baseDir, 'index.html');
+  const abs = path.resolve(baseDir, decoded);
+  if (!abs.startsWith(baseDir + path.sep) && abs !== path.join(baseDir, 'index.html')) return null;
+
+  // The check above is purely lexical, and path.resolve does not resolve
+  // symlinks — so a link sitting lexically inside baseDir passes it while
+  // readFile follows it to a target anywhere on disk. Canonicalize and re-check
+  // against the real destination, which is the only one that matters.
+  let real;
+  try {
+    real = fs.realpathSync(abs);
+  } catch {
+    return null;   // missing file or dangling link — 404 either way
+  }
+  let realBase;
+  try {
+    realBase = fs.realpathSync(baseDir);
+  } catch {
+    realBase = baseDir;
+  }
+  if (!real.startsWith(realBase + path.sep) && real !== path.join(realBase, 'index.html')) return null;
   return abs;
 }
 
@@ -160,8 +180,15 @@ function resolveStatic(reqPath) {
 
 function handleRequest(req, res) {
   // DNS-rebinding defence: only respond to requests targeting localhost.
-  const reqHost = (req.headers.host || '').split(':')[0];
-  if (reqHost !== '' && reqHost !== '127.0.0.1' && reqHost !== 'localhost') {
+  // A missing or empty Host is treated as INVALID, not as valid. The original
+  // `reqHost !== ''` short-circuited the whole condition whenever the header was
+  // absent, so an HTTP/1.0 request — or any raw socket writing "Host:" with no
+  // value — sailed past the rebinding guard and got the private-data APIs.
+  // Deny by default: only an explicit localhost Host is allowed through.
+  // Hostnames are case-insensitive (RFC 3986), so LOCALHOST is a legitimate
+  // spelling. Node already strips OWS around the field value.
+  const reqHost = (req.headers.host || '').split(':')[0].toLowerCase();
+  if (reqHost !== '127.0.0.1' && reqHost !== 'localhost') {
     res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
     return res.end(JSON.stringify({ ok: false, error: 'bad request' }));
   }

@@ -501,8 +501,14 @@ if (args[0] === 'god' || args[0] === 'evil' || args[0] === 'arena') {
         try {
           const learn = require(path.join(ROOT, 'scripts', 'arena', 'learn.js'));
           const memStore = require(path.join(ROOT, 'scripts', 'memory', 'store.js'));
-          const hits = memStore.recall(`arena ${scopeArg} ${task}`, { limit: 20 })
-            .filter(m => (m.source || '') === 'arena');
+          // Filter to the scope. BM25 matches every arena memory on the word
+          // "arena" alone, so without this a dashboard run is handed terse findings
+          // and told they were confirmed in this very scope.
+          const hits = learn.filterToScope(
+            memStore.recall(`arena ${scopeArg} ${task}`, { limit: 60 })
+              .filter(m => (m.source || '') === 'arena'),
+            scopeArg,
+          ).slice(0, 20);
           recalledCount = hits.length;
           priorKnowledge = learn.priorKnowledgeBrief(hits);
         } catch { /* memory is optional — a missing store must never block a run */ }

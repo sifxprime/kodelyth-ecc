@@ -43,6 +43,7 @@ const CLASSES = [
   ['semantic-corruption', /\bsemantic|meaning|threshold|negation|inverts?|widen/i],
   ['idempotency',         /\bidempoten|fixed point|second run|re-?run\b/i],
   ['input-validation',    /validat|wrong shape|silently accept|malformed|type ?error|unsanitiz/i],
+  ['access-control',      /\bbypass(?:es|ed)? the|rebinding|host header|allowlist|authoriz|access control\b/i],
   ['supply-chain',        /\btyposquat|lockfile|install script|dependency confusion\b/i],
 ];
 
@@ -169,6 +170,25 @@ function priorKnowledgeBrief(memories = [], { limit = 8 } = {}) {
   return lines.join('\n');
 }
 
+// Recall is BM25 over the whole memory store, and every arena memory carries the
+// tag "arena" — so a query mentioning the arena matches ALL of them regardless of
+// which scope they came from. Left unfiltered, a run against scripts/dashboard is
+// told that bugs in scripts/terse were "confirmed here previously", which is false
+// and sends EVIL hunting for the wrong thing in the wrong file.
+//
+// A memory belongs to this scope only if it actually points at a file inside it.
+function filterToScope(memories = [], scope) {
+  if (!scope || scope === '.' || scope === './') return memories;
+  const norm = String(scope).replace(/^\.\//, '').replace(/\/+$/, '');
+  if (!norm) return memories;
+  return memories.filter(m =>
+    (m.files || []).some(f => {
+      const file = String(f).replace(/^\.\//, '');
+      return file === norm || file.startsWith(norm + '/');
+    }),
+  );
+}
+
 // ── Recurring classes → evolve proposals ────────────────────────────────────
 //
 // One bug is an incident. The same class across several runs is a gap in the
@@ -210,6 +230,7 @@ const GUARD_ADVICE = {
   'semantic-corruption': 'Add golden tests asserting that meaning-bearing tokens survive transformation.',
   'idempotency':         'Assert f(f(x)) === f(x) in the test suite for every transform.',
   'input-validation':    'Validate argument shape at every public boundary and throw — never silently coerce to a plausible default.',
+  'access-control':      'Deny by default: an allowlist of permitted values, with every absent or empty case treated as invalid rather than waved through.',
   'supply-chain':        'Pin and verify dependencies; add a lockfile-drift check to CI.',
 };
 
@@ -265,6 +286,7 @@ module.exports = {
   refutedToMemory,
   runToMemories,
   priorKnowledgeBrief,
+  filterToScope,
   recurringClasses,
   buildGuardProposalMarkdown,
   guardProposalId,

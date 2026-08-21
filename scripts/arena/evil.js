@@ -124,10 +124,28 @@ function normalizeFindings(rawList = [], { agent, round }) {
 // Apply verification verdicts back onto the findings. A refuted finding stays in
 // the record (so the same false positive is not re-litigated next round) but its
 // effective risk drops to zero.
+// A verdict may be given as a bare string ('confirmed') or as an object
+// ({ verdict, why, repro }). Both are accepted because both are natural to
+// write; anything else is a caller mistake and must not be swallowed — silently
+// keeping 'unverified' would report "0 confirmed" on a run that confirmed ten
+// findings, which reads as a clean result instead of a broken one.
+function normalizeVerdict(v, id) {
+  const raw = typeof v === 'string' ? { verdict: v } : v;
+  if (!raw || typeof raw !== 'object') {
+    throw new TypeError(`verdict for ${id} must be a string or an object, got ${typeof v}`);
+  }
+  const known = Object.values(VERDICT);
+  if (raw.verdict !== undefined && !known.includes(raw.verdict)) {
+    throw new TypeError(`unknown verdict "${raw.verdict}" for ${id} — expected one of ${known.join(', ')}`);
+  }
+  return raw;
+}
+
 function applyVerdicts(findings = [], verdicts = {}) {
   return findings.map(f => {
-    const v = verdicts[f.id];
-    if (!v) return f;
+    const given = verdicts[f.id];
+    if (given === undefined || given === null) return f;
+    const v = normalizeVerdict(given, f.id);
     const next = { ...f, verdict: v.verdict || f.verdict };
     if (v.repro && !next.repro) next.repro = String(v.repro).slice(0, 2000);
     if (v.why) next.evidence = `${next.evidence}\n[verification] ${v.why}`.slice(0, 2000);

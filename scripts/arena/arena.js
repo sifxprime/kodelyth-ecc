@@ -125,7 +125,15 @@ function submitGodWork(run, { artifacts = [], addressedIds = [], tokensSpent = 0
   return run;
 }
 
-function submitEvilHunt(run, { findings = [], tokensSpent = 0, elapsedMs = 0 } = {}) {
+// Accepts either submitEvilHunt(run, [findings]) or the options form. Passing a
+// bare array used to destructure to zero findings and silently record an empty
+// round — a wrong result that looks exactly like a clean one.
+function submitEvilHunt(run, payload = {}) {
+  const opts = Array.isArray(payload) ? { findings: payload } : payload;
+  const { findings = [], tokensSpent = 0, elapsedMs = 0 } = opts;
+  if (!Array.isArray(findings)) {
+    throw new TypeError(`submitEvilHunt: findings must be an array, got ${typeof findings}`);
+  }
   requirePhase(run, PHASE.EVIL_HUNT);
   run.pending.findings = dedupe(findings);
   run.spent.tokens += Math.max(0, Number(tokensSpent) || 0);

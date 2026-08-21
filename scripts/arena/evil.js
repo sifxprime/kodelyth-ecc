@@ -61,7 +61,7 @@ function selectCrew(flags = []) {
 // Each agent is told to report in the Finding contract, and — critically — that
 // a finding without a reproduction is worth less than no finding at all.
 
-function huntBrief({ agent, scope, round, knownFindingIds = [] }) {
+function huntBrief({ agent, scope, round, knownFindingIds = [], priorKnowledge = '' }) {
   const meta = CREW[agent] || { hunts: 'issues' };
   return [
     `You are ${agent}. Hunt: ${meta.hunts}.`,
@@ -80,7 +80,10 @@ function huntBrief({ agent, scope, round, knownFindingIds = [] }) {
     '- `repro` must be concrete steps or a command. A finding you cannot reproduce is `speculative` at best.',
     '- Do not pad. Five confirmed findings beat forty guesses — unverifiable findings get refuted and count against you.',
     '- Only claim `confirmed` when you have actually reproduced it.',
-  ].join('\n');
+    // Prior knowledge lands last so it reads as context for the rules above,
+    // not as a competing instruction set.
+    priorKnowledge || null,
+  ].filter(line => line !== null).join('\n');
 }
 
 // ── Stage 2: verification briefs ─────────────────────────────────────────────
@@ -174,12 +177,12 @@ function actionable(findings = [], { minRisk = 2.0 } = {}) {
 // ── Sweep plan ───────────────────────────────────────────────────────────────
 // The orchestrator asks for a plan, dispatches the agents, and feeds results back.
 
-function planSweep({ scope, flags = [], round = 1, knownFindingIds = [] } = {}) {
+function planSweep({ scope, flags = [], round = 1, knownFindingIds = [], priorKnowledge = '' } = {}) {
   const crew = selectCrew(flags);
   return {
     round,
     crew,
-    briefs: crew.map(agent => ({ agent, brief: huntBrief({ agent, scope, round, knownFindingIds }) })),
+    briefs: crew.map(agent => ({ agent, brief: huntBrief({ agent, scope, round, knownFindingIds, priorKnowledge }) })),
     estimatedTokens: crew.length * 12000, // rough: one agent sweep ≈ 12k
   };
 }

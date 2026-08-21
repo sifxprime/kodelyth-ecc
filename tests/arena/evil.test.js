@@ -113,3 +113,28 @@ test('planSweep produces one brief per agent and an estimate the budget can chec
   assert.equal(plan.briefs.length, 8);
   assert.ok(plan.estimatedTokens > 0, 'orchestrator needs a cost estimate before dispatching');
 });
+
+test('huntBrief carries prior knowledge when a past run supplied it', () => {
+  // The compound-learning return path: without this, every run starts from zero
+  // and EVIL re-derives the same bug classes forever.
+  const brief = E.huntBrief({
+    agent: 'secret-hunter', scope: 'src', round: 1,
+    priorKnowledge: 'PRIOR KNOWLEDGE — this scope has been attacked before.',
+  });
+  assert.match(brief, /PRIOR KNOWLEDGE/);
+  // It lands after the rules, so it reads as context rather than a competing
+  // instruction set.
+  assert.ok(brief.indexOf('PRIOR KNOWLEDGE') > brief.indexOf('Only claim `confirmed`'));
+});
+
+test('huntBrief omits the prior-knowledge block entirely when there is none', () => {
+  const brief = E.huntBrief({ agent: 'secret-hunter', scope: 'src', round: 1 });
+  assert.ok(!brief.includes('PRIOR KNOWLEDGE'));
+  assert.ok(!brief.includes('null'), 'a missing block must not leak "null" into the brief');
+});
+
+test('planSweep threads prior knowledge to every agent in the crew', () => {
+  const plan = E.planSweep({ scope: 'src', round: 2, priorKnowledge: 'KNOWN THINGS' });
+  assert.ok(plan.briefs.length > 1);
+  for (const b of plan.briefs) assert.match(b.brief, /KNOWN THINGS/, b.agent);
+});

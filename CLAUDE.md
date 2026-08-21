@@ -26,7 +26,7 @@ scripts/     → Node.js utilities: MCP server, dashboard, swarm, replay, router
 bundles/     → 3 power bundles (indie-hacker, red-team, enterprise)
 actions/     → GitHub Action (CI/CD integration for PR review)
 docs/        → Feature docs (mcp.md, dashboard.md, swarm.md, replay.md, evolve.md, supply-chain.md)
-tests/       → 373 passing tests across 25 test files
+tests/       → 516 passing tests across 27 test files
 ```
 
 ## Running Tests

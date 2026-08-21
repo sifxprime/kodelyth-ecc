@@ -69,6 +69,41 @@ When the action is `report`, print the full markdown:
 kodelythecc arena report <run-id> --md
 ```
 
+### 6. `learn` — close the compound loop
+
+A run that ends is knowledge thrown away. After the report:
+
+```bash
+kodelythecc arena learn <run-id>            # show what would be remembered
+kodelythecc arena learn <run-id> --commit   # store it
+```
+
+Every **confirmed** finding becomes a memory carrying the fix and the repro that
+proved it. Every **refuted** finding becomes a memory too — the more valuable
+half, because without it the next run re-investigates the same non-bug and burns
+a real verification pass proving the same negative.
+
+**Unverified findings are deliberately skipped.** Storing a question as knowledge
+would launder a guess into a fact, and future runs would recall it as settled.
+
+The return path is automatic: the next `arena start` on that scope recalls those
+memories and injects them into round 1's briefs, so EVIL opens where the last run
+closed instead of rediscovering it. Pass `--fresh` to skip the recall.
+
+```
+arena run  ──▶  confirmed + refuted findings  ──▶  memories
+     ▲                                                │
+     └────────  prior-knowledge brief  ◀──────────────┘
+```
+
+When the same bug **class** is confirmed repeatedly, `learn --commit` also files an
+`arena-guard` proposal into evolve. One symlink bug is an incident; two in the same
+file is a process gap, and the proposal says so — "add a shared path-safety helper
+and route every file write through it" rather than patching the third one later.
+
+Nothing is written without `--commit`. Memory that writes itself silently is memory
+you cannot trust.
+
 ## Rules that keep this honest
 
 - **Never skip verification.** Unverified findings waste GOD's next entire round — that's the expensive failure mode this design exists to prevent.

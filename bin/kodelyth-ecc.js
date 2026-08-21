@@ -429,6 +429,7 @@ if (args[0] === 'memory') {
 //   kodelythecc god  --task "<task>" [--json]        plan a GOD-mode build
 //   kodelythecc evil [scope] [--all|--license|...]   plan an EVIL-mode sweep
 //   kodelythecc arena list                           list past arena runs
+//   kodelythecc arena learn <run-id> [--commit]      remember what the run proved
 //   kodelythecc arena report <run-id>                show a run's report
 if (args[0] === 'god' || args[0] === 'evil' || args[0] === 'arena') {
   const mode = args[0];
@@ -491,11 +492,27 @@ if (args[0] === 'god' || args[0] === 'evil' || args[0] === 'arena') {
       const limits = {};
       if (flag('max-rounds')) limits.maxRounds = Number(flag('max-rounds'));
       if (flag('budget')) limits.tokenBudget = Number(flag('budget'));
+      // Compound learning: pull what past runs proved about this scope and hand
+      // it to EVIL, so round 1 opens where the last run closed. --fresh skips it.
+      const scopeArg = flag('scope', '.');
+      let priorKnowledge = '';
+      let recalledCount = 0;
+      if (!rest.includes('--fresh')) {
+        try {
+          const learn = require(path.join(ROOT, 'scripts', 'arena', 'learn.js'));
+          const memStore = require(path.join(ROOT, 'scripts', 'memory', 'store.js'));
+          const hits = memStore.recall(`arena ${scopeArg} ${task}`, { limit: 20 })
+            .filter(m => (m.source || '') === 'arena');
+          recalledCount = hits.length;
+          priorKnowledge = learn.priorKnowledgeBrief(hits);
+        } catch { /* memory is optional — a missing store must never block a run */ }
+      }
       const run = arena.startArena({
         task,
-        scope: flag('scope', '.'),
+        scope: scopeArg,
         flags: rest.filter(a => ['--all', '--license', '--theft', '--jailbreak', '--chaos', '--pre-public', '--pre-launch'].includes(a)),
         limits,
+        priorKnowledge,
       });
       const first = arena.nextAction(run);
       if (wantJson) { w(JSON.stringify({ run: state.summarize(run), next: first }, null, 2)); process.exit(0); }
@@ -505,6 +522,10 @@ if (args[0] === 'god' || args[0] === 'evil' || args[0] === 'arena') {
       w(`  scope:    ${run.scope}`);
       w(`  limits:   ${run.limits.maxRounds} rounds · ${run.limits.tokenBudget.toLocaleString()} tokens · ${Math.round(run.limits.wallClockMs / 60000)} min`);
       w(`  next:     \x1b[32m${first.action}\x1b[0m (round ${first.round}, ~${((first.estimatedTokens || 0) / 1000).toFixed(0)}k tokens)`);
+      w('');
+      if (recalledCount) {
+        w(`  recalled: \x1b[36m${recalledCount}\x1b[0m memor${recalledCount === 1 ? 'y' : 'ies'} from past runs on this scope — EVIL starts informed`);
+      }
       w('');
       w(`Drive the loop in your AI tool: \x1b[36m/arena ${run.task}\x1b[0m`);
       w(`Inspect anytime:                kodelythecc arena report ${run.runId}`);
@@ -534,6 +555,71 @@ if (args[0] === 'god' || args[0] === 'evil' || args[0] === 'arena') {
       w('');
       process.exit(0);
     }
+    if (sub === 'learn') {
+      const runId = rest[1];
+      if (!runId) { process.stderr.write('usage: kodelythecc arena learn <run-id> [--commit]\n'); process.exit(2); }
+      const run = state.load(runId);
+      if (!run) { process.stderr.write(`no such run: ${runId}\n`); process.exit(1); }
+      const learn = require(path.join(ROOT, 'scripts', 'arena', 'learn.js'));
+      const memStore = require(path.join(ROOT, 'scripts', 'memory', 'store.js'));
+
+      const drafts = learn.runToMemories(run, { project: process.cwd() });
+      if (wantJson) { w(JSON.stringify({ drafts: drafts.map(d => d.memory) }, null, 2)); process.exit(0); }
+
+      if (!drafts.length) {
+        w('');
+        w('Nothing to learn from this run — no confirmed or refuted findings.');
+        w('Unverified findings are deliberately skipped: storing a question as');
+        w('knowledge would launder a guess into a fact.');
+        w('');
+        process.exit(0);
+      }
+
+      w('');
+      w(`\x1b[1mArena learn\x1b[0m — ${runId}`);
+      w('─'.repeat(64));
+      for (const d of drafts) {
+        const kind = d.finding.verdict === 'confirmed' ? '\x1b[32mconfirmed\x1b[0m' : '\x1b[33mrefuted  \x1b[0m';
+        w(`${kind} ${d.memory.problem}`);
+      }
+      w('─'.repeat(64));
+
+      const clusters = learn.recurringClasses(drafts.map(d => d.memory), { minRuns: 2 });
+      if (clusters.length) {
+        w('');
+        w('\x1b[1mRecurring classes\x1b[0m — one is an incident, several is a process gap:');
+        for (const c of clusters) w(`  ${String(c.count).padStart(2)}x  ${c.class}`);
+      }
+
+      // Capture is explicit. Showing the drafts and requiring --commit is the
+      // whole point: memory that writes itself silently is memory you cannot trust.
+      if (!rest.includes('--commit')) {
+        w('');
+        w(`${drafts.length} draft(s). Nothing was written.`);
+        w(`Store them with: \x1b[36mkodelythecc arena learn ${runId} --commit\x1b[0m`);
+        w('');
+        process.exit(0);
+      }
+
+      let stored = 0;
+      for (const d of drafts) {
+        try { memStore.capture(d.memory); stored++; }
+        catch (err) { process.stderr.write(`  skipped: ${err.message}\n`); }
+      }
+      const proposals = learn.analyzeRunForProposals(drafts.map(d => d.memory), { minRuns: 2 });
+      if (proposals.length) {
+        try {
+          const P = require(path.join(ROOT, 'scripts', 'evolve', 'proposals.js'));
+          for (const pr of proposals) P.appendProposal(pr);
+        } catch { /* evolve is optional */ }
+      }
+      w('');
+      w(`Stored ${stored} memory item(s)${proposals.length ? ` and ${proposals.length} guard proposal(s)` : ''}.`);
+      w('Future arena runs on this scope will recall them automatically.');
+      w('');
+      process.exit(0);
+    }
+
     if (sub === 'report') {
       const runId = rest[1];
       if (!runId) { process.stderr.write('usage: kodelythecc arena report <run-id>\n'); process.exit(2); }

@@ -33,10 +33,13 @@ const PHASE = {
 
 // ── Starting a run ───────────────────────────────────────────────────────────
 
-function startArena({ task, scope = '.', flags = [], limits = {} } = {}) {
+function startArena({ task, scope = '.', flags = [], limits = {}, priorKnowledge = '' } = {}) {
   const run = state.createRun({ task, limits });
   run.scope = scope;
   run.flags = flags;
+  // Recalled from past runs against this scope. Injected into every EVIL brief so
+  // round 1 opens where the last run closed instead of rediscovering it.
+  run.priorKnowledge = String(priorKnowledge || '');
   run.phase = PHASE.GOD_BUILD;
   run.pending = { artifacts: [], findings: [], addressedIds: [] };
   state.save(run);
@@ -78,6 +81,7 @@ function nextAction(run) {
         flags: run.flags,
         round,
         knownFindingIds: run.seenFindingIds,
+        priorKnowledge: run.priorKnowledge || '',
       });
       return {
         action: PHASE.EVIL_HUNT,

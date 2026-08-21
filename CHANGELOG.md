@@ -2,6 +2,67 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.9.0 — Compound learning: the arena now remembers (phase 4) (August 2026)
+
+A finished arena run used to be knowledge thrown away. Every new run started from
+zero and EVIL re-derived the same bug classes forever. Phase 4 closes the loop.
+
+```
+arena run  ──▶  confirmed + refuted findings  ──▶  memories
+     ▲                                                │
+     └────────  prior-knowledge brief  ◀──────────────┘
+```
+
+### Added — `scripts/arena/learn.js`
+
+Pure functions, no I/O — the callers own the disk and the confirmation prompt, so
+the learning logic is testable without writing to a real memory store.
+
+- **Confirmed findings become memories** carrying the fix and the repro that proved
+  it, tagged by bug class, file, language, and scope.
+- **Refuted findings become memories too** — the more valuable half. Without them
+  the next run re-investigates the same non-bug and burns a real verification pass
+  proving the same negative.
+- **Unverified findings are deliberately skipped.** Storing a question as knowledge
+  would launder a guess into a fact, and future runs would recall it as settled.
+- **Bug classification** — a small, reviewable keyword map (not a classifier) that
+  groups findings well enough to see a class recurring across runs.
+
+### Added — the return path
+
+`arena start` now recalls arena-sourced memories for the scope and injects them
+into every round-1 EVIL brief, split into *"confirmed here before, verify these
+stayed fixed"* and *"already refuted, do not re-report without new evidence."*
+The run reports how many memories it recalled, because silent magic is
+untrustworthy. `--fresh` skips it.
+
+### Added — `arena learn` and guard proposals
+
+```bash
+kodelythecc arena learn <run-id>            # show what would be remembered
+kodelythecc arena learn <run-id> --commit   # store it
+```
+
+Nothing is written without `--commit`. Memory that writes itself silently is
+memory you cannot trust.
+
+When one bug **class** is confirmed repeatedly, `--commit` also files an
+`arena-guard` proposal into evolve. One symlink bug is an incident; two in the
+same file is a process gap — and the proposal says so, recommending a shared
+path-safety helper rather than patching the third one later. Proposal ids are
+deterministic, so re-running analysis never spawns duplicates.
+
+### Fixed — three bugs in the classifier, found by running it on real data
+
+- A bare `permission` matched *"widens permission thresholds"*, filing a semantics
+  bug under file modes.
+- `/\bvalidat/` could not match inside *"unvalidated"* — there is no word boundary
+  after `un`.
+- The injection class keyed on the word *"injection"*, so a finding phrased as a
+  missing trust boundary fell through to uncategorized.
+
+**516 tests passing**, up from 493.
+
 ## v2.8.0 — The Arena's first real run: 12 bugs found and fixed in `terse` (August 2026)
 
 The arena was pointed at `scripts/terse` — the markdown compressor that ships with

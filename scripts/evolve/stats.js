@@ -29,6 +29,7 @@ const fs   = require('fs');
 const os   = require('os');
 const path = require('path');
 const crypto = require('crypto');
+const safeFs = require('../lib/safe-fs.js');
 
 const DEFAULT_DIR = process.env.KODELYTH_EVOLVE_DIR
   || path.join(os.homedir(), '.kodelythecc', 'evolve');
@@ -54,7 +55,7 @@ function safeReadJson(p, fallback) {
 
 function safeWriteJson(p, data) {
   try {
-    fs.writeFileSync(p, JSON.stringify(data, null, 2));
+    safeFs.replaceFilePreservingMode(p, JSON.stringify(data, null, 2));
     return true;
   } catch { return false; }
 }

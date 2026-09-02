@@ -209,3 +209,45 @@ test('regression: temp names are unpredictable, not pid-based', () => {
     for (const n of seen) assert.ok(!n.includes(String(process.pid)), 'temp name contains the pid');
   } finally { fs.renameSync = realRename; s.cleanup(); }
 });
+
+// ── replaceFilePreservingMode ───────────────────────────────────────────────
+
+test('replaceFilePreservingMode keeps the existing permissions', () => {
+  const s = sandbox();
+  try {
+    const f = path.join(s.root, 'config.toml');
+    fs.writeFileSync(f, 'old');
+    fs.chmodSync(f, 0o600);
+    S.replaceFilePreservingMode(f, 'new contents');
+    assert.equal(fs.readFileSync(f, 'utf8'), 'new contents');
+    assert.equal(fs.statSync(f).mode & 0o777, 0o600, 'mode was not preserved');
+  } finally { s.cleanup(); }
+});
+
+test('replaceFilePreservingMode creates a new file at the fallback mode', () => {
+  const s = sandbox();
+  try {
+    const f = path.join(s.root, 'brand-new.json');
+    S.replaceFilePreservingMode(f, '{}', 0o600);
+    assert.equal(fs.readFileSync(f, 'utf8'), '{}');
+    assert.equal(fs.statSync(f).mode & 0o777, 0o600);
+  } finally { s.cleanup(); }
+});
+
+test('regression: a crash mid-replace leaves the original file intact', () => {
+  // This is the whole point. fs.writeFileSync opens with 'w' and truncates to
+  // zero BEFORE writing, so a crash or a full disk part-way through leaves the
+  // user with a truncated config and no copy of the original anywhere. An
+  // atomic rename means the original survives untouched.
+  const s = sandbox();
+  const realRename = fs.renameSync;
+  try {
+    const f = path.join(s.root, 'important.toml');
+    fs.writeFileSync(f, 'ORIGINAL CONFIG THAT MUST SURVIVE');
+    fs.renameSync = () => { throw new Error('simulated crash'); };
+    assert.throws(() => S.replaceFilePreservingMode(f, 'replacement'), /simulated crash/);
+    fs.renameSync = realRename;
+    assert.equal(fs.readFileSync(f, 'utf8'), 'ORIGINAL CONFIG THAT MUST SURVIVE');
+    assert.deepEqual(fs.readdirSync(s.root).filter(n => n.includes('.tmp-')), []);
+  } finally { fs.renameSync = realRename; s.cleanup(); }
+});

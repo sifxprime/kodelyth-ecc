@@ -30,6 +30,7 @@
 const fs   = require('fs');
 const os   = require('os');
 const path = require('path');
+const safeFs = require('../lib/safe-fs.js');
 
 const REGISTRY_DIR = process.env.KODELYTH_MCP_CLIENT_DIR
   || path.join(os.homedir(), '.kodelythecc');
@@ -54,7 +55,7 @@ function loadRegistry() {
 
 function saveRegistry(reg) {
   ensureDir(REGISTRY_DIR);
-  fs.writeFileSync(REGISTRY_FILE, JSON.stringify(reg, null, 2) + '\n');
+  safeFs.replaceFilePreservingMode(REGISTRY_FILE, JSON.stringify(reg, null, 2) + '\n');
 }
 
 // ── Registry mutations ───────────────────────────────────────────────────────

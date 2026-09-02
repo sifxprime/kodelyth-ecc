@@ -13,6 +13,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const safeFs = require('../lib/safe-fs.js');
 
 let TOML;
 try {
@@ -310,7 +311,7 @@ function main() {
     return;
   }
 
-  fs.writeFileSync(configPath, nextRaw, 'utf8');
+  safeFs.replaceFilePreservingMode(configPath, nextRaw);
   log('Done. Baseline Codex settings merged.');
 }
 

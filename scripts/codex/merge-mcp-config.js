@@ -19,6 +19,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const safeFs = require('../lib/safe-fs.js');
 const { parseDisabledMcpServers } = require('../lib/mcp-config');
 
 let TOML;
@@ -319,7 +320,7 @@ function main() {
   if (updateMcp || hasRemovals) {
     for (const label of toRemoveLog) log(`  [update] ${label}`);
     const cleaned = raw.replace(/\n+$/, '\n');
-    fs.writeFileSync(configPath, cleaned + (toAppend.length > 0 ? appendText : ''), 'utf8');
+    safeFs.replaceFilePreservingMode(configPath, cleaned + (toAppend.length > 0 ? appendText : ''));
   } else {
     fs.appendFileSync(configPath, appendText, 'utf8');
   }

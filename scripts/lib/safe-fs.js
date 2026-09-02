@@ -153,10 +153,29 @@ function replaceFileAtomic(absPath, contents, mode) {
   return absPath;
 }
 
+/**
+ * Replace an existing file's contents atomically, keeping whatever permissions
+ * it already had (or `fallbackMode` when it does not exist yet).
+ *
+ * This is the safe replacement for `fs.writeFileSync(path, data)` on any file
+ * that holds state worth keeping — a user's IDE config, an accumulated stats
+ * file, a registry. `writeFileSync` opens with 'w', truncating to zero before
+ * writing, so a crash or a full disk part-way through leaves the user with a
+ * truncated file and no copy of the original anywhere.
+ */
+function replaceFilePreservingMode(absPath, contents, fallbackMode = 0o644) {
+  let mode = fallbackMode;
+  try {
+    mode = fs.statSync(absPath).mode & 0o7777;
+  } catch { /* new file — use the fallback */ }
+  return replaceFileAtomic(absPath, contents, mode);
+}
+
 module.exports = {
   resolveContained,
   statRegularFile,
   safeConfigDir,
   writeNewFile,
   replaceFileAtomic,
+  replaceFilePreservingMode,
 };

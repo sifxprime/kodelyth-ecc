@@ -2,6 +2,62 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.14.0 — A false recurring class, and five more atomic writes (August 2026)
+
+### Fixed — the guard proposal was pointing at the wrong thing
+
+After three arena runs the classifier reported **`resource-exhaustion` ×5** as the
+top recurring class. Four of those five were not resource exhaustion at all:
+
+```
+resource-exhaustion  <- Prototype-key collision crashes indexing
+resource-exhaustion  <- A crash mid-append fuses the next memory into the torn row
+resource-exhaustion  <- A patch row surfaced as a phantom memory
+```
+
+The pattern contained the bare word `memory`, which matches every finding about
+the memory *store*. Acting on it would have meant building a guard nobody needed
+— exactly the waste the proposal mechanism exists to prevent. This is the second
+generic-word collision in this classifier; `permission` was the first.
+
+`resource-exhaustion` now requires an actual exhaustion signal (`heap`, `rss`,
+`oom`, `memory leak/usage/growth`, `allocates N`). A new **`data-integrity`**
+class covers the double-index / desync / phantom-row / torn-row family, and
+prototype-key findings now classify as `input-validation`. The 5 mis-tagged
+memories already in the store were re-tagged.
+
+The corrected picture across three runs:
+
+| class | count | status |
+|---|---|---|
+| `filesystem-symlink` | 4 | already guarded by `scripts/lib/safe-fs.js` |
+| `data-integrity` | 4 | all four in one file, all fixed |
+| `input-validation` | 2 | fixed |
+| everything else | 1 each | — |
+
+**No new abstraction was built for `data-integrity`.** All four members live in
+`store.js` and are already fixed, and no other subsystem keeps derived state with
+the same drift — so a shared guard would have been speculative.
+
+### Added — `replaceFilePreservingMode`, applied to five real writers
+
+What the sweep *did* find is the durability pattern in files holding state worth
+keeping. `fs.writeFileSync` opens with `'w'`, truncating to zero before writing,
+so a crash or a full disk part-way through leaves a truncated file and no copy of
+the original:
+
+- `scripts/codex/merge-mcp-config.js` — the user's **Codex IDE config**
+- `scripts/codex/merge-codex-config.js` — the user's **Codex IDE config**
+- `scripts/evolve/stats.js` — accumulated reuse and routing-miss stats
+- `scripts/mcp/client.js` — the MCP server registry
+- `scripts/memory/store.js` — the BM25 index
+
+All five now write through `safeFs.replaceFilePreservingMode`, which keeps the
+file's existing permissions and renames atomically. A crash leaves the original
+completely untouched.
+
+**572 tests passing**, up from 569.
+
 ## v2.13.0 — Arena run #3: eight bugs in the memory store (August 2026)
 
 Pointed the arena at `scripts/memory` — the persistent BM25 store every other

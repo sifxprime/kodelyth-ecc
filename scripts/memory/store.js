@@ -18,6 +18,7 @@ const fs   = require('fs');
 const os   = require('os');
 const path = require('path');
 const crypto = require('crypto');
+const safeFs = require('../lib/safe-fs.js');
 
 // Auto-migrate legacy ~/.kodelyth/ → ~/.kodelythecc/ before we touch any path.
 try { require('../migrate-legacy').main(); } catch { /* best-effort */ }
@@ -142,7 +143,7 @@ function logSize() {
 
 function saveIndex(index) {
   ensureDir(PATHS.dir);
-  fs.writeFileSync(PATHS.index, JSON.stringify({ ...index, logSize: logSize() }, null, 2));
+  safeFs.replaceFilePreservingMode(PATHS.index, JSON.stringify({ ...index, logSize: logSize() }, null, 2));
 }
 
 // A patch row does not change any searchable text, so the index stays valid —

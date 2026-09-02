@@ -72,7 +72,7 @@ You never typed `use debug-detective`. You didn't have to. The toolkit read the 
 |---|---|---|
 | **Intent routing** | Plain-language → right specialist via 10-tier priority rules | Mostly missing — you memorize names |
 | **70 agents** | Specialists with playbooks, severity calibration, real commands | Often persona-only ("you are a senior engineer...") |
-| **194 skills** | Domain knowledge files agents read on demand | Rarely separated from agents |
+| **196 skills** | Domain knowledge files agents read on demand | Rarely separated from agents |
 | **102 commands** | Slash workflows (`/tdd`, `/arena`, `/devil-mode`, `/team-review`) | Limited or none |
 | **8 parallel commands** | Fire 3-8 agents simultaneously, aggregate results | Rare |
 | **Compound memory** | BM25 local recall + auto-inject + project lessons | Cloud-only or absent |
@@ -118,7 +118,7 @@ kodelythecc --target claude-code --codebase-graph
 That's it. This single flow:
 
 1. Installs both binaries (`kodelyth-ecc` and short-form `kodelythecc`) to your PATH
-2. Copies 70 agents + 194 skills + 97 commands + 22 hooks + 14 rules into your AI tool's config dir
+2. Copies 70 agents + 196 skills + 102 commands + 22 hooks + 14 rules into your AI tool's config dir
 3. Auto-installs **RTK** binary and wires its PreToolUse hook (input compression starts on next AI restart)
 4. Installs **Terse mode** skill + `/terse` and `/terse-compress` slash commands (dormant — user types `/terse` to activate)
 5. Auto-installs **codebase-memory-mcp** and registers its MCP entries in your AI tool (with `--codebase-graph`)
@@ -220,7 +220,7 @@ npx kodelyth-ecc --bundle red-team        # Security engineer — devil-mode + a
 npx kodelyth-ecc --bundle enterprise      # Compliance / audit team — SBOM, license, supply chain
 ```
 
-Each bundle installs the full ECC toolkit (all 70 agents, 194 skills, 97 commands, 22+ hooks), adds a `BUNDLE.md` cheat sheet, and biases the AI toward audience-fit workflows on every session.
+Each bundle installs the full ECC toolkit (all 70 agents, 196 skills, 102 commands, 22+ hooks), adds a `BUNDLE.md` cheat sheet, and biases the AI toward audience-fit workflows on every session.
 
 Combine with any target:
 
@@ -417,7 +417,7 @@ What's inside:
 | **Overview** | Agent count, memory stats, session count, recent activity |
 | **Memory** | Browse, search, and manage your local BM25 memory store |
 | **Evolve** | Self-improving memory — review AI-proposed refinements |
-| **Catalog** | Full searchable index of all 70 agents, 194 skills, 97 commands |
+| **Catalog** | Full searchable index of all 70 agents, 196 skills, 102 commands |
 | **Sessions** | **Live IDE activity** (Claude Code, Windsurf, Windsurf-Next, Cursor, Antigravity) + orchestration/swarm sessions |
 
 Real-time:
@@ -888,7 +888,7 @@ The intent router will route you to the right one. The AI announces who's taking
 | Source | Destination | What it does |
 |---|---|---|
 | `agents/` | `~/.claude/agents/` | All 70 subagents available globally |
-| `skills/` | `~/.claude/skills/` | All 194 skills loadable via commands |
+| `skills/` | `~/.claude/skills/` | All 196 skills loadable via commands |
 | `hooks/hooks.json` | `~/.claude/hooks/` | Automated quality gates |
 | `rules/` | `~/.claude/rules/` | Always-on standards + intent routing |
 | `commands/` | `~/.claude/commands/` | Slash commands (`/tdd`, `/plan`, etc.) |

@@ -1,6 +1,6 @@
 ---
 title: "Kodelyth ECC Documentation — AI Coding Toolkit for Claude Code, Cursor, Windsurf, and More"
-description: "Complete documentation for Kodelyth ECC — 70 specialist agents, 194 skills, 97 commands, RTK input compression, Terse mode, codebase graph, MCP server. Zero telemetry, 100% local."
+description: "Complete documentation for Kodelyth ECC — 70 specialist agents, 196 skills, 102 commands, RTK input compression, Terse mode, codebase graph, MCP server. Zero telemetry, 100% local."
 keywords:
   - kodelyth ecc
   - AI coding toolkit
@@ -22,12 +22,12 @@ keywords:
   - local AI toolkit
   - zero telemetry AI
 og_title: "Kodelyth ECC — Production AI Coding Toolkit Documentation"
-og_description: "70 agents, 194 skills, 97 commands, MCP server, RTK + Terse token savings, codebase graph — all local, zero telemetry. Docs, guides, and API reference."
+og_description: "70 agents, 196 skills, 102 commands, MCP server, RTK + Terse token savings, codebase graph — all local, zero telemetry. Docs, guides, and API reference."
 og_image: /social/og-image.svg
 og_type: website
 twitter_card: summary_large_image
 twitter_title: "Kodelyth ECC — AI Coding Toolkit Docs"
-twitter_description: "70 agents, 194 skills, MCP, RTK + Terse token savings — all local. Complete docs."
+twitter_description: "70 agents, 196 skills, MCP, RTK + Terse token savings — all local. Complete docs."
 canonical: /docs/
 last_updated: 2026-07-04
 version: 2.4.1
@@ -60,7 +60,7 @@ Two independent compression layers stack for **55-65% total token reduction** on
 ## Structural intelligence
 
 - **[Codebase Graph](./codebase-graph.md)** — AST-parsed knowledge graph across 158 languages via `codebase-memory-mcp`. 99% fewer tokens on "who calls X" questions vs file-by-file grep
-- **[MCP Server](./mcp.md)** — universal adapter exposing 70 agents + 194 skills + 97 commands + 14 rules to Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK, and any MCP client
+- **[MCP Server](./mcp.md)** — universal adapter exposing 70 agents + 196 skills + 102 commands + 14 rules to Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK, and any MCP client
 - **[External MCP Servers](./mcp-clients.md)** — register Stripe, GitHub, Postgres, Redis MCPs into the ECC surface
 
 ## Local, self-learning memory

@@ -13,6 +13,14 @@ const path = require('node:path');
 
 const S = require('../../scripts/lib/safe-fs');
 
+// POSIX file semantics do not exist on Windows: chmod only toggles the
+// read-only bit, statSync().mode is synthesized rather than real, umask is
+// meaningless, and symlinkSync needs administrator rights or Developer Mode.
+// Tests that assert those semantics are skipped there — the behaviour they
+// guard is real on Linux and macOS, which is where CI proves it.
+const POSIX_ONLY = { skip: process.platform === 'win32' ? 'POSIX file semantics only' : false };
+
+
 function sandbox() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'safe-fs-'));
   const root = path.join(dir, 'root');
@@ -145,7 +153,7 @@ test('writeNewFile refuses to overwrite an existing file', () => {
   } finally { s.cleanup(); }
 });
 
-test('regression: writeNewFile refuses to follow a planted dangling symlink', () => {
+test("regression: writeNewFile refuses to follow a planted dangling symlink", POSIX_ONLY, () => {
   // existsSync reports a DANGLING link as absent, so a check-then-write skipped
   // its own no-clobber guard and wrote through the link to a chosen path.
   const s = sandbox();
@@ -157,7 +165,7 @@ test('regression: writeNewFile refuses to follow a planted dangling symlink', ()
   } finally { s.cleanup(); }
 });
 
-test('regression: the mode survives a restrictive umask', () => {
+test("regression: the mode survives a restrictive umask", POSIX_ONLY, () => {
   // open() filters its mode through the umask, so a 0644 file came back 0600
   // under `umask 077`. fchmod after the write ignores the umask.
   const s = sandbox();
@@ -171,7 +179,7 @@ test('regression: the mode survives a restrictive umask', () => {
 
 // ── replaceFileAtomic ───────────────────────────────────────────────────────
 
-test('replaceFileAtomic swaps contents and preserves the mode', () => {
+test("replaceFileAtomic swaps contents and preserves the mode", POSIX_ONLY, () => {
   const s = sandbox();
   try {
     const f = path.join(s.root, 'inside.txt');
@@ -212,7 +220,7 @@ test('regression: temp names are unpredictable, not pid-based', () => {
 
 // ── replaceFilePreservingMode ───────────────────────────────────────────────
 
-test('replaceFilePreservingMode keeps the existing permissions', () => {
+test("replaceFilePreservingMode keeps the existing permissions", POSIX_ONLY, () => {
   const s = sandbox();
   try {
     const f = path.join(s.root, 'config.toml');
@@ -224,7 +232,7 @@ test('replaceFilePreservingMode keeps the existing permissions', () => {
   } finally { s.cleanup(); }
 });
 
-test('replaceFilePreservingMode creates a new file at the fallback mode', () => {
+test("replaceFilePreservingMode creates a new file at the fallback mode", POSIX_ONLY, () => {
   const s = sandbox();
   try {
     const f = path.join(s.root, 'brand-new.json');

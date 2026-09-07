@@ -14,6 +14,14 @@ const path = require('path');
 
 const { compressText, compressFile } = require('../../scripts/terse/compress');
 
+// POSIX file semantics do not exist on Windows: chmod only toggles the
+// read-only bit, statSync().mode is synthesized rather than real, umask is
+// meaningless, and symlinkSync needs administrator rights or Developer Mode.
+// Tests that assert those semantics are skipped there — the behaviour they
+// guard is real on Linux and macOS, which is where CI proves it.
+const POSIX_ONLY = { skip: process.platform === 'win32' ? 'POSIX file semantics only' : false };
+
+
 const out = (s) => compressText(s).output;
 
 // ── Guard rails: preserved regions must survive byte-for-byte ────────────────
@@ -247,7 +255,7 @@ test('a missing file reports a clear error', () => {
 const FILLER = 'Basically, I would recommend that you read this document now.';
 const modeOf = (p) => fs.lstatSync(p).mode & 0o777;
 
-test('regression: original file permissions are preserved exactly', () => {
+test("regression: original file permissions are preserved exactly", POSIX_ONLY, () => {
   // Shipped bug: the replacement and the backup were created fresh under the
   // process umask, so compressing a 0600 file silently republished it as 0644 —
   // no attacker needed, just `terse compress` on a private CLAUDE.md.
@@ -261,7 +269,7 @@ test('regression: original file permissions are preserved exactly', () => {
   });
 });
 
-test('regression: mode preservation is not distorted by the umask', () => {
+test("regression: mode preservation is not distorted by the umask", POSIX_ONLY, () => {
   // `open`'s mode argument is filtered through the umask, so a 0644 original
   // came back 0600 under `umask 077`. fchmod after the write ignores the umask.
   const prev = process.umask(0o077);
@@ -293,7 +301,7 @@ test('regression: symlinked targets are refused, not followed', () => {
   });
 });
 
-test('regression: a planted dangling backup symlink is not written through', () => {
+test("regression: a planted dangling backup symlink is not written through", POSIX_ONLY, () => {
   // Shipped bug: fs.existsSync reports a DANGLING symlink as absent, so the
   // no-clobber check was skipped and the plain write followed the link to a
   // path the attacker chose. O_EXCL fails on the link itself instead.

@@ -259,3 +259,43 @@ test('regression: a crash mid-replace leaves the original file intact', () => {
     assert.deepEqual(fs.readdirSync(s.root).filter(n => n.includes('.tmp-')), []);
   } finally { fs.renameSync = realRename; s.cleanup(); }
 });
+
+// ── resolveContainedForWrite ────────────────────────────────────────────────
+
+test('a new file inside the root resolves', () => {
+  const s = sandbox();
+  try {
+    const out = S.resolveContainedForWrite('sub/dir/new.md', s.root);
+    assert.ok(out && out.startsWith(s.root));
+  } finally { s.cleanup(); }
+});
+
+test('regression: a ../ target cannot escape on the write path', () => {
+  // resolveContained cannot answer this — it realpaths the target, which fails
+  // for a file about to be created — so callers were left doing a bare
+  // path.resolve and writing wherever it landed.
+  const s = sandbox();
+  try {
+    for (const t of ['../escaped.md', '../../escaped.md', 'a/../../escaped.md']) {
+      assert.equal(S.resolveContainedForWrite(t, s.root), null, t);
+    }
+  } finally { s.cleanup(); }
+});
+
+test('regression: an absolute target discards the root and must be rejected', () => {
+  // path.resolve(root, '/abs/path') returns '/abs/path' — the root is ignored
+  // entirely, which is the sharpest version of this bug.
+  const s = sandbox();
+  try {
+    assert.equal(S.resolveContainedForWrite(path.join(s.dir, 'victim.md'), s.root), null);
+    assert.equal(S.resolveContainedForWrite('/etc/passwd', s.root), null);
+  } finally { s.cleanup(); }
+});
+
+test('regression: a symlinked ancestor cannot be used to escape on write', POSIX_ONLY, () => {
+  const s = sandbox();
+  try {
+    fs.symlinkSync(s.dir, path.join(s.root, 'updir'));
+    assert.equal(S.resolveContainedForWrite('updir/planted.md', s.root), null);
+  } finally { s.cleanup(); }
+});

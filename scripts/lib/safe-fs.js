@@ -70,6 +70,49 @@ function resolveContained(candidate, root, { allowExact = null } = {}) {
 }
 
 /**
+ * Confirm a path that does not exist yet still resolves inside `root`.
+ *
+ * `resolveContained` cannot answer this: it realpaths the target, which fails
+ * for a file about to be created. So walk up to the nearest ancestor that DOES
+ * exist, canonicalise that, and re-check — which still catches a symlinked
+ * parent directory pointing out of the root.
+ *
+ * Returns the resolved absolute path, or null if it escapes.
+ */
+function resolveContainedForWrite(candidate, root) {
+  if (!candidate || !root) return null;
+
+  const absRoot = path.resolve(root);
+  // path.resolve(root, '/abs/path') returns '/abs/path' — an absolute candidate
+  // discards the root entirely, so it must be rejected up front rather than
+  // joined and hoped about.
+  const abs = path.isAbsolute(candidate) ? path.resolve(candidate) : path.resolve(absRoot, candidate);
+
+  if (abs !== absRoot && !abs.startsWith(absRoot + path.sep)) return null;
+
+  // The lexical check above is defeated by a symlinked ancestor, so canonicalise
+  // the deepest directory that actually exists and confirm it is still inside.
+  let probe = path.dirname(abs);
+  while (probe !== path.dirname(probe) && !fs.existsSync(probe)) probe = path.dirname(probe);
+
+  let realProbe;
+  try {
+    realProbe = fs.realpathSync(probe);
+  } catch {
+    return null;
+  }
+  let realRoot;
+  try {
+    realRoot = fs.realpathSync(absRoot);
+  } catch {
+    realRoot = absRoot;
+  }
+  if (realProbe !== realRoot && !realProbe.startsWith(realRoot + path.sep)) return null;
+
+  return abs;
+}
+
+/**
  * Stat a path that must be a regular file, refusing symlinks outright.
  *
  * Used where the caller is about to REWRITE the file: following a link there
@@ -173,6 +216,7 @@ function replaceFilePreservingMode(absPath, contents, fallbackMode = 0o644) {
 
 module.exports = {
   resolveContained,
+  resolveContainedForWrite,
   statRegularFile,
   safeConfigDir,
   writeNewFile,

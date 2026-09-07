@@ -33,7 +33,7 @@ const CLASSES = [
   ['filesystem-symlink',  /\bsymlink|lstat|O_NOFOLLOW|hard ?link|dangling\b/i],
   ['file-permissions',    /\bchmod|umask|0600|0644|0444|world-readable|file mode|file permission|permissions? (?:not )?preserved\b/i],
   ['redos',               /\bredos|backtrack|quadratic|catastrophic|O\(n\^?2\)|unanchored\b/i],
-  ['path-traversal',      /\btraversal|confinement|arbitrary (?:write|path)|escape the root\b/i],
+  ['path-traversal',      /\btraversal|confinement|arbitrary (?:write|path)|escapes? (?:the )?\w*root|outside (?:the )?\w*(?:root|repo\w*)|writes? outside|discards? (?:the )?\w*root/i],
   ['race-condition',      /\btoctou|race condition|check.to.use\b/i],
   ['resource-exhaustion', /\bheap\b|\brss\b|\boom\b|amplification|exhaust|out of memory|memory (?:leak|usage|growth|pressure)|allocates? ~?\d/i],
   ['missing-limit',       /\bno (?:input )?(?:size )?cap|unbounded|no limit|missing limit\b/i],

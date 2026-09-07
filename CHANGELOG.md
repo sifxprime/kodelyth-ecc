@@ -2,6 +2,62 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.16.0 — Arena run #4: three path-escapes in evolve (September 2026)
+
+### Fixed — `applyProposalToDisk` wrote wherever the proposal told it to
+
+`evolve accept <id>` applies a proposal to disk. The target came straight from
+proposal data with no containment check:
+
+```js
+const abs = path.resolve(repoRoot, proposal.proposal.target_path);
+fs.writeFileSync(abs, proposal.proposal.diff);
+```
+
+Three vectors, all reproduced:
+
+- `../../escaped.md` wrote to `/tmp/escaped.md`
+- an **absolute** `target_path` discards `repoRoot` entirely — `path.resolve(root, '/abs')` returns `/abs`
+- with `overwrite: true`, a real user file **outside** the root was overwritten
+
+This is the fifth occurrence of the containment class the arena has confirmed,
+in the one file that never adopted the guard.
+
+### Added — `safeFs.resolveContainedForWrite`
+
+The existing `resolveContained` could not answer this case: it canonicalises the
+target, which fails for a file about to be *created*. The new function walks up
+to the nearest existing ancestor, canonicalises that, and re-checks — so a
+symlinked parent directory still cannot be used to escape. Absolute candidates
+are rejected up front rather than joined and hoped about.
+
+### Fixed — the classifier missed naturally-phrased findings, again
+
+All three findings filed as `uncategorized`. The `path-traversal` pattern wanted
+the literal words *traversal* / *confinement*, while the findings said "writes
+outside repoRoot" and "discards repoRoot entirely". Widened to match
+`\w*root` forms — `repoRoot`, `projectRoot`, `coordRoot` — and the stored
+memories re-tagged.
+
+That is the third generic-vs-specific gap in this classifier (`permission`,
+`memory`, now `root`). The pattern is consistent: it matches jargon and misses
+the plain phrasing people actually write.
+
+### Removed — the ecc-web dispatch workflow
+
+It fired a `repository_dispatch` at ecc-web on every push for instant deploys,
+needed a cross-repo PAT, and had been returning HTTP 403 while reporting green.
+Measured on the ecc-web side across 12 consecutive deploys: **12 from its own
+10-minute cron, 0 from the dispatch.** It was contributing nothing but an
+expiring secret and a red check.
+
+Removed rather than repaired. ecc-web keeps its `repository_dispatch` trigger,
+so restoring instant deploys is just a matter of adding a fine-grained PAT with
+`Contents: read-write`. The rationale is recorded in that repo's `deploy.yml` so
+it does not get rebuilt. The cost is latency the site already had.
+
+**576 tests passing. All 9 CI checks green.**
+
 ## v2.15.0 — Green CI, and the agents learn what the arena found (September 2026)
 
 ### Fixed — CI had been red since v2.8.0

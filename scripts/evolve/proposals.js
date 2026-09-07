@@ -20,6 +20,7 @@
 const fs   = require('fs');
 const path = require('path');
 const os   = require('os');
+const safeFs = require('../lib/safe-fs.js');
 
 const DEFAULT_DIR = process.env.KODELYTH_EVOLVE_DIR
   || path.join(os.homedir(), '.kodelythecc', 'evolve');
@@ -139,7 +140,18 @@ function applyProposalToDisk(proposal, { repoRoot, overwrite = false } = {}) {
     throw new Error('applyProposalToDisk: proposal lacks diff or target_path');
   }
   if (!repoRoot) throw new Error('applyProposalToDisk: repoRoot is required');
-  const abs = path.resolve(repoRoot, proposal.proposal.target_path);
+
+  // target_path comes from proposal data, not from the caller, so it is not
+  // trusted. path.resolve normalises ".." but still returns a path OUTSIDE the
+  // root when the target escapes — and an ABSOLUTE target_path discards the root
+  // entirely. Confirmed writing to /tmp/escaped.md and overwriting a real file
+  // outside the root with overwrite:true.
+  const abs = safeFs.resolveContainedForWrite(proposal.proposal.target_path, repoRoot);
+  if (!abs) {
+    throw new Error(
+      `applyProposalToDisk: refusing to write outside repoRoot — target_path "${proposal.proposal.target_path}" escapes ${repoRoot}`,
+    );
+  }
   if (fs.existsSync(abs) && !overwrite) {
     throw new Error(`applyProposalToDisk: refusing to overwrite existing file at ${abs} (pass overwrite=true)`);
   }

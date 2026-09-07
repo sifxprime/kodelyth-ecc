@@ -80,7 +80,7 @@ function addServer({ name, command, args = [], env = {}, description = '' }) {
 
 function removeServer(name) {
   const reg = loadRegistry();
-  if (!reg.servers[name]) return false;
+  if (!Object.hasOwn(reg.servers, name)) return false;
   delete reg.servers[name];
   saveRegistry(reg);
   return true;

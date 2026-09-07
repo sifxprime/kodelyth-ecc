@@ -8,6 +8,7 @@ const https = require('https');
 const fs    = require('fs');
 const os    = require('os');
 const path  = require('path');
+const safeFs = require('../lib/safe-fs.js');
 
 const CACHE_DIR  = path.join(os.homedir(), '.kodelythecc');
 const CACHE_FILE = path.join(CACHE_DIR, 'update-check.json');
@@ -23,7 +24,7 @@ function readCache() {
 
 function writeCache(latest) {
   try { fs.mkdirSync(CACHE_DIR, { recursive: true }); } catch {}
-  try { fs.writeFileSync(CACHE_FILE, JSON.stringify({ at: Date.now(), latest })); } catch {}
+  try { safeFs.replaceFilePreservingMode(CACHE_FILE, JSON.stringify({ at: Date.now(), latest })); } catch {}
 }
 
 function fetchLatest() {

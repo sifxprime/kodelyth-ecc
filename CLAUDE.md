@@ -8,7 +8,7 @@ Guidance for Claude Code when working with this repository.
 
 - **70 specialist agents** — debug-detective, incident-commander, load-tester, image-architect, kodelyth-memory, security-reviewer, plus 8 adversarial devil-mode agents
 - **196 skills** — domain knowledge, patterns, testing, security, intent routing, local memory, swarm orchestration, MCP integration
-- **102 commands** — slash workflows (`/tdd`, `/plan`, `/code-review`, `/team-review`, `/devil-mode`, `/debug-blitz`, `/security-audit`, ...)
+- **103 commands** — slash workflows (`/tdd`, `/plan`, `/code-review`, `/team-review`, `/devil-mode`, `/debug-blitz`, `/security-audit`, ...)
 - **22+ hooks** — quality gates, memory inject + capture, correction encoding, prompt-injection guard, token-budget enforcer
 - **14 rules** — always-on coding standards + semantic intent routing + memory protocol + self-improvement
 
@@ -18,7 +18,7 @@ Works with Claude Code, Windsurf, Cursor, Codex CLI, Antigravity, OpenCode, Clin
 
 ```
 agents/      → 70 specialist subagents (planner, code-reviewer, debug-detective, devil-mode crew, ...)
-commands/    → 102 slash commands (8 parallel multi-agent, 1 adversarial loop, rest single-agent)
+commands/    → 103 slash commands (8 parallel multi-agent, 1 adversarial loop, rest single-agent)
 skills/      → 196 workflow + domain knowledge files (loadable via slash commands)
 hooks/       → 22+ automations (pre-commit, session memory, prompt-injection guard, token-budget)
 rules/       → 14 always-on guidelines (agent-intent-routing, self-improvement, memory-protocol, ...)
@@ -26,7 +26,7 @@ scripts/     → Node.js utilities: MCP server, dashboard, swarm, replay, router
 bundles/     → 3 power bundles (indie-hacker, red-team, enterprise)
 actions/     → GitHub Action (CI/CD integration for PR review)
 docs/        → Feature docs (arena.md, mcp.md, dashboard.md, swarm.md, replay.md, evolve.md, supply-chain.md)
-tests/       → 576 passing tests across 30 test files
+tests/       → 604 passing tests across 32 test files
 ```
 
 ## Running Tests

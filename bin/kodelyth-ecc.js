@@ -431,6 +431,58 @@ if (args[0] === 'memory') {
 //   kodelythecc arena list                           list past arena runs
 //   kodelythecc arena learn <run-id> [--commit]      remember what the run proved
 //   kodelythecc arena report <run-id>                show a run's report
+// ── Subcommand: immune (scan for arena-confirmed bug classes) ────────────────
+//   kodelyth-ecc immune [path] [--json] [--tests]
+if (args[0] === 'immune') {
+  const rest = args.slice(1);
+  const w = (m) => process.stdout.write(m + '\n');
+  const target = rest.find((a) => !a.startsWith('--')) || '.';
+  const { scanTree } = require(path.join(ROOT, 'scripts', 'immune', 'scan.js'));
+  const { DETECTORS } = require(path.join(ROOT, 'scripts', 'immune', 'detectors.js'));
+
+  let res;
+  try {
+    res = scanTree(target, { includeTests: rest.includes('--tests') });
+  } catch (err) {
+    process.stderr.write(`immune: cannot scan ${target}: ${err.message}\n`);
+    process.exit(2);
+  }
+
+  if (rest.includes('--json')) { w(JSON.stringify(res, null, 2)); process.exit(res.counts.high > 0 ? 1 : 0); }
+
+  w('');
+  w(`\x1b[1mECC Immunity\x1b[0m — ${DETECTORS.length} bug classes the arena confirmed, checked against \x1b[33m${target}\x1b[0m`);
+  w('─'.repeat(72));
+
+  if (!res.findings.length) {
+    w(`\x1b[32mClean.\x1b[0m ${res.scanned} files scanned, none matched a known class.`);
+    w('');
+    w('This is not proof of correctness — only that none of the specific classes');
+    w('the arena has confirmed are present. Run /arena to hunt for new ones.');
+    w('');
+    process.exit(0);
+  }
+
+  const colour = { high: '31', medium: '33', low: '90' };
+  for (const f of res.findings) {
+    w(`\x1b[${colour[f.severity] || '0'}m${f.severity.toUpperCase().padEnd(6)}\x1b[0m ${f.file}:${f.line}`);
+    w(`       ${f.title}`);
+    w(`       \x1b[90m${f.evidence}\x1b[0m`);
+    w(`       \x1b[36mfix:\x1b[0m ${f.fix}`);
+    w('');
+  }
+
+  w('─'.repeat(72));
+  w(`${res.counts.total} finding(s) across ${res.scanned} files — ` +
+    `${res.counts.high} high, ${res.counts.medium} medium, ${res.counts.low} low`);
+  w('');
+  w('Each class here was reproduced with a real repro during an arena run, and');
+  w('each detector is pinned to the commit that proves it fires on the bug and');
+  w('stays silent on the fix.');
+  w('');
+  process.exit(res.counts.high > 0 ? 1 : 0);
+}
+
 if (args[0] === 'god' || args[0] === 'evil' || args[0] === 'arena') {
   const mode = args[0];
   const rest = args.slice(1);

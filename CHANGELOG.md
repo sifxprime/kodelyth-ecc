@@ -2,6 +2,101 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.17.0 — ECC Immunity: the arena's findings, made executable (September 2026)
+
+Four arena runs confirmed real bugs and stored them as prose. Prose does not
+scan a codebase. This release turns each confirmed class into a **detector that
+runs**, so a bug proven here can be found anywhere — including in repositories
+that never ran the arena.
+
+```bash
+kodelythecc immune              # scan the current directory
+kodelythecc immune scripts/     # scan a subtree
+kodelythecc immune --json       # machine-readable, exits 1 on any high finding
+```
+
+### How each detector earned its place
+
+A detector ships only if it does **both**: FIRES on the exact source the arena
+found the bug in, and goes SILENT on the source after the fix. Verified against
+this repository's own history at v2.7.0, the last release before any arena fix:
+
+```
+detector               file                    BEFORE   AFTER   verdict
+lexical-containment    dashboard/data.js       FIRES    silent  PROVEN
+lexical-containment    dashboard/server.js     FIRES    silent  PROVEN
+prototype-key-map      memory/store.js         FIRES    silent  PROVEN
+truncate-then-write    memory/store.js         FIRES    silent  PROVEN
+```
+
+`predictable-temp-name` is proven against a fixture rather than a commit: that
+bug was caught by an EVIL agent in the working tree and fixed before it was ever
+committed, so no historical version exists. Stated plainly rather than implied
+to carry the same provenance.
+
+### Two classes were deliberately NOT shipped
+
+This matters more than the four that were.
+
+**ReDoS.** Real — 7.6 s on 293 KB. But arena run #1 *measured* five structurally
+identical regexes in one file: fenced-code, inline-code, bare-URL and file-path
+were all linear; only the link target was quadratic. The difference is whether
+the closing delimiter is commonly absent in real input — a property of the data,
+not the pattern. A detector would have flagged all five and been wrong about
+four.
+
+**Unbounded input.** Also real — 4.9 MB allocated ~417 MB. But the detectable
+shape is "this module reads a file", which described **57 of 165 files** here.
+
+A scanner that is wrong four times out of five gets muted, and a muted scanner
+protects nothing.
+
+### What it found on its first real run
+
+Pointed at ECC itself, in code four arena runs never audited:
+
+- **`scripts/hooks/run-with-flags.js`** — lexical containment on a path that is
+  then **executed**. A symlink inside the plugin root would have run an
+  arbitrary script.
+- **`scripts/lib/agent-compress.js`** — same class, on a read.
+- **10 × `prototype-key-map`**, including `PACKAGE_MANAGERS['constructor']`,
+  which is truthy — so `setPreferredPackageManager('constructor')` skipped the
+  "Unknown package manager" throw entirely and persisted the bad name. Verified
+  live, then fixed with `Object.hasOwn`.
+- **2 × durable state rewritten with `writeFileSync`** — the update-check cache
+  and the engagement state file.
+
+It also caught a spot **I had missed**: `restampIndex` in the memory store still
+used a raw `writeFileSync` after the 2.14.0 atomic-write sweep converted
+`saveIndex` beside it.
+
+```
+raw detectors                104 findings (12 high, 92 medium)
+dropped 2 imprecise classes   12 findings (10 high,  2 medium)
+fixed every real finding       0 findings
+```
+
+### Added
+
+- `scripts/immune/detectors.js` — pure, executable detectors
+- `scripts/immune/scan.js` — tree walker that skips `node_modules`, test
+  fixtures, and never follows a symlink out of the tree
+- `kodelythecc immune` and `/immune`
+- 28 tests, including one asserting the scanner does not flag its own
+  documentation, and one pinning the fixtures to real git history when it is
+  available
+
+### Fixed — found while building it
+
+`stripNoise` originally stripped string literals too, and the apostrophe in
+"don't" opened a span that swallowed regex literals several lines later. That
+silenced a detector on a real, confirmed bug. Regex-based lexing of JavaScript
+strings is not reliable enough to build detection on; only comments are stripped
+now. And `walk`'s `maxFiles` cap was checked between directories but not within
+one, so a single large directory blew straight past it — caught by its own test.
+
+**604 tests passing**, up from 576.
+
 ## v2.16.0 — Arena run #4: three path-escapes in evolve (September 2026)
 
 ### Fixed — `applyProposalToDisk` wrote wherever the proposal told it to

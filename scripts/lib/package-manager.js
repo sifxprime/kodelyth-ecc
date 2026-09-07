@@ -239,7 +239,7 @@ function getPackageManager(options = {}) {
  * Set user's preferred package manager (global)
  */
 function setPreferredPackageManager(pmName) {
-  if (!PACKAGE_MANAGERS[pmName]) {
+  if (!Object.hasOwn(PACKAGE_MANAGERS, pmName)) {
     throw new Error(`Unknown package manager: ${pmName}`);
   }
 
@@ -260,7 +260,7 @@ function setPreferredPackageManager(pmName) {
  * Set project's preferred package manager
  */
 function setProjectPackageManager(pmName, projectDir = process.cwd()) {
-  if (!PACKAGE_MANAGERS[pmName]) {
+  if (!Object.hasOwn(PACKAGE_MANAGERS, pmName)) {
     throw new Error(`Unknown package manager: ${pmName}`);
   }
 

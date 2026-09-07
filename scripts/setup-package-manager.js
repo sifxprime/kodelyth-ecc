@@ -113,7 +113,7 @@ function listAvailable() {
 }
 
 function setGlobal(pmName) {
-  if (!PACKAGE_MANAGERS[pmName]) {
+  if (!Object.hasOwn(PACKAGE_MANAGERS, pmName)) {
     console.error(`Error: Unknown package manager "${pmName}"`);
     console.error(`Available: ${Object.keys(PACKAGE_MANAGERS).join(', ')}`);
     process.exit(1);
@@ -136,7 +136,7 @@ function setGlobal(pmName) {
 }
 
 function setProject(pmName) {
-  if (!PACKAGE_MANAGERS[pmName]) {
+  if (!Object.hasOwn(PACKAGE_MANAGERS, pmName)) {
     console.error(`Error: Unknown package manager "${pmName}"`);
     console.error(`Available: ${Object.keys(PACKAGE_MANAGERS).join(', ')}`);
     process.exit(1);

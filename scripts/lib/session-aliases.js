@@ -281,7 +281,7 @@ function listAliases(options = {}) {
 function deleteAlias(alias) {
   const data = loadAliases();
 
-  if (!data.aliases[alias]) {
+  if (!Object.hasOwn(data.aliases, alias)) {
     return { success: false, error: `Alias '${alias}' not found` };
   }
 
@@ -308,7 +308,7 @@ function deleteAlias(alias) {
 function renameAlias(oldAlias, newAlias) {
   const data = loadAliases();
 
-  if (!data.aliases[oldAlias]) {
+  if (!Object.hasOwn(data.aliases, oldAlias)) {
     return { success: false, error: `Alias '${oldAlias}' not found` };
   }
 
@@ -386,7 +386,7 @@ function updateAliasTitle(alias, title) {
 
   const data = loadAliases();
 
-  if (!data.aliases[alias]) {
+  if (!Object.hasOwn(data.aliases, alias)) {
     return { success: false, error: `Alias '${alias}' not found` };
   }
 

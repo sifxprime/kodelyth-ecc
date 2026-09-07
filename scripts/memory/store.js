@@ -154,7 +154,7 @@ function restampIndex() {
     if (!fs.existsSync(PATHS.index)) return;
     const idx = JSON.parse(fs.readFileSync(PATHS.index, 'utf8'));
     idx.logSize = logSize();
-    fs.writeFileSync(PATHS.index, JSON.stringify(idx, null, 2));
+    safeFs.replaceFilePreservingMode(PATHS.index, JSON.stringify(idx, null, 2));
   } catch { /* a broken index is rebuilt on the next load anyway */ }
 }
 

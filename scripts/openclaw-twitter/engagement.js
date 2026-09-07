@@ -11,6 +11,7 @@
 require('dotenv').config({ path: `${__dirname}/.env` });
 const fs   = require('fs');
 const path = require('path');
+const safeFs = require('../lib/safe-fs.js');
 
 const { ENGAGEMENT_SEARCH_QUERIES } = require('./soul.js');
 const { generateComment }           = require('./content-gen.js');
@@ -41,7 +42,7 @@ function loadState() {
 
 function saveState(state) {
   if (!fs.existsSync(TMP_DIR)) fs.mkdirSync(TMP_DIR, { recursive: true });
-  fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
+  safeFs.replaceFilePreservingMode(STATE_FILE, JSON.stringify(state, null, 2));
 }
 
 // Shuffle an array in-place (Fisher-Yates)

@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const safeFs = require('./safe-fs.js');
 
 /**
  * Parse YAML frontmatter from a markdown string.
@@ -222,9 +223,11 @@ function lazyLoadAgent(agentsDir, agentName) {
 
   const filePath = path.resolve(agentsDir, `${agentName}.md`);
 
-  // Verify the resolved path is still within agentsDir
-  const resolvedAgentsDir = path.resolve(agentsDir);
-  if (!filePath.startsWith(resolvedAgentsDir + path.sep)) {
+  // Containment, including symlinks. The previous check compared the JOINED
+  // path, which for a symlink is the link's own location — inside agentsDir, so
+  // it passed — while the target could be anywhere. Found by `kodelythecc
+  // immune`, which encodes this class from five prior arena confirmations.
+  if (!safeFs.resolveContained(filePath, agentsDir)) {
     return null;
   }
 

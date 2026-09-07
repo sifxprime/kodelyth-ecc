@@ -135,7 +135,7 @@ function validateInstallManifests() {
   const expectedProfileIds = ['core', 'developer', 'security', 'research', 'full'];
 
   for (const profileId of expectedProfileIds) {
-    if (!profiles[profileId]) {
+    if (!Object.hasOwn(profiles, profileId)) {
       console.error(`ERROR: Missing required install profile: ${profileId}`);
       hasErrors = true;
     }

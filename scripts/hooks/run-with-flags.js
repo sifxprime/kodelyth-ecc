@@ -10,6 +10,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const safeFs = require('../lib/safe-fs.js');
 const { spawnSync } = require('child_process');
 const { isHookEnabled } = require('../lib/hook-flags');
 
@@ -103,8 +104,10 @@ async function main() {
   const resolvedRoot = path.resolve(pluginRoot);
   const scriptPath = path.resolve(pluginRoot, relScriptPath);
 
-  // Prevent path traversal outside the plugin root
-  if (!scriptPath.startsWith(resolvedRoot + path.sep)) {
+  // Prevent path traversal outside the plugin root — including via a symlink.
+  // The lexical check alone passed for a link sitting inside the root, and this
+  // path is EXECUTED, so following one runs an arbitrary script.
+  if (!safeFs.resolveContained(scriptPath, resolvedRoot)) {
     process.stderr.write(`[Hook] Path traversal rejected for ${hookId}: ${scriptPath}\n`);
     process.stdout.write(raw);
     process.exit(0);

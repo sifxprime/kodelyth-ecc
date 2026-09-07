@@ -37,6 +37,16 @@ These MUST be flagged — they can cause real damage:
 - **SQL injection** — String concatenation in queries instead of parameterized queries
 - **XSS vulnerabilities** — Unescaped user input rendered in HTML/JSX
 - **Path traversal** — User-controlled file paths without sanitization
+- **Lexical-only containment** — `startsWith(root)` after `path.join` catches `..` but NOT
+  symlinks: `path.resolve` does not resolve them, so a link inside the root passes the check
+  while pointing anywhere on disk. Demand `realpath` on both sides before the comparison.
+- **Prototype keys as map keys** — `map['constructor']` returns a truthy function, so
+  `if (!map[k])` never fires and the next line reads a property off it. Any object keyed by
+  user text (tokens, tags, headers, filenames) must be `Object.create(null)`. Words like
+  "constructor" and "toString" are ordinary vocabulary — this needs no attacker.
+- **Truncate-then-write on state worth keeping** — `fs.writeFileSync` opens with `'w'` and
+  truncates to zero before writing. A crash, a full disk, or a concurrent reader sees an
+  empty file. Config files, registries, ledgers and indexes need temp + rename.
 - **CSRF vulnerabilities** — State-changing endpoints without CSRF protection
 - **Authentication bypasses** — Missing auth checks on protected routes
 - **Insecure dependencies** — Known vulnerable packages

@@ -40,6 +40,31 @@ Read the diff since last tag. Classify each change:
 
 Be **strict** about MAJOR. Most teams under-call breaking changes and lose user trust.
 
+### Phase 1.5 — Prove the build is green where it actually runs
+
+A local `npm test` proves the suite passes **on your machine**. It says nothing
+about the other platforms CI covers, and a green local run beside a red badge is
+how a project ships eight broken releases in a row without noticing.
+
+```bash
+gh run list --workflow=CI --limit 5      # is the badge actually green?
+gh run view <id> --log-failed            # if not, what fails and on which OS?
+```
+
+**Never cut a release on a red CI.** If the failure is platform-specific, fix or
+explicitly guard it — do not delete the test, and do not tell the user "all tests
+passing" when only your platform is passing.
+
+Common one-platform traps:
+
+| Assumption | Breaks on |
+|---|---|
+| `chmod` / `statSync().mode` carry POSIX bits | Windows — only the read-only bit exists |
+| `process.umask()` is meaningful | Windows |
+| `symlinkSync` just works | Windows — needs admin or Developer Mode |
+| Paths use `/` | Windows — compare with `path.sep` |
+| `timeout`, `stat -f`, GNU flags exist | macOS ships BSD variants; Windows ships neither |
+
 ### Phase 2 — Generate the changelog
 
 Group entries by category, in this order:

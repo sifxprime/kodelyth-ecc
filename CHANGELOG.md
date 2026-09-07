@@ -2,6 +2,64 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.15.0 — Green CI, and the agents learn what the arena found (September 2026)
+
+### Fixed — CI had been red since v2.8.0
+
+Eight tests asserted POSIX file semantics on the Windows runner. Every release
+from 2.8.0 through 2.14.0 shipped with a failing badge, because `npm test` was
+only ever run on macOS — a green local run beside a red CI is exactly the trap
+this release also teaches `release-captain` to catch.
+
+On Windows `chmod` only toggles the read-only bit, `statSync().mode` is
+synthesized rather than real, `umask` is meaningless, and `symlinkSync` needs
+administrator rights or Developer Mode. The eight tests assert precisely those
+semantics.
+
+They are **skipped there with a stated reason, not deleted** — the behaviour they
+guard (mode preservation, umask independence, `O_EXCL` against planted symlinks)
+is real on Linux and macOS, which is where CI proves it.
+
+```
+tests/lib/safe-fs.test.js      5 guarded
+tests/terse/compress.test.js   3 guarded
+```
+
+All nine CI jobs now pass: Node 18/20/22 across Linux, macOS, and Windows.
+
+### Changed — three agents learned from three arena runs
+
+The arena confirmed the same defects repeatedly, and none of the 70 agents knew
+to look for them. Each addition below is a bug that was actually reproduced, not
+a hypothetical.
+
+**`security-reviewer`** gained three hunt blocks:
+
+- **Lexical-only path containment** — `path.join`/`resolve` normalise `..` but do
+  not resolve symlinks, so a link inside the root passes a `startsWith` check
+  while pointing anywhere on disk. Confirmed four times across three files.
+- **Prototype keys as map keys** — `map['constructor']` returns a truthy
+  function, so `if (!map[k])` never fires. Needs no attacker: one document
+  containing the word "constructor" bricked the memory store.
+- **Truncate-then-write on persistent state** — `writeFileSync` opens with `'w'`.
+  A 6.3 MB store was measured at 0 bytes mid-rewrite, 32 torn reads in 1423
+  samples.
+
+**`code-reviewer`** gained the same three as checklist items under Security.
+
+**`release-captain`** gained **Phase 1.5 — Prove the build is green where it
+actually runs**, with the `gh run list` / `gh run view --log-failed` commands and
+a table of one-platform traps (POSIX modes, umask, symlinks, path separators,
+BSD vs GNU flags). It states plainly: never cut a release on a red CI, and never
+report "all tests passing" when only your own platform is passing.
+
+### Fixed — repository metadata
+
+The GitHub About sidebar still advertised `194 skills · 97 commands`. Corrected
+to 196 / 102, and the arena added to the description.
+
+**572 tests passing on every supported platform.**
+
 ## v2.14.0 — A false recurring class, and five more atomic writes (August 2026)
 
 ### Fixed — the guard proposal was pointing at the wrong thing

@@ -55,6 +55,30 @@ rg -n 'Math\.random\(\)'                                          # non-CSPRNG f
 
 # ── Unsafe deserialization + prototype pollution (HIGH) ─────────────────────
 rg -n 'pickle\.loads|yaml\.load\(|Marshal\.load|JSON\.parse\([^)]*req\.|_\.merge\(\{\}|Object\.assign\(target'   # yaml.load: confirm it lacks SafeLoader
+
+# ── Lexical-only path containment (HIGH) ────────────────────────────────────
+# path.join/resolve normalise ".." but do NOT resolve symlinks. A link sitting
+# lexically inside the root passes a startsWith() check while its target is
+# anywhere on disk, and the read follows it. Confirmed four times across three
+# unrelated files in this codebase before the guard existed.
+rg -n 'startsWith\(.*(?:ROOT|DIR|BASE|root|base|dir).*sep|startsWith\(.*\+ .?/.?\)'   # then check: is there a realpathSync nearby?
+rg -n 'readFileSync|createReadStream|readdirSync' --context 3 | rg -n 'path\.(join|resolve)'  # read after a lexical check = the bug
+# The fix is realpath on BOTH sides before comparing, or an existing helper.
+
+# ── Prototype keys used as map keys (HIGH) ──────────────────────────────────
+# map['constructor'] returns Object.prototype.constructor — TRUTHY — so an
+# `if (!map[k])` guard never fires and the next line reads a property off a
+# function. "constructor" and "toString" are ordinary vocabulary, so this needs
+# no attacker: one document containing the word is enough.
+rg -n 'if \(!\w+\[\w+\]\)|\w+\[\w+\] = \w+\[\w+\] \|\|'   # any map keyed by user text
+rg -n '= \{\};' --context 2 | rg -n 'token|term|word|tag|key|freq|count'  # should be Object.create(null)
+
+# ── Truncate-then-write on persistent state (HIGH) ──────────────────────────
+# fs.writeFileSync opens with 'w', truncating to zero BEFORE writing. A crash,
+# a full disk, or a concurrent reader sees an empty file. Measured: a 6.3 MB
+# store observed at 0 bytes mid-rewrite, 32 torn reads in 1423 samples.
+rg -n 'writeFileSync\(' | rg -v 'tmp|\.tmp|test'   # then ask: does this file hold state worth keeping?
+# Config files, registries, ledgers, and indexes need temp+rename, not writeFileSync.
 ```
 
 Report every confirmed hit with: file:line, severity, the exact fix, and (for secrets) "rotate immediately."

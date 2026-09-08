@@ -2,7 +2,7 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { execFileSync } = require('node:child_process');
+const { execFileSync, execSync } = require('node:child_process');
 const path = require('node:path');
 const fs = require('node:fs');
 
@@ -23,11 +23,52 @@ const ROOT = path.join(__dirname, '..', '..');
  */
 
 /**
- * On Windows npm is `npm.cmd`, and execFileSync without a shell does not append
- * the PATHEXT extensions — so a bare 'npm' throws ENOENT there and nowhere else.
- * This exact bug took CI red on the commit that introduced this file.
+ * Spawning npm portably is genuinely awkward on Windows, and both obvious
+ * approaches fail for different reasons:
+ *
+ *   execFileSync('npm', ...)      → ENOENT. npm is npm.cmd, and spawning
+ *                                   without a shell does not apply PATHEXT.
+ *   execFileSync('npm.cmd', ...)  → EINVAL. Since Node 18.20.2 (CVE-2024-27980)
+ *                                   spawn refuses .cmd/.bat without shell:true.
+ *
+ * Both were observed on this repo's CI, one commit apart. The working form is
+ * shell:true, which is safe here only because every argument is a hardcoded
+ * literal — never interpolate into this.
  */
-const NPM_CANDIDATES = process.platform === 'win32' ? ['npm.cmd', 'npm.exe', 'npm'] : ['npm'];
+const SPAWN_MISS = new Set(['ENOENT', 'EINVAL', 'EACCES']);
+
+const SPAWN_OPTS = {
+  cwd: ROOT,
+  encoding: 'utf8',
+  stdio: ['ignore', 'pipe', 'ignore'],
+  maxBuffer: 32 * 1024 * 1024,
+};
+
+/**
+ * Run `npm pack --dry-run --json` on any platform.
+ *
+ * On POSIX, execFileSync with an argv array — no shell, nothing to escape.
+ *
+ * On Windows neither obvious form works, and both were observed on this repo's
+ * CI one commit apart:
+ *   execFileSync('npm', [...])     → ENOENT. npm is npm.cmd and spawning
+ *                                    without a shell does not apply PATHEXT.
+ *   execFileSync('npm.cmd', [...]) → EINVAL. Since Node 18.20.2
+ *                                    (CVE-2024-27980) spawn refuses .cmd/.bat
+ *                                    without shell:true.
+ *
+ * So Windows goes through a shell. It uses execSync with one literal command
+ * string rather than execFileSync with shell:true, because the latter emits
+ * DEP0190 — args passed alongside a shell are concatenated, not escaped. There
+ * is nothing to escape here and there never should be: this string is a
+ * constant, and no caller input may ever reach it.
+ */
+function runNpmPack() {
+  if (process.platform !== 'win32') {
+    return execFileSync('npm', ['pack', '--dry-run', '--json'], SPAWN_OPTS);
+  }
+  return execSync('npm pack --dry-run --json', SPAWN_OPTS);
+}
 
 let manifest;
 let packError = null;
@@ -36,24 +77,14 @@ function pack() {
   if (manifest) return manifest;
   if (packError) throw packError;
 
-  for (const cmd of NPM_CANDIDATES) {
-    try {
-      const out = execFileSync(cmd, ['pack', '--dry-run', '--json'], {
-        cwd: ROOT,
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'ignore'],
-        maxBuffer: 32 * 1024 * 1024,
-      });
-      manifest = JSON.parse(out)[0];
-      return manifest;
-    } catch (err) {
-      if (err.code !== 'ENOENT') {
-        packError = err; // npm ran and genuinely failed — that IS the finding
-        throw err;
-      }
-    }
+  try {
+    manifest = JSON.parse(runNpmPack())[0];
+    return manifest;
+  } catch (err) {
+    if (SPAWN_MISS.has(err.code)) return null; // npm not spawnable at all
+    packError = err; // npm ran and genuinely failed — that IS the finding
+    throw err;
   }
-  return null; // npm not spawnable at all
 }
 
 /**

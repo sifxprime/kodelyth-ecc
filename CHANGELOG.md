@@ -45,14 +45,26 @@ Three, because the first two fail open:
    recreating the exact failure: with the allowlist, 24 planted stray files pack
    as 0; without it, 24 pack and the tests go red.
 
-Worth stating plainly: the first version of these packaging tests broke CI on
-Windows, because `execFileSync('npm', ...)` throws ENOENT there — npm is
-`npm.cmd`, and spawning without a shell does not apply PATHEXT. That is the
-same class of defect the scanner below exists to catch, shipped inside the
-scanner's own companion test. It now tries `npm.cmd` first on win32, and where
-npm or git genuinely cannot be spawned the affected tests report why and skip
-rather than going red — a guard that fails for an unrelated reason gets
-disabled, and then it guards nothing.
+Worth stating plainly: these packaging tests broke Windows CI twice before they
+worked, which is itself the lesson. Spawning npm from Node on Windows has no
+obvious correct form:
+
+```
+execFileSync('npm', [...])      → ENOENT   npm is npm.cmd; no PATHEXT without a shell
+execFileSync('npm.cmd', [...])  → EINVAL   Node 18.20.2+ refuses .cmd/.bat without shell
+execFileSync(..., shell: true)  → works, but DEP0190: args are concatenated, not escaped
+execSync('npm pack ...')        → works, no deprecation
+```
+
+The first two were observed on this repo's CI one commit apart — the same class
+of defect the scanner below exists to catch, shipped inside the scanner's own
+companion test. Windows now goes through `execSync` with a single literal
+command string; POSIX still uses an argv array with no shell.
+
+Where npm or git genuinely cannot be spawned, the affected tests report why and
+skip instead of going red. A guard that fails for an unrelated reason gets
+disabled, and then it guards nothing. Both paths verified: full environment 7/7
+pass, npm and git hidden 2 pass and 5 skip with a stated reason.
 
 ### Added — portability enforcement
 

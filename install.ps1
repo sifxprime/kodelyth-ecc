@@ -61,7 +61,7 @@ if ($Bundle) {
 # -- Banner --------------------------------------------------------------------
 Write-Host ""
 Write-Host "  Kodelyth ECC -- Production-grade AI coding agent toolkit" -ForegroundColor Cyan
-Write-Host "  70 agents (8 devil-mode) | 194 skills | 97 commands | 22+ hooks | intent routing | local memory" -ForegroundColor Gray
+Write-Host "  70 agents (8 devil-mode) | 196 skills | 103 commands | 44 hooks | intent routing | local memory" -ForegroundColor Gray
 Write-Host ""
 
 # $PSScriptRoot is always the directory containing this .ps1 file,
@@ -344,7 +344,7 @@ Powered by Kodelyth ECC -- github.com/sifxprime/kodelyth-ecc
             $geminiText = @'
 # Kodelyth ECC -- Gemini CLI context
 
-This project uses Kodelyth ECC -- 70 specialist agents, 194 skills, 97 commands, intent routing, and self-learning memory.
+This project uses Kodelyth ECC -- 70 specialist agents, 196 skills, 103 commands, intent routing, and self-learning memory.
 
 The full toolkit is installed under this directory:
 

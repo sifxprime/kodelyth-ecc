@@ -141,7 +141,7 @@ if (args[1] === '--help' || args[1] === '-h') {
 
 // ── Subcommand: mcp (start MCP server over stdio) ────────────────────────────
 // Usage: npx kodelyth-ecc mcp
-// Exposes 70 agents, 194 skills, 97 commands, the routing rule, and the local
+// Exposes 70 agents, 196 skills, 103 commands, the routing rule, and the local
 // memory store to any MCP-compatible client (Claude Desktop, LangGraph, etc.).
 if (args[0] === 'mcp') {
   // Hand off entirely to the MCP server — it owns stdio from here on.

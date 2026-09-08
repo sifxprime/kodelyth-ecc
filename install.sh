@@ -47,7 +47,7 @@ echo -e "${RED}${BOLD}  ║   DANGER LEVEL: GOD TIER    ·    NOT FOR JUNIOR DEV
 echo -e "${RED}${BOLD}  ╚══════════════════════════════════════════════════════════════╝${RESET}"
 echo ""
 echo -e "${BOLD}  Kodelyth ECC — The most dangerous AI coding toolkit on the planet${RESET}"
-echo -e "${CYAN}  70 specialist agents (8 devil-mode)  ·  194 skills  ·  97 commands  ·  22+ hooks  ·  intent routing  ·  compound memory${RESET}"
+echo -e "${CYAN}  70 specialist agents (8 devil-mode)  ·  196 skills  ·  103 commands  ·  44 hooks  ·  intent routing  ·  compound memory${RESET}"
 echo -e "${CYAN}  Any language  ·  Any framework  ·  Any scale  ·  300B-level quality${RESET}"
 echo ""
 echo -e "  github.com/sifxprime/kodelyth-ecc"
@@ -435,7 +435,8 @@ install_flat() {
 }
 
 install_hooks() {
-  local src="$SCRIPT_DIR/hooks/hooks.json"
+  local src_dir="$SCRIPT_DIR/hooks"
+  local src="$src_dir/hooks.json"
   local dest="$1"
 
   if [[ -z "$dest" ]] || [[ ! -f "$src" ]]; then
@@ -443,8 +444,39 @@ install_hooks() {
   fi
 
   mkdir -p "$dest"
-  cp "$src" "$dest/hooks.json"
-  echo -e "  ${GREEN}✓${RESET} Hooks ${BLUE}(→ $dest/hooks.json)${RESET}"
+
+  # Copy the whole tree, not just hooks.json. Every command inside hooks.json
+  # points at ${CLAUDE_PLUGIN_ROOT}/hooks/{memory,safety}/*.js — copying the
+  # manifest alone registered hooks whose scripts were never installed.
+  cp -r "$src_dir"/. "$dest/"
+  local script_count
+  script_count=$(find "$dest" -name '*.js' -type f 2>/dev/null | wc -l | tr -d ' ')
+
+  echo -e "  ${GREEN}✓${RESET} Hooks ${BLUE}(→ $dest, $script_count scripts)${RESET}"
+
+  # Registering into settings.json is the step that actually activates them.
+  # Claude Code reads hooks from settings.json; a hooks.json sitting on disk
+  # does nothing. Node ships with this package, but install.sh can also be run
+  # standalone, so degrade with a clear message rather than failing the install.
+  local registrar="$SCRIPT_DIR/scripts/install/register-hooks.js"
+  local target_root="${dest%/hooks}"
+
+  if [[ ! -f "$registrar" ]]; then
+    return
+  fi
+  if ! command -v node >/dev/null 2>&1; then
+    echo -e "  ${YELLOW}!${RESET} Hooks copied but not registered — node not found"
+    echo -e "    ${BLUE}Run after installing Node:${RESET} node \"$registrar\" \"$target_root\""
+    return
+  fi
+
+  local summary
+  if summary=$(node "$registrar" "$target_root" 2>&1); then
+    echo -e "  ${GREEN}✓${RESET} Hooks registered ${BLUE}($summary)${RESET}"
+  else
+    echo -e "  ${YELLOW}!${RESET} Hook registration failed: $summary"
+    echo -e "    ${BLUE}Retry with:${RESET} node \"$registrar\" \"$target_root\""
+  fi
 }
 
 # Generate a single .windsurfrules file from all common rule .md files
@@ -621,7 +653,7 @@ AIDER_EOF
       cat > "$GEMINI_FILE" <<'GEMINI_EOF'
 # Kodelyth ECC — Gemini CLI context
 
-This project uses Kodelyth ECC — 70 specialist agents, 194 skills, 97 commands, intent routing, and self-learning memory.
+This project uses Kodelyth ECC — 70 specialist agents, 196 skills, 103 commands, intent routing, and self-learning memory.
 
 The full toolkit is installed under this directory:
 

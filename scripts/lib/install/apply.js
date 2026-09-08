@@ -261,5 +261,10 @@ function applyInstallPlan(plan) {
 }
 
 module.exports = {
+  // Exported so the shell installer can register hooks through the same tested
+  // merge as the JS install path — install.sh copied hooks.json but never wrote
+  // settings.json, so none of the hooks were ever active (fixed in 2.21.0).
+  mergeHookEntries,
+  replacePluginRootPlaceholders,
   applyInstallPlan,
 };

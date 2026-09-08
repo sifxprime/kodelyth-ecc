@@ -2,6 +2,81 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.21.0 — the hooks were never actually turned on (September 2026)
+
+Every hook ECC ships has been inert since the shell installer was written. Not
+misconfigured — never registered.
+
+### What was broken
+
+`install_hooks()` in `install.sh` did exactly one thing:
+
+```bash
+cp "$SCRIPT_DIR/hooks/hooks.json" "$dest/hooks.json"
+```
+
+Claude Code does not read that file. It reads `hooks` out of `settings.json`.
+So the manifest landed on disk and nothing was ever wired up.
+
+It also copied only the manifest, not the `hooks/memory/` and `hooks/safety/`
+scripts every command inside it points at. Of the 12 files under `hooks/`, an
+install copied **1**.
+
+Measured on a fresh install into a throwaway `HOME`:
+
+```
+                          before        after
+settings.json events           1            8
+settings.json entries          1           45
+hook scripts on disk           0            9
+entries whose script exists    n/a    36 of 36
+```
+
+That one `PreToolUse` entry was RTK's — its installer writes `settings.json`
+for its own hook. Nothing ECC ships was in there.
+
+So none of this had ever run: memory inject on `SessionStart`, memory capture
+and correction encoding on `Stop`, auto-recall on `UserPromptSubmit`, the
+prompt-injection guard, the token-budget enforcer. The compound-memory
+behaviour described in the docs could not have worked, because the hook that
+implements it was never registered.
+
+Correct merge logic already existed in `scripts/lib/install/apply.js` — but the
+CLI shells out to `install.sh` and never reaches it. Instrumenting the function
+during a real install confirmed zero calls.
+
+### The fix
+
+`install_hooks()` now copies the whole `hooks/` tree and calls a new registrar,
+`scripts/install/register-hooks.js`, which merges the manifest into
+`settings.json` through that same tested merge:
+
+- **Idempotent** — three consecutive installs give 45, 45, 45 entries.
+- **Non-destructive** — RTK's hook and the user's own survive; verified.
+- **Scoped** — only the `hooks` key changes; `model`, `theme` and `permissions`
+  are left alone.
+- **Atomic** — temp file plus rename, so an interrupted install cannot leave a
+  truncated `settings.json` and a broken editor.
+- **Permission-preserving** — an existing file keeps its mode; a new one is
+  `0600`, because `settings.json` can carry tokens.
+- **Degrades honestly** — no Node, or a corrupt `settings.json`, prints what to
+  run rather than failing the install or losing the hooks.
+
+`doctor` now reports `8 hook events wired` instead of warning that three are
+missing.
+
+### Corrected
+
+The installer banner claimed **194 skills, 97 commands, 22+ hooks**. Actual:
+196, 103, and 44 hook entries across 8 events. It is the first thing every user
+sees, and all three numbers were wrong. Fixed in `install.sh`, `install.ps1`
+and the CLI header.
+
+**647 tests passing** — 14 new, covering idempotency, third-party hook
+preservation, unrelated-key preservation, corrupt-config recovery, file modes,
+and two that guard the regression directly: every event in the shipped manifest
+must register, and every script it references must exist in the repo.
+
 ## v2.20.0 — 2.19.0 shipped 21 MB instead of 5; here is the guard (September 2026)
 
 **Upgrade from 2.19.0.** That release is 4× the size it should be and carries

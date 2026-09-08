@@ -33,7 +33,7 @@
 
 </div>
 
-**Kodelyth ECC** is a production-grade AI coding toolkit — **70 specialist agents (incl. an 8-agent devil-mode adversarial crew), 196 skills, 102 commands**, a god-tier **semantic intent-routing system**, local self-learning memory, MCP server, swarm orchestrator, and an observability dashboard — all local, zero telemetry.
+**Kodelyth ECC** is a production-grade AI coding toolkit — **70 specialist agents (incl. an 8-agent devil-mode adversarial crew), 196 skills, 103 commands**, a god-tier **semantic intent-routing system**, local self-learning memory, MCP server, swarm orchestrator, and an observability dashboard — all local, zero telemetry.
 
 Now bundled with:
 
@@ -73,7 +73,7 @@ You never typed `use debug-detective`. You didn't have to. The toolkit read the 
 | **Intent routing** | Plain-language → right specialist via 10-tier priority rules | Mostly missing — you memorize names |
 | **70 agents** | Specialists with playbooks, severity calibration, real commands | Often persona-only ("you are a senior engineer...") |
 | **196 skills** | Domain knowledge files agents read on demand | Rarely separated from agents |
-| **102 commands** | Slash workflows (`/tdd`, `/arena`, `/devil-mode`, `/team-review`) | Limited or none |
+| **103 commands** | Slash workflows (`/tdd`, `/arena`, `/devil-mode`, `/team-review`) | Limited or none |
 | **8 parallel commands** | Fire 3-8 agents simultaneously, aggregate results | Rare |
 | **Compound memory** | BM25 local recall + auto-inject + project lessons | Cloud-only or absent |
 | **22+ hooks** | Quality gates, secret scan, project-DNA detection | Often missing |
@@ -118,7 +118,7 @@ kodelythecc --target claude-code --codebase-graph
 That's it. This single flow:
 
 1. Installs both binaries (`kodelyth-ecc` and short-form `kodelythecc`) to your PATH
-2. Copies 70 agents + 196 skills + 102 commands + 22 hooks + 14 rules into your AI tool's config dir
+2. Copies 70 agents + 196 skills + 103 commands + 22 hooks + 15 rules into your AI tool's config dir
 3. Auto-installs **RTK** binary and wires its PreToolUse hook (input compression starts on next AI restart)
 4. Installs **Terse mode** skill + `/terse` and `/terse-compress` slash commands (dormant — user types `/terse` to activate)
 5. Auto-installs **codebase-memory-mcp** and registers its MCP entries in your AI tool (with `--codebase-graph`)
@@ -220,7 +220,7 @@ npx kodelyth-ecc --bundle red-team        # Security engineer — devil-mode + a
 npx kodelyth-ecc --bundle enterprise      # Compliance / audit team — SBOM, license, supply chain
 ```
 
-Each bundle installs the full ECC toolkit (all 70 agents, 196 skills, 102 commands, 22+ hooks), adds a `BUNDLE.md` cheat sheet, and biases the AI toward audience-fit workflows on every session.
+Each bundle installs the full ECC toolkit (all 70 agents, 196 skills, 103 commands, 22+ hooks), adds a `BUNDLE.md` cheat sheet, and biases the AI toward audience-fit workflows on every session.
 
 Combine with any target:
 
@@ -417,7 +417,7 @@ What's inside:
 | **Overview** | Agent count, memory stats, session count, recent activity |
 | **Memory** | Browse, search, and manage your local BM25 memory store |
 | **Evolve** | Self-improving memory — review AI-proposed refinements |
-| **Catalog** | Full searchable index of all 70 agents, 196 skills, 102 commands |
+| **Catalog** | Full searchable index of all 70 agents, 196 skills, 103 commands |
 | **Sessions** | **Live IDE activity** (Claude Code, Windsurf, Windsurf-Next, Cursor, Antigravity) + orchestration/swarm sessions |
 
 Real-time:
@@ -1066,6 +1066,26 @@ v1.4.0 highlights:
 | Facebook | [facebook.com/sifxprime](https://facebook.com/sifxprime) |
 | Instagram | [@sifxprime](https://instagram.com/sifxprime) |
 | npm | [npmjs.com/package/kodelyth-ecc](https://www.npmjs.com/package/kodelyth-ecc) |
+
+---
+
+## Support
+
+Real people, and we answer.
+
+| Channel | Reach us |
+|---|---|
+| Email | **[ecc@kodelyth.com](mailto:ecc@kodelyth.com)** |
+| WhatsApp | **[+880 1312 365939](https://wa.me/8801312365939)** |
+| Bug reports | [GitHub Issues](https://github.com/sifxprime/kodelyth-ecc/issues) |
+| Docs | [ecc.kodelyth.com/docs](https://ecc.kodelyth.com/docs) |
+
+**Found a security issue?** Email [ecc@kodelyth.com](mailto:ecc@kodelyth.com)
+directly rather than opening a public issue, and give us a reasonable window to
+ship a fix before disclosing it.
+
+When reporting a bug, the three things that get it fixed fastest are the exact
+command you ran, the full error, and your `kodelythecc doctor` output.
 
 ---
 

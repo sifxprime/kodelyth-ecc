@@ -2,6 +2,49 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.18.0 — Support channels, shell portability, honest counts (September 2026)
+
+### Added — Support
+
+The README had **no support section at all**. There is now one, and the same
+details reach the site, the npm page, and the repository metadata from a single
+place each.
+
+| Channel | Reach us |
+|---|---|
+| Email | [ecc@kodelyth.com](mailto:ecc@kodelyth.com) |
+| WhatsApp | [+880 1312 365939](https://wa.me/8801312365939) |
+
+`package.json` now carries `bugs.email` so `npm bugs` resolves, and `homepage`
+points at the docs site rather than the repo.
+
+### Added — `rules/common/shell-portability.md`
+
+An always-on rule, so all 70 agents inherit it rather than 70 separate edits.
+
+Every row in its table was **verified on a stock macOS shell**, not assumed:
+
+```
+timeout       ABSENT (GNU coreutils only)   <- this one bit me mid-session
+stat -c       FAILS (BSD needs -f)
+sed -i        FAILS (BSD needs -i '')
+grep -P       FAILS (no PCRE in BSD grep)
+```
+
+Suggesting `timeout 30 npm test` to a macOS user wastes their turn. The rule
+gives the portable form for each, covers Windows/PowerShell, and tells agents to
+prefer the language runtime over the shell when a task can be done either way.
+Verified installing correctly via a real install into a sandboxed `HOME`.
+
+### Fixed — counts that had drifted for releases
+
+`97 slash commands` was a different string from `97 commands`, so an earlier
+sweep missed it — the site advertised 97 while the real number was 103. Every
+count is now correct in both repos, and on the site they are **derived** from the
+synced catalogs rather than hardcoded in six files.
+
+**604 tests passing.**
+
 ## v2.17.0 — ECC Immunity: the arena's findings, made executable (September 2026)
 
 Four arena runs confirmed real bugs and stored them as prose. Prose does not

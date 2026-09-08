@@ -10,7 +10,7 @@ Guidance for Claude Code when working with this repository.
 - **196 skills** — domain knowledge, patterns, testing, security, intent routing, local memory, swarm orchestration, MCP integration
 - **103 commands** — slash workflows (`/tdd`, `/plan`, `/code-review`, `/team-review`, `/devil-mode`, `/debug-blitz`, `/security-audit`, ...)
 - **22+ hooks** — quality gates, memory inject + capture, correction encoding, prompt-injection guard, token-budget enforcer
-- **14 rules** — always-on coding standards + semantic intent routing + memory protocol + self-improvement
+- **15 rules** — always-on coding standards + semantic intent routing + memory protocol + self-improvement
 
 Works with Claude Code, Windsurf, Cursor, Codex CLI, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, and Gemini CLI — **11 platforms** (13 install targets).
 
@@ -21,7 +21,7 @@ agents/      → 70 specialist subagents (planner, code-reviewer, debug-detectiv
 commands/    → 103 slash commands (8 parallel multi-agent, 1 adversarial loop, rest single-agent)
 skills/      → 196 workflow + domain knowledge files (loadable via slash commands)
 hooks/       → 22+ automations (pre-commit, session memory, prompt-injection guard, token-budget)
-rules/       → 14 always-on guidelines (agent-intent-routing, self-improvement, memory-protocol, ...)
+rules/       → 15 always-on guidelines (agent-intent-routing, self-improvement, memory-protocol, ...)
 scripts/     → Node.js utilities: MCP server, dashboard, swarm, replay, router, memory, supply-chain
 bundles/     → 3 power bundles (indie-hacker, red-team, enterprise)
 actions/     → GitHub Action (CI/CD integration for PR review)

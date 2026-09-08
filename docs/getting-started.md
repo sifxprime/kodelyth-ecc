@@ -25,7 +25,7 @@ category: guide
 
 # Getting Started
 
-Install Kodelyth ECC and get 70 specialist agents, 196 skills, 97 slash commands, RTK input compression, Terse output compression, and the codebase graph — all wired into your AI coding tool in one command.
+Install Kodelyth ECC and get 70 specialist agents, 196 skills, 103 slash commands, RTK input compression, Terse output compression, and the codebase graph — all wired into your AI coding tool in one command.
 
 ## Prerequisites
 
@@ -48,7 +48,7 @@ Restart your AI coding tool. Done.
 That single flow ran:
 
 1. Installed both binaries (`kodelyth-ecc` and short-form `kodelythecc`) to your PATH
-2. Copied 70 agents + 196 skills + 102 commands + 22 hooks + 14 rules into `~/.claude/`
+2. Copied 70 agents + 196 skills + 103 commands + 22 hooks + 14 rules into `~/.claude/`
 3. Auto-installed **RTK** binary (via Homebrew on macOS, curl on Linux) and wired its PreToolUse hook
 4. Copied the **Terse mode** skill + `/terse` and `/terse-compress` slash commands (dormant — activate with `/terse`)
 5. Auto-installed **codebase-memory-mcp** and registered its MCP entries in every detected AI-coding agent

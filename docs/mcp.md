@@ -1,6 +1,6 @@
 ---
 title: "MCP Server — Universal Adapter for AI Agents (Kodelyth ECC)"
-description: "ECC MCP server exposes 70 agents, 196 skills, 102 commands, 14 rules, BM25 memory to any MCP-compatible client — Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK."
+description: "ECC MCP server exposes 70 agents, 196 skills, 103 commands, 14 rules, BM25 memory to any MCP-compatible client — Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK."
 keywords:
   - MCP server
   - Model Context Protocol
@@ -11,7 +11,7 @@ keywords:
   - OpenAI Agents SDK
   - AI universal adapter
 og_title: "MCP Server — Universal Adapter for AI Agents (Kodelyth ECC)"
-og_description: "ECC MCP server exposes 70 agents, 196 skills, 102 commands, 14 rules, BM25 memory to any MCP-compatible client — Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK."
+og_description: "ECC MCP server exposes 70 agents, 196 skills, 103 commands, 14 rules, BM25 memory to any MCP-compatible client — Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK."
 og_image: /social/hype-mcp-server.svg
 og_type: article
 twitter_card: summary_large_image
@@ -22,7 +22,7 @@ category: feature
 ---
 # Kodelyth ECC — MCP Server
 
-The Kodelyth ECC MCP (Model Context Protocol) server is the **universal adapter** that lets any MCP-compatible client consume the full ECC stack: 70 agents, 196 skills, 102 commands, 14 rules, 3 power bundles, and the local BM25 self-learning memory.
+The Kodelyth ECC MCP (Model Context Protocol) server is the **universal adapter** that lets any MCP-compatible client consume the full ECC stack: 70 agents, 196 skills, 103 commands, 14 rules, 3 power bundles, and the local BM25 self-learning memory.
 
 If you've ever wished LangGraph, AutoGen, CrewAI, OpenAI Agents SDK, Claude Desktop, or any other agent framework could speak ECC natively — this is that bridge.
 
@@ -109,7 +109,7 @@ Prompts let clients summon canonical ECC context blocks by name, no tool call ne
 | `routing-rule` | The full ECC intent routing rule (10-tier priority system). |
 | `agents-overview` | Compact list of all 70 agents with one-line descriptions. |
 | `skills-overview` | Compact list of all 196 skills. |
-| `commands-overview` | Compact list of all 97 slash commands. |
+| `commands-overview` | Compact list of all 103 slash commands. |
 | `handoff-chains` | The `agent-handoff` skill body — standard multi-agent chains for new feature, bug fix, refactor, incident, etc. |
 | `devil-mode` | The `/devil-mode` parallel command — fires the adversarial red-team crew. |
 

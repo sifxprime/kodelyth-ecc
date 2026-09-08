@@ -573,7 +573,7 @@ Type `kodelythecc` alone in a real terminal → arrow-key menu opens.
 
 ### Uninstall
 
-The menu's **Uninstall ECC completely** row runs an interactive full cleanup: removes the 759 ECC-installed files from `~/.claude/`, unwires RTK from your AI tool, removes codebase-memory-mcp agent configs, removes ECC's MCP entry from Claude Code + Claude Desktop, and deletes `~/.kodelythecc/` (memory + ledgers). Prompts confirm before anything is deleted; a dry-run mode previews what would be removed without touching anything.
+The menu's **Uninstall ECC completely** row runs an interactive full cleanup: removes the 777 ECC-installed files from `~/.claude/`, unwires RTK from your AI tool, removes codebase-memory-mcp agent configs, removes ECC's MCP entry from Claude Code + Claude Desktop, and deletes `~/.kodelythecc/` (memory + ledgers). Prompts confirm before anything is deleted; a dry-run mode previews what would be removed without touching anything.
 
 You can also run it non-interactively:
 

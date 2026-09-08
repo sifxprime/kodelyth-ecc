@@ -2,6 +2,58 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.19.0 — The install docs were wrong; every command is now tested (September 2026)
+
+The install instructions were checked by **running every command they advertise**
+against a throwaway `HOME` and a throwaway working directory. Three of them did
+not work.
+
+### Fixed — commands that failed
+
+| Documented | What actually happened |
+|---|---|
+| `--target cursor` | **`Unknown target: cursor`** — the real id is `cursor-project` |
+| `mcp-register --status` | **`unknown subcommand`** — the real command is `mcp-list` |
+| "759 shipped files" | the real dry-run total is **777**, and every row of the table was wrong |
+
+Anyone following the Cursor instruction hit a hard error. Anyone following the
+verify step hit another.
+
+### Added — the distinction that was never explained
+
+Targets install to one of two places, and the docs never said which:
+
+- **Home-scoped** (`claude-code`, `codex-home`, `windsurf-home`, `gemini-home`) —
+  run from anywhere, applies machine-wide.
+- **Project-scoped** (`cursor-project`, `antigravity`, `windsurf-project`,
+  `gemini-project`, `opencode`, `cline`, `roocode`, `aider`, `kimi`) — writes into
+  the directory you are standing in. Run one from your home folder and ECC files
+  scatter there instead of into your project.
+
+The scope of each was determined by running the installer and counting where the
+files landed, not by reading the source. Two targets that existed but were never
+documented — `windsurf-project` and `gemini-project` — are now listed.
+
+### Changed — the install page
+
+Restructured into three numbered steps, with `kodelythecc doctor` as the single
+verification command instead of five separate status calls (the individual ones
+are still there, behind a disclosure). Adds the thing that trips people up most:
+**restart your AI tool** — it reads the config directory at startup, so a running
+session sees none of it. Ends with the support channels, since a failed install
+is exactly when someone needs them.
+
+### Corrected — the uninstall table
+
+Every row was stale. Regenerated from a live dry-run on a fresh install:
+
+```
+agents 70 · skills 302 · commands 103 · hooks 12 · rules 106 · scripts 184
+total 777   (was documented as 759)
+```
+
+**604 tests passing.**
+
 ## v2.18.0 — Support channels, shell portability, honest counts (September 2026)
 
 ### Added — Support

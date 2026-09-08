@@ -1,6 +1,6 @@
 ---
 title: "Uninstall Kodelyth ECC — Full Cleanup for macOS, Linux, Windows"
-description: "Complete Kodelyth ECC removal — 759 shipped files, RTK hook, codebase-mcp configs, ECC MCP entries, and ~/.kodelythecc/ memory. Interactive menu or CLI, dry-run supported."
+description: "Complete Kodelyth ECC removal — 777 shipped files, RTK hook, codebase-mcp configs, ECC MCP entries, and ~/.kodelythecc/ memory. Interactive menu or CLI, dry-run supported."
 keywords:
   - uninstall kodelyth ecc
   - remove kodelythecc
@@ -75,12 +75,12 @@ Live dry-run count on a fresh install:
 | Kind | Files |
 |---|---:|
 | `agents/` | 70 |
-| `skills/` | 301 |
-| `commands/` | 99 |
+| `skills/` | 302 |
+| `commands/` | 103 |
 | `hooks/` | 12 |
-| `rules/` | 104 |
-| `scripts/` | 173 |
-| **Total** | **759** |
+| `rules/` | 106 |
+| `scripts/` | 184 |
+| **Total** | **777** |
 
 After each subdir is cleaned, any now-empty ECC-owned subdirectories are removed. Directories with user-authored files remain.
 

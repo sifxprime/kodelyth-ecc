@@ -58,7 +58,7 @@ That single flow ran:
 ### Install for other IDEs
 
 ```bash
-kodelythecc --target cursor              # Cursor
+kodelythecc --target cursor-project              # Cursor
 kodelythecc --target windsurf-home       # Windsurf (user-level)
 kodelythecc --target antigravity         # Google Antigravity
 kodelythecc --target codex-home          # Codex CLI
@@ -85,7 +85,7 @@ kodelythecc --version
 kodelythecc rtk status
 kodelythecc terse status
 kodelythecc codebase status
-kodelythecc mcp-register --status
+kodelythecc mcp-list
 ```
 
 Every command should report a healthy state. If any doesn't, jump to the relevant per-feature doc:

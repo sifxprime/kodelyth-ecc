@@ -122,7 +122,7 @@ kodelythecc
 kodelythecc rtk status
 kodelythecc terse status
 kodelythecc codebase status
-kodelythecc mcp-register --status
+kodelythecc mcp-list
 
 # dashboard
 kodelythecc dashboard

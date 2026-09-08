@@ -1,6 +1,6 @@
 {
   "name": "kodelyth-ecc",
-  "version": "2.19.0",
+  "version": "2.20.0",
   "description": "Production-grade AI coding toolkit — 70 agents (incl. devil-mode adversarial crew), 194 skills, 97 commands, parallel multi-agent commands, semantic intent routing, self-learning memory, and a built-in MCP server (16 tools / 6 prompts / 377 resources) that bridges to Claude Desktop, LangGraph, AutoGen, CrewAI, and OpenAI Agents SDK. Works with Claude Code, Windsurf, Cursor, Codex, Antigravity, OpenCode, Cline, RooCode, Aider, Kimi, and Gemini CLI.",
   "author": "Kodelyth <github.com/sifxprime>",
   "license": "MIT",
@@ -62,12 +62,42 @@
   },
   "scripts": {
     "test": "node tests/run-all.js",
-    "mcp": "node scripts/mcp/server.js"
+    "mcp": "node scripts/mcp/server.js",
+    "portability": "node scripts/portability/scan.js agents commands skills hooks rules scripts"
   },
   "optionalDependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4"
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "files": [
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "CONTRIBUTING.md",
+    "GITHUB_SETUP.md",
+    "KODELYTH.md",
+    "SECURITY.md",
+    "SOUL.md",
+    "VERSION",
+    "install.ps1",
+    "install.sh",
+    "actions/",
+    "agents/",
+    "bin/",
+    "bundles/",
+    "commands/",
+    "contexts/",
+    "hooks/",
+    "rules/",
+    "scripts/",
+    "skills/",
+    "tasks/",
+    "wiki/",
+    "!scripts/openclaw-twitter/",
+    "!**/tests/",
+    "!**/*.log",
+    "!**/.DS_Store"
+  ]
 }

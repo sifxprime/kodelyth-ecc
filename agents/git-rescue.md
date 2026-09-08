@@ -29,11 +29,20 @@ Before any rescue command:
 
 ```bash
 # Make a safety branch from HEAD's current state — costs nothing
-git branch backup/rescue-$(date +%s)
+STAMP=$(date +%Y%m%d-%H%M%S)
+git branch "backup/rescue-$STAMP"
 
-# Capture the full reflog — your map back home
-git reflog --all > /tmp/reflog-$(date +%s).txt
-git stash list >> /tmp/reflog-$(date +%s).txt
+# Capture the full reflog — your map back home.
+# Write it INSIDE the repo, not a temp dir: a rescue snapshot that a reboot
+# can delete is not a snapshot. Add the file to .git/info/exclude if the
+# working tree must stay clean.
+SNAPSHOT="git-rescue-$STAMP.txt"
+{
+  echo "=== reflog --all ==="; git reflog --all
+  echo; echo "=== stash list ==="; git stash list
+  echo; echo "=== branches ==="; git branch -avv
+} > "$SNAPSHOT"
+echo "snapshot: $SNAPSHOT"
 ```
 
 ### Phase 1 — Diagnose

@@ -62,8 +62,15 @@ Use repo-local evidence before making any classification:
 Useful commands include:
 
 ```bash
-rg --files
-rg -n "typescript|react|next|supabase|django|spring|flutter|swift"
+# ripgrep is not preinstalled anywhere; fall back to find/grep when absent.
+if command -v rg >/dev/null; then
+  rg --files
+  rg -n "typescript|react|next|supabase|django|spring|flutter|swift"
+else
+  find . -type f -not -path '*/node_modules/*' -not -path '*/.git/*'
+  grep -rEn "typescript|react|next|supabase|django|spring|flutter|swift" . \
+    --exclude-dir=node_modules --exclude-dir=.git
+fi
 cat package.json
 cat pyproject.toml
 cat Cargo.toml

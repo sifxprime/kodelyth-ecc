@@ -119,8 +119,11 @@ stress-ng --vm 4 --vm-bytes 80% --timeout 60s
 # Hypothesis: every endpoint validates its inputs and never panics/500s on malformed.
 # Tooling: ffuf, restler, schemathesis
 
+# The hypothesis database is what makes a re-run reproduce the failing input it
+# found last time. Keep it in the repo, not a temp dir — a reboot that wipes
+# /tmp throws away the shrunk counterexample you were about to debug.
 schemathesis run https://api.localhost/openapi.json --checks all --hypothesis-deadline 5000 \
-  --hypothesis-database /tmp/fuzz-state
+  --hypothesis-database .hypothesis/fuzz-state
 
 # Watch: 500 errors, panics, timeouts, memory leaks
 ```
@@ -144,10 +147,13 @@ wait
 
 ```bash
 # Hypothesis: app rotates certs 30 days before expiration.
-# Tooling: faketime
-faketime '+89 days' /usr/local/bin/your-app
+# Tooling: faketime (libfaketime). Resolve the binary rather than hardcoding a
+# prefix — /usr/local/bin is Intel-Homebrew only; Apple Silicon uses
+# /opt/homebrew/bin, and a Linux package manager uses /usr/bin.
+APP=$(command -v your-app) || { echo "your-app not on PATH"; exit 1; }
+faketime '+89 days' "$APP"
 # Watch: rotation event, cert refresh
-faketime '+91 days' /usr/local/bin/your-app
+faketime '+91 days' "$APP"
 # Watch: expiration handling, alert fires
 ```
 

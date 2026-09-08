@@ -43,7 +43,7 @@ The `--task` / `--agents` / `--harness` / `--base-ref` flags enrich the bundle's
 ```bash
 npx kodelyth-ecc session-import ~/Desktop/oauth-audit.bundle.json
 # or:
-npx kodelyth-ecc session-import oauth-audit.bundle.json --target /tmp/audit-restore --overwrite
+npx kodelyth-ecc session-import oauth-audit.bundle.json --target ./audit-restore --overwrite
 ```
 
 Restores the bundle into a coordination directory. Useful for inspecting handoffs locally before replaying.

@@ -12,3 +12,21 @@ brand/**/*.png
 # Brand tool dependencies
 brand/node_modules/
 brand/package-lock.json
+
+# ── ECC install-target output ────────────────────────────────────────────────
+# Running a project-scoped target (`kodelythecc --target cursor-project` et al)
+# inside this repo writes its whole payload here. In 2.19.0 that swept 2,570
+# duplicate files into the package — 5 MB became 21 MB. These are build output,
+# never sources. The `files` allowlist in package.json is the real guard; this
+# keeps them out of git as well.
+.agent/
+.agents
+.aider-ecc/
+.clinerules/
+.cursor/
+.gemini/
+.kimi/
+.opencode/
+.roo/
+.windsurfrules
+CONVENTIONS.md

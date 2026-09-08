@@ -39,16 +39,18 @@ Real-world risks you hunt:
 ### 1. Inventory all dependency licenses
 
 ```bash
-# Node
-npx license-checker --json --production > /tmp/licenses.json
+# Node. Write the report into the repo, not a temp dir — a compliance
+# artifact you intend to attach to a review should survive a reboot.
+npx license-checker --json --production > licenses.json
 npx license-checker --summary
 
 # Python
 pip-licenses --format=json
 pip-licenses --summary
 
-# Go
-go-licenses report ./... --template /tmp/template.tpl
+# Go (--template takes a path to a Go text/template you supply; point it at a
+# file in the repo so the command is reproducible for the next person)
+go-licenses report ./... --template ./licenses.tpl
 
 # Rust
 cargo about generate about.hbs

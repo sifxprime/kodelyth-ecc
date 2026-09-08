@@ -84,9 +84,25 @@ Add `jira` to your `mcpServers` config (see `mcp-configs/mcp-servers.json` for t
 
 **Option B — Environment variables:**
 ```bash
+# macOS/Linux
 export JIRA_URL="https://yourorg.atlassian.net"
 export JIRA_EMAIL="your.email@example.com"
 export JIRA_API_TOKEN="your-api-token"
+```
+```powershell
+# Windows PowerShell
+$env:JIRA_URL       = "https://yourorg.atlassian.net"
+$env:JIRA_EMAIL     = "your.email@example.com"
+$env:JIRA_API_TOKEN = "your-api-token"
+```
+
+Typing the token directly writes it to your shell history in plaintext, where
+it stays until the history file rolls over. Put it in a `.env` the shell sources
+(and that `.gitignore` covers), or read it from a secret manager:
+
+```bash
+export JIRA_API_TOKEN=$(op read "op://Private/Jira/token")   # 1Password
+export JIRA_API_TOKEN=$(security find-generic-password -w -s jira)  # macOS Keychain
 ```
 
 If credentials are missing, stop and direct the user to set them up.

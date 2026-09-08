@@ -9,7 +9,7 @@ Guidance for Claude Code when working with this repository.
 - **70 specialist agents** — debug-detective, incident-commander, load-tester, image-architect, kodelyth-memory, security-reviewer, plus 8 adversarial devil-mode agents
 - **196 skills** — domain knowledge, patterns, testing, security, intent routing, local memory, swarm orchestration, MCP integration
 - **103 commands** — slash workflows (`/tdd`, `/plan`, `/code-review`, `/team-review`, `/devil-mode`, `/debug-blitz`, `/security-audit`, ...)
-- **22+ hooks** — quality gates, memory inject + capture, correction encoding, prompt-injection guard, token-budget enforcer
+- **44 hook entries** across 8 events — quality gates, memory inject + capture, correction encoding, prompt-injection guard, token-budget enforcer
 - **15 rules** — always-on coding standards + semantic intent routing + memory protocol + self-improvement
 
 Works with Claude Code, Windsurf, Cursor, Codex CLI, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, and Gemini CLI — **11 platforms** (13 install targets).
@@ -20,13 +20,13 @@ Works with Claude Code, Windsurf, Cursor, Codex CLI, Antigravity, OpenCode, Clin
 agents/      → 70 specialist subagents (planner, code-reviewer, debug-detective, devil-mode crew, ...)
 commands/    → 103 slash commands (8 parallel multi-agent, 1 adversarial loop, rest single-agent)
 skills/      → 196 workflow + domain knowledge files (loadable via slash commands)
-hooks/       → 22+ automations (pre-commit, session memory, prompt-injection guard, token-budget)
+hooks/       → 44 hook entries across 8 events, 9 scripts (memory inject/capture, prompt-injection guard, token-budget)
 rules/       → 15 always-on guidelines (agent-intent-routing, self-improvement, memory-protocol, ...)
 scripts/     → Node.js utilities: MCP server, dashboard, swarm, replay, router, memory, supply-chain
 bundles/     → 3 power bundles (indie-hacker, red-team, enterprise)
 actions/     → GitHub Action (CI/CD integration for PR review)
 docs/        → Feature docs (arena.md, mcp.md, dashboard.md, swarm.md, replay.md, evolve.md, supply-chain.md)
-tests/       → 604 passing tests across 32 test files
+tests/       → 633 passing tests across 41 test files
 ```
 
 ## Running Tests

@@ -25,14 +25,19 @@ This skill must be accessible to Claude Code before activation. Two ways to boot
 
 ## Step 0: Clone ECC Repository
 
-Before any installation, clone the latest ECC source to `/tmp`:
+Before any installation, clone the latest ECC source to a scratch directory:
 
 ```bash
-rm -rf /tmp/kodelyth-ecc
-git clone https://github.com/sifxprime/kodelyth-ecc.git /tmp/kodelyth-ecc
+# mktemp -d resolves the platform's own temp location, so this line is the same
+# on macOS, Linux and Git Bash. A literal /tmp does not exist on Windows.
+ECC_ROOT="$(mktemp -d)/kodelyth-ecc"
+git clone --depth 1 https://github.com/sifxprime/kodelyth-ecc.git "$ECC_ROOT"
 ```
 
-Set `ECC_ROOT=/tmp/kodelyth-ecc` as the source for all subsequent copy operations.
+`$ECC_ROOT` is the source for every copy operation below. Because `mktemp -d`
+returns a fresh directory each time, there is no stale clone to `rm -rf` first —
+which also removes the one line in this skill capable of deleting the wrong
+path if the variable were ever empty.
 
 If the clone fails (network issues, etc.), use `AskUserQuestion` to ask the user to provide a local path to an existing ECC clone.
 
@@ -318,10 +323,13 @@ Options:
 
 ## Step 6: Installation Summary
 
-Clean up the cloned repository from `/tmp`:
+Clean up the cloned repository:
 
 ```bash
-rm -rf /tmp/kodelyth-ecc
+# Guard the expansion. An empty $ECC_ROOT makes this `rm -rf ""`, which is a
+# no-op on the rm we tested — but the same unguarded pattern with a path
+# built by concatenation is how people delete the wrong directory.
+[ -n "$ECC_ROOT" ] && [ -d "$ECC_ROOT" ] && rm -rf "$ECC_ROOT"
 ```
 
 Then print a summary report:

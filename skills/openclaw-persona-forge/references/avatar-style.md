@@ -84,7 +84,7 @@ The key silhouette recognition points at small size are:
 ### 路径 A：已安装且已审核的生图 skill
 
 1. 先将龙虾名字规整为安全片段：仅保留字母、数字和连字符，其余字符替换为 `-`
-2. 用 Write 工具写入：`/tmp/openclaw-<safe-name>-prompt.md`
+2. 用 Write 工具写入：`$(mktemp -d)/openclaw-<safe-name>-prompt.md`
 3. 调用当前环境允许的生图 skill 生成图片
 4. 用 Read 工具展示生成的图片给用户
 5. 问用户是否满意，不满意可调整变量重新生成

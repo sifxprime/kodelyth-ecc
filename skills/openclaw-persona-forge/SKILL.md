@@ -60,7 +60,7 @@ origin: community
 
 **调用方式**（仅在已安装且已审核时）：
 1. 先将龙虾名字规整为安全片段：仅保留字母、数字和连字符，其余字符统一替换为 `-`
-2. 将提示词写入临时文件 `/tmp/openclaw-<safe-name>-prompt.md`
+2. 将提示词写入临时文件 `$(mktemp -d)/openclaw-<safe-name>-prompt.md`
 3. 使用当前环境允许的生图 skill，传入提示词文件和输出路径
 
 **接口约定**：

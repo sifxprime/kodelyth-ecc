@@ -1,5 +1,15 @@
 # Capture Guide
 
+All session files live under one directory so a run can be cleaned up in a
+single step, and so nothing assumes `/tmp` exists (it does not on Windows).
+Resolve it once and export it before any command below:
+
+```bash
+export VIDEODB_DIR="${VIDEODB_DIR:-$(mktemp -d)}"
+echo "videodb session: $VIDEODB_DIR"
+```
+
+
 ## Overview
 
 VideoDB Capture enables real-time screen and audio recording with AI processing. Desktop capture currently supports **macOS** only.
@@ -10,7 +20,7 @@ For code-level details (SDK methods, event structures, AI pipelines), see [captu
 
 1. **Start WebSocket listener**: `python scripts/ws_listener.py --clear &`
 2. **Run capture code** (see Complete Capture Workflow below)
-3. **Events written to**: `/tmp/videodb_events.jsonl`
+3. **Events written to**: `$VIDEODB_DIR/events.jsonl`
 
 ---
 
@@ -32,9 +42,9 @@ No webhooks or polling required. WebSocket delivers all events including session
 
 6. **Start the session** with selected channels.
 
-7. **Wait for session active** by reading events until you see `capture_session.active`. This event contains the `rtstreams` array. Save session info (session ID, RTStream IDs) to a file (e.g. `/tmp/videodb_capture_info.json`) so other scripts can read it.
+7. **Wait for session active** by reading events until you see `capture_session.active`. This event contains the `rtstreams` array. Save session info (session ID, RTStream IDs) to a file (e.g. `$VIDEODB_DIR/capture_info.json`) so other scripts can read it.
 
-8. **Keep the process alive.** Use `asyncio.Event` with signal handlers for `SIGINT`/`SIGTERM` to block until explicitly stopped. Write a PID file (e.g. `/tmp/videodb_capture_pid`) so the process can be stopped later with `kill $(cat /tmp/videodb_capture_pid)`. The PID file should be overwritten on every run so reruns always have the correct PID.
+8. **Keep the process alive.** Use `asyncio.Event` with signal handlers for `SIGINT`/`SIGTERM` to block until explicitly stopped. Write a PID file (e.g. `$VIDEODB_DIR/capture.pid`) so the process can be stopped later with `kill $(cat $VIDEODB_DIR/capture.pid)`. The PID file should be overwritten on every run so reruns always have the correct PID.
 
 9. **Start AI pipelines** (in a separate command/script) on each RTStream for audio indexing and visual indexing. Read the RTStream IDs from the saved session info file.
 
@@ -48,7 +58,7 @@ No webhooks or polling required. WebSocket delivers all events including session
 
 12. **Wait for export** by reading events until you see `capture_session.exported`. This event contains `exported_video_id`, `stream_url`, and `player_url`. This may take several seconds after stopping capture.
 
-13. **Stop WebSocket listener** after receiving the export event. Use `kill $(cat /tmp/videodb_ws_pid)` to cleanly terminate it.
+13. **Stop WebSocket listener** after receiving the export event. Use `kill $(cat $VIDEODB_DIR/ws.pid)` to cleanly terminate it.
 
 ---
 
@@ -57,8 +67,8 @@ No webhooks or polling required. WebSocket delivers all events including session
 Proper shutdown order is important to ensure all events are captured:
 
 1. **Stop the capture session** — `client.stop_capture()` then `client.shutdown()`
-2. **Wait for export event** — poll `/tmp/videodb_events.jsonl` for `capture_session.exported`
-3. **Stop the WebSocket listener** — `kill $(cat /tmp/videodb_ws_pid)`
+2. **Wait for export event** — poll `$VIDEODB_DIR/events.jsonl` for `capture_session.exported`
+3. **Stop the WebSocket listener** — `kill $(cat $VIDEODB_DIR/ws.pid)`
 
 Do NOT kill the WebSocket listener before receiving the export event, or you will miss the final video URLs.
 
@@ -83,7 +93,7 @@ python scripts/ws_listener.py --clear &
 python scripts/ws_listener.py --clear /path/to/events &
 
 # Stop the listener
-kill $(cat /tmp/videodb_ws_pid)
+kill $(cat $VIDEODB_DIR/ws.pid)
 ```
 
 **Options:**

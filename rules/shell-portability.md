@@ -23,6 +23,52 @@ Every row below was checked on a stock macOS shell. These are not theoretical.
 | `rg` | **any OS** — ripgrep is not preinstalled | `grep -rn` |
 | `date -d` | **macOS/BSD** | `date -j` on BSD, or do date math in the language |
 | `find -printf` | **macOS/BSD** | `find ... -exec stat ...` or `-print0 \| xargs` |
+| `TMPDIR=x mktemp` | **macOS** — mktemp ignores TMPDIR entirely | pass a template path, or use the runtime's tempdir |
+| `/tmp/foo` hardcoded | **Windows** — no /tmp | bare `mktemp` / `mktemp -d`, or `os.tmpdir()` |
+| `grep -c` under `set -e` | **any OS** — exits 1 on zero matches | `grep -c x f \|\| echo 0` |
+| `for x in $VAR` | **macOS/zsh** — no word splitting, loops once | list items literally, or `for x in "${ARR[@]}"` |
+
+## Measured, not assumed
+
+The `TMPDIR` row above surprised us, so here is the evidence. On macOS the
+subprocess receives the variable and every runtime honours it — but `mktemp`
+does not:
+
+```bash
+$ env TMPDIR=/tmp/probe sh -c 'echo $TMPDIR'
+/tmp/probe                                     # the process sees it
+$ env TMPDIR=/tmp/probe sh -c 'mktemp'
+/var/folders/90/.../T/tmp.AlQWd6r4T9           # mktemp ignores it
+$ env TMPDIR=/tmp/probe node -e 'console.log(require("os").tmpdir())'
+/tmp/probe                                     # Node honours it
+$ env TMPDIR=/tmp/probe python3 -c 'import tempfile;print(tempfile.gettempdir())'
+/tmp/probe                                     # Python honours it
+```
+
+The practical consequence: a test harness that sets `TMPDIR` to isolate itself
+will isolate its Node and Python code but **not** its shell `mktemp` calls. If
+isolation matters, pass an explicit template path to `mktemp` rather than
+setting the variable and trusting it.
+
+`grep -c` is the other one worth internalising: it prints `0` and exits `1` when
+nothing matches. Under `set -e`, a "count the failures" line kills the script on
+the outcome you were hoping for.
+
+### The one that cost us a release
+
+`zsh` does not word-split an unquoted parameter expansion. `bash` does. macOS
+has defaulted to zsh since Catalina, so the same loop does two different things:
+
+```bash
+$ zsh  -c 'V="a b c"; for d in $V; do echo "[$d]"; done'
+[a b c]                      # one iteration
+$ bash -c 'V="a b c"; for d in $V; do echo "[$d]"; done'
+[a] [b] [c]                  # three iterations
+```
+
+The failure is quiet. A cleanup loop written this way runs once against a
+nonsense path, every command inside it succeeds, and the script reports done
+having removed nothing. Write the list literally, or use a real array.
 
 ## Before running a tool that may be absent
 

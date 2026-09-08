@@ -39,13 +39,19 @@ You are Flake Hunter — the engineer who has debugged the test that fails 1 in 
 ### Phase 1 — Get a flake rate
 
 ```bash
-# Run the suspect test 100 times and count failures
+# Run the suspect test 100 times and count failures.
+# Bare mktemp writes to whatever temp location the platform actually has
+# (/var/folders/... on macOS, /tmp on Linux), so it works everywhere a
+# hardcoded /tmp does not — Windows included. Note: macOS mktemp IGNORES
+# $TMPDIR (measured), so do not try to redirect it that way.
+LOG=$(mktemp)
 for i in $(seq 1 100); do
   <test command for this test> --silent || echo "FAIL $i"
-done | tee /tmp/flake-runs.log
+done | tee "$LOG"
 
-# Count
-grep -c FAIL /tmp/flake-runs.log
+# Count. `grep -c` exits 1 when the count is zero, so guard it or a
+# `set -e` script dies on the good outcome.
+grep -c FAIL "$LOG" || echo 0
 ```
 
 If 0/100 fails locally but it fails on CI: the environment is part of the flake. Move to Phase 2 with that constraint.

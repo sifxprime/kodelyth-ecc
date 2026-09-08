@@ -2,6 +2,100 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.20.0 — 2.19.0 shipped 21 MB instead of 5; here is the guard (September 2026)
+
+**Upgrade from 2.19.0.** That release is 4× the size it should be and carries
+2,570 files that do not belong to the package.
+
+### What happened
+
+Testing all 13 install targets meant running the 9 project-scoped ones, and
+project-scoped targets write into the directory you are standing in — which was
+the repo root. `git add -A` then swept the lot into the release commit:
+
+```
+.roo 488 · .kimi 488 · .aider-ecc 488 · .gemini 388 · .cursor 315
+.agent 194 · .clinerules 189 · .opencode 17 · + 3 stray files
+```
+
+```
+              files   unpacked
+2.18.0          794     5.01 MB
+2.19.0        3,364    20.89 MB    ← 4.2x
+2.20.0          796     4.80 MB    ← 2.18.0 + 2 new source files
+```
+
+Nothing caught it. Tests passed, CI was green, the version published. The only
+signal was the tarball size and nothing was watching it.
+
+### The guards
+
+Three, because the first two fail open:
+
+1. **`files` allowlist in package.json** — an allowlist excludes a new stray
+   directory by default. `.npmignore` alone is a denylist: it only stops what
+   someone thought to name. Note that `files` *overrides* `.npmignore`, so the
+   exclusions that file already encoded are restated as negations — adding an
+   allowlist without them silently starts shipping content someone had
+   deliberately excluded (it re-added 12 files here before that was caught).
+2. **`.gitignore`** for all 11 install-target outputs.
+3. **7 packaging tests** that pack the real tarball and assert on it — no
+   install-target output, no nested test fixtures, the bin entrypoint present,
+   and file count and size inside a band around the 2.18.0 baseline. Verified by
+   recreating the exact failure: with the allowlist, 24 planted stray files pack
+   as 0; without it, 24 pack and the tests go red.
+
+### Added — portability enforcement
+
+`npm run portability` scans the shipped markdown for shell constructs that break
+on a platform other than the author's, and the same scan runs as a test, so the
+corpus cannot regress.
+
+11 rules, each carrying the evidence it was derived from — measured on a stock
+macOS shell, not read off a man page. Two were found while writing it:
+
+- **macOS `mktemp` ignores `$TMPDIR`.** The process receives the variable and
+  Node and Python both honour it; `mktemp` uses `/var/folders/…` regardless. A
+  harness that sets `TMPDIR` to isolate itself isolates its Node and Python and
+  not its shell.
+- **`zsh` does not word-split an unquoted expansion; `bash` does.** macOS
+  defaults to zsh, so `for d in $DIRS` runs **once** on a Mac and N times on
+  Linux. This bit during this very release: a cleanup loop reported success for
+  work it never did.
+
+Also fixed: `grep -c` prints `0` but exits `1` on no matches, so under `set -e`
+a "count the failures" line kills the script on the outcome you wanted.
+
+### Fixed — 21 files across agents, commands and skills
+
+`git-rescue` had a real data-loss bug. Its pre-rescue snapshot was:
+
+```bash
+git reflog --all >  /tmp/reflog-$(date +%s).txt
+git stash list   >> /tmp/reflog-$(date +%s).txt
+```
+
+`$(date +%s)` runs twice. Straddle a second boundary and the append lands in a
+different file from the one the redirect created — so the stash list silently
+goes somewhere other than the snapshot, in the agent whose entire job is not
+losing your work. Reproduced, then replaced with one timestamp, one file,
+written into the repo rather than a temp dir a reboot can clear.
+
+Everything else: hardcoded `/tmp` (absent on Windows) across 12 files,
+`/usr/local/bin` (Intel-Homebrew only — Apple Silicon uses `/opt/homebrew`),
+20 unguarded `rg` invocations in `security-reviewer` that would have reported a
+clean codebase on any machine without ripgrep installed, and PowerShell forms
+plus secret-manager alternatives for `commands/jira.md`, which was telling
+people to paste an API token straight into shell history.
+
+### Corrected
+
+`CLAUDE.md` claimed 604 tests across 32 files. The 604 was current; the 32 was
+stale by seven. Now 633 across 41, and the hook count is stated exactly (44
+entries over 8 events, 9 scripts) rather than as "22+".
+
+**633 tests passing.**
+
 ## v2.19.0 — The install docs were wrong; every command is now tested (September 2026)
 
 The install instructions were checked by **running every command they advertise**

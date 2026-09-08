@@ -200,10 +200,15 @@ Take screenshots only, analyze visually. Less thorough but works without MCP.
 For APIs/libraries: run tests, check build, analyze code quality. No browser.
 
 ```bash
-# Code-only evaluation
-npm run build 2>&1 | tee /tmp/build-output.txt
-npm test 2>&1 | tee /tmp/test-output.txt
-npx eslint . 2>&1 | tee /tmp/lint-output.txt
+# Code-only evaluation. Bare mktemp -d resolves to the platform's real temp
+# location, so this runs unchanged on macOS, Linux and Git Bash; a hardcoded
+# /tmp does not exist on Windows. Echo the path — on macOS it is under
+# /var/folders/... and you will not guess it.
+OUT=$(mktemp -d)
+npm run build 2>&1 | tee "$OUT/build.txt"
+npm test      2>&1 | tee "$OUT/test.txt"
+npx eslint .  2>&1 | tee "$OUT/lint.txt"
+echo "evaluation output: $OUT"
 ```
 
 Score based on: test pass rate, build success, lint issues, code coverage, API response correctness.

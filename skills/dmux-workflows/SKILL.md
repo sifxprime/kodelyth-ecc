@@ -48,7 +48,7 @@ Split research and implementation into parallel tracks:
 ```
 Pane 1 (Research): "Research best practices for rate limiting in Node.js.
   Check current libraries, compare approaches, and write findings to
-  /tmp/rate-limit-research.md"
+  $OUT_DIR/rate-limit-research.md"
 
 Pane 2 (Implement): "Implement rate limiting middleware for our Express API.
   Start with a basic token bucket, we'll refine after research completes."

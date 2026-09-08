@@ -514,10 +514,14 @@ evictionContext ─────────────────────�
 
 ### Worktree Isolation
 
-Every unit runs in an isolated worktree (uses jj/Jujutsu, not git):
+Every unit runs in an isolated worktree (uses jj/Jujutsu, not git), created
+under the platform's temp directory:
 ```
-/tmp/workflow-wt-{unit-id}/
+$(mktemp -d)/workflow-wt-{unit-id}/
 ```
+Resolve the base once per run and reuse it — hardcoding `/tmp` breaks on
+Windows, and re-resolving it per stage would hand each stage a different
+directory, defeating the shared-state behaviour described below.
 
 Pipeline stages for the same unit **share** a worktree, preserving state (context files, plan files, code changes) across research → plan → implement → test → review.
 

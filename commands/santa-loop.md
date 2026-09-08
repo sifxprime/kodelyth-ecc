@@ -80,7 +80,10 @@ command -v gemini >/dev/null 2>&1 && echo "gemini" || true
 
 Build the reviewer prompt (identical rubric + instructions as Reviewer A) and write it to a unique temp file:
 ```bash
-PROMPT_FILE=$(mktemp /tmp/santa-reviewer-b-XXXXXX.txt)
+# No path argument: mktemp resolves the platform's own temp location, which
+# exists on macOS, Linux and Git Bash. A literal /tmp template fails outright
+# on Windows.
+PROMPT_FILE=$(mktemp)
 cat > "$PROMPT_FILE" << 'EOF'
 ... full rubric + file contents + reviewer instructions ...
 EOF

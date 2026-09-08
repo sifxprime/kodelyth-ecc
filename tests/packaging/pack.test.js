@@ -22,18 +22,47 @@ const ROOT = path.join(__dirname, '..', '..');
  * These tests look at it.
  */
 
+/**
+ * On Windows npm is `npm.cmd`, and execFileSync without a shell does not append
+ * the PATHEXT extensions — so a bare 'npm' throws ENOENT there and nowhere else.
+ * This exact bug took CI red on the commit that introduced this file.
+ */
+const NPM_CANDIDATES = process.platform === 'win32' ? ['npm.cmd', 'npm.exe', 'npm'] : ['npm'];
+
 let manifest;
+let packError = null;
+
 function pack() {
   if (manifest) return manifest;
-  const out = execFileSync('npm', ['pack', '--dry-run', '--json'], {
-    cwd: ROOT,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'ignore'],
-    maxBuffer: 32 * 1024 * 1024,
-  });
-  manifest = JSON.parse(out)[0];
-  return manifest;
+  if (packError) throw packError;
+
+  for (const cmd of NPM_CANDIDATES) {
+    try {
+      const out = execFileSync(cmd, ['pack', '--dry-run', '--json'], {
+        cwd: ROOT,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+        maxBuffer: 32 * 1024 * 1024,
+      });
+      manifest = JSON.parse(out)[0];
+      return manifest;
+    } catch (err) {
+      if (err.code !== 'ENOENT') {
+        packError = err; // npm ran and genuinely failed — that IS the finding
+        throw err;
+      }
+    }
+  }
+  return null; // npm not spawnable at all
 }
+
+/**
+ * These tests need to actually run npm. Where it cannot be spawned they report
+ * why instead of going red — a guard that fails for an unrelated reason gets
+ * disabled, and then it guards nothing. Publishing runs on ubuntu-latest
+ * (publish.yml), which is where this always executes.
+ */
+const NPM_MISSING = { skip: pack() === null ? `npm not spawnable on ${process.platform}` : false };
 
 /** Every project-scoped target's output directory, from the CLI's own target list. */
 const INSTALL_TARGET_DIRS = [
@@ -42,7 +71,7 @@ const INSTALL_TARGET_DIRS = [
   'CONVENTIONS.md',
 ];
 
-test('the package ships no install-target output', () => {
+test('the package ships no install-target output', NPM_MISSING, () => {
   const files = pack().files.map((f) => f.path);
   const stray = files.filter((p) =>
     INSTALL_TARGET_DIRS.some((d) => p === d || p.startsWith(d + '/'))
@@ -74,13 +103,13 @@ test('the files allowlist restates the .npmignore exclusions', () => {
     'nested tests/ are excluded by .npmignore but not by files');
 });
 
-test('nested test fixtures are not shipped', () => {
+test('nested test fixtures are not shipped', NPM_MISSING, () => {
   const files = pack().files.map((f) => f.path);
   const shipped = files.filter((p) => /(^|\/)tests\//.test(p));
   assert.deepStrictEqual(shipped, [], `test fixtures shipped: ${shipped.join(', ')}`);
 });
 
-test('package size stays in the expected band', () => {
+test('package size stays in the expected band', NPM_MISSING, () => {
   // 2.18.0 was the last known-good release: 794 files, 5.01 MB unpacked.
   // The band is wide enough for normal growth and narrow enough that another
   // 4x blow-up fails here instead of on npm.
@@ -92,7 +121,17 @@ test('package size stays in the expected band', () => {
     `unpacked ${mb.toFixed(2)} MB outside 3-9 MB (2.18.0 baseline: 5.01 MB)`);
 });
 
-test('install-target dirs are gitignored', () => {
+/** Same reasoning as NPM_MISSING: no git, no verdict — say so rather than go red. */
+const GIT_MISSING = (() => {
+  try {
+    execFileSync('git', ['--version'], { cwd: ROOT, stdio: 'ignore' });
+    return { skip: false };
+  } catch {
+    return { skip: 'git not available' };
+  }
+})();
+
+test('install-target dirs are gitignored', GIT_MISSING, () => {
   // The .gitignore entries for directories carry a trailing slash, so they only
   // match when git knows the path IS a directory. For a path that does not
   // exist on disk it cannot know that, so probe a child path instead — which is
@@ -111,7 +150,7 @@ test('install-target dirs are gitignored', () => {
   }
 });
 
-test('the bin entrypoint is shipped', () => {
+test('the bin entrypoint is shipped', NPM_MISSING, () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
   const bins = typeof pkg.bin === 'string' ? [pkg.bin] : Object.values(pkg.bin || {});
   const files = pack().files.map((f) => f.path);

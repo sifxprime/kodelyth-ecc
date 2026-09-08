@@ -45,6 +45,15 @@ Three, because the first two fail open:
    recreating the exact failure: with the allowlist, 24 planted stray files pack
    as 0; without it, 24 pack and the tests go red.
 
+Worth stating plainly: the first version of these packaging tests broke CI on
+Windows, because `execFileSync('npm', ...)` throws ENOENT there — npm is
+`npm.cmd`, and spawning without a shell does not apply PATHEXT. That is the
+same class of defect the scanner below exists to catch, shipped inside the
+scanner's own companion test. It now tries `npm.cmd` first on win32, and where
+npm or git genuinely cannot be spawned the affected tests report why and skip
+rather than going red — a guard that fails for an unrelated reason gets
+disabled, and then it guards nothing.
+
 ### Added — portability enforcement
 
 `npm run portability` scans the shipped markdown for shell constructs that break

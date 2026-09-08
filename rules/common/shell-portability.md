@@ -27,6 +27,7 @@ Every row below was checked on a stock macOS shell. These are not theoretical.
 | `/tmp/foo` hardcoded | **Windows** — no /tmp | bare `mktemp` / `mktemp -d`, or `os.tmpdir()` |
 | `grep -c` under `set -e` | **any OS** — exits 1 on zero matches | `grep -c x f \|\| echo 0` |
 | `for x in $VAR` | **macOS/zsh** — no word splitting, loops once | list items literally, or `for x in "${ARR[@]}"` |
+| `execFileSync('npm', …)` | **Windows** — npm is `npm.cmd`; no PATHEXT lookup without a shell | try `npm.cmd` first on win32 |
 
 ## Measured, not assumed
 

@@ -64,9 +64,21 @@ test('registers every event, not just the first', () => {
 test('resolves ${CLAUDE_PLUGIN_ROOT} to the target root', () => {
   const root = makeTarget(SAMPLE);
   registerHooks(root);
-  const raw = JSON.stringify(readSettings(root));
-  assert.ok(!raw.includes('${CLAUDE_PLUGIN_ROOT}'), 'placeholder left unresolved — the hook would not run');
-  assert.ok(raw.includes(root), 'target root not substituted in');
+  const settings = readSettings(root);
+
+  // Assert on the parsed values, not on JSON.stringify output. A Windows root
+  // is D:\a\repo, which stringify escapes to D:\\a\\repo — so matching the raw
+  // path against the JSON text fails even when substitution worked correctly.
+  const commands = Object.values(settings.hooks)
+    .flat()
+    .flatMap((entry) => entry.hooks || [])
+    .map((hook) => hook.command);
+
+  assert.ok(commands.length > 0, 'no commands registered');
+  for (const cmd of commands) {
+    assert.ok(!cmd.includes('${CLAUDE_PLUGIN_ROOT}'), `placeholder left unresolved: ${cmd}`);
+    assert.ok(cmd.includes(root), `target root not substituted in: ${cmd}`);
+  }
   fs.rmSync(root, { recursive: true, force: true });
 });
 

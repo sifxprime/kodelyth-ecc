@@ -72,6 +72,13 @@ The installer banner claimed **194 skills, 97 commands, 22+ hooks**. Actual:
 sees, and all three numbers were wrong. Fixed in `install.sh`, `install.ps1`
 and the CLI header.
 
+One of those tests then broke Windows CI on its own terms: it asserted the
+substituted root by searching `JSON.stringify(settings)` for the path. A Windows
+root is `D:\a\repo`, which stringify escapes to `D:\\a\\repo`, so the match
+failed even though the substitution was correct. It now asserts on the parsed
+command strings. Reproduced locally with a Windows-shaped path before and after:
+old assertion `false`, new assertion `true`.
+
 **647 tests passing** — 14 new, covering idempotency, third-party hook
 preservation, unrelated-key preservation, corrupt-config recovery, file modes,
 and two that guard the regression directly: every event in the shipped manifest

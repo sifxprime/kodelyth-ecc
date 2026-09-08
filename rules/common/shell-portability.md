@@ -28,6 +28,7 @@ Every row below was checked on a stock macOS shell. These are not theoretical.
 | `grep -c` under `set -e` | **any OS** — exits 1 on zero matches | `grep -c x f \|\| echo 0` |
 | `for x in $VAR` | **macOS/zsh** — no word splitting, loops once | list items literally, or `for x in "${ARR[@]}"` |
 | `execFileSync('npm', …)` | **Windows** — ENOENT bare (no PATHEXT), EINVAL on `.cmd` since Node 18.20.2 | `execSync` with one literal command string |
+| `JSON.stringify(x).includes(winPath)` | **Windows** — stringify escapes `\\` to `\\\\` | assert on parsed values, never on JSON text |
 
 ## Measured, not assumed
 

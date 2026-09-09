@@ -42,6 +42,70 @@ jobs:
         id: v
         run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
+      # Preflight before the dispatch. A bare 404 from the dispatch endpoint is
+      # ambiguous — for a PRIVATE repo GitHub returns 404 rather than 403 so it
+      # never confirms the repo exists to a token that cannot see it. That means
+      # "wrong repo path", "token has no access", and "token has access but not
+      # Contents: write" all look identical. This step tells them apart.
+      - name: Check the token can reach ecc-web
+        env:
+          TOKEN: ${{ secrets.ECC_WEB_TOKEN }}
+        run: |
+          set -uo pipefail
+
+          if [ -z "${TOKEN:-}" ]; then
+            echo "::error::ECC_WEB_TOKEN is not set."
+            exit 1
+          fi
+
+          HDRS=$(mktemp); BODY=$(mktemp)
+          STATUS=$(curl -sS -D "$HDRS" -o "$BODY" -w '%{http_code}' \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/sifxprime/ecc-web)
+
+          # A classic PAT reports its scopes in a header; a fine-grained one does
+          # not send this at all. Which header is present identifies the token
+          # type, and that changes what the fix is.
+          SCOPES=$(grep -i '^x-oauth-scopes:' "$HDRS" | cut -d' ' -f2- | tr -d '\r' || true)
+          if [ -n "$SCOPES" ]; then
+            echo "Token type: classic PAT. Scopes: $SCOPES"
+          else
+            echo "Token type: fine-grained PAT (no x-oauth-scopes header)."
+          fi
+
+          if [ "$STATUS" = "200" ]; then
+            node -e '
+              const r = require("fs").readFileSync(process.argv[1], "utf8");
+              const j = JSON.parse(r);
+              const p = j.permissions || {};
+              console.log(`Repo visible: ${j.full_name} (private=${j.private})`);
+              console.log(`Permissions: admin=${!!p.admin} push=${!!p.push} pull=${!!p.pull}`);
+              if (!p.push) {
+                console.log("::error::The token can READ ecc-web but cannot write to it.");
+                console.log("::error::repository_dispatch needs Contents: Read and write.");
+                process.exit(1);
+              }
+            ' "$BODY"
+            exit $?
+          fi
+
+          echo "::error::Cannot reach sifxprime/ecc-web — HTTP $STATUS"
+          cat "$BODY"
+          echo
+          if [ "$STATUS" = "404" ]; then
+            echo "::error::ecc-web is PRIVATE, so 404 here means the token cannot see it at all."
+            echo "::error::Fine-grained PAT: add sifxprime/ecc-web under 'Repository access',"
+            echo "::error::and set Repository permissions -> Contents: Read and write."
+            echo "::error::Classic PAT: it needs the full 'repo' scope to reach a private repo."
+          elif [ "$STATUS" = "401" ]; then
+            echo "::error::401 — the token is invalid or expired. Reissue ECC_WEB_TOKEN."
+          fi
+          echo "::notice::The website is NOT down. ecc-web's 10-minute cron still"
+          echo "::notice::syncs and deploys; only the instant path is broken."
+          exit 1
+
       - name: Dispatch ecc-release to ecc-web
         env:
           TOKEN: ${{ secrets.ECC_WEB_TOKEN }}

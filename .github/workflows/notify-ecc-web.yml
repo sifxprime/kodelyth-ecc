@@ -77,18 +77,20 @@ jobs:
 
           if [ "$STATUS" = "200" ]; then
             node -e '
-              const r = require("fs").readFileSync(process.argv[1], "utf8");
-              const j = JSON.parse(r);
+              const j = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));
               const p = j.permissions || {};
               console.log(`Repo visible: ${j.full_name} (private=${j.private})`);
-              console.log(`Permissions: admin=${!!p.admin} push=${!!p.push} pull=${!!p.pull}`);
-              if (!p.push) {
-                console.log("::error::The token can READ ecc-web but cannot write to it.");
-                console.log("::error::repository_dispatch needs Contents: Read and write.");
-                process.exit(1);
-              }
+              // CAUTION: this permissions block is the permission of the USER who
+              // owns the token, not the set of permissions granted TO the token.
+              // A fine-grained PAT with only Metadata:read prints push=true here
+              // and is still refused on any write. Observed exactly that: this
+              // step passed with push=true while the dispatch returned 403.
+              // So it is logged as context, never used as a pass condition.
+              console.log(`Owner role on repo: admin=${!!p.admin} push=${!!p.push} pull=${!!p.pull}`);
+              console.log("Access confirmed. Whether the TOKEN may write is only");
+              console.log("provable by the dispatch itself — see the next step.");
             ' "$BODY"
-            exit $?
+            exit 0
           fi
 
           echo "::error::Cannot reach sifxprime/ecc-web — HTTP $STATUS"
@@ -158,7 +160,14 @@ jobs:
           echo
           case "$STATUS" in
             401) echo "::error::401 — the token is invalid or expired. Reissue ECC_WEB_TOKEN." ;;
-            403) echo "::error::403 — the token is valid but lacks Contents: read-write on sifxprime/ecc-web." ;;
+            403)
+              echo "::error::403 — the token reaches the repo but is not granted the permission to write."
+              echo "::error::If the body says 'Resource not accessible by personal access token', the"
+              echo "::error::fine-grained PAT is missing ONE setting:"
+              echo "::error::  Repository permissions -> Contents -> Read and write"
+              echo "::error::Adding the repo under 'Repository access' only grants Metadata: Read,"
+              echo "::error::which is enough to SEE a private repo but not to dispatch to it."
+              ;;
             404) echo "::error::404 — repo not found, or the token cannot see it. A fine-grained PAT must list ecc-web under 'Repository access'." ;;
             422) echo "::error::422 — malformed payload. ecc-web must accept repository_dispatch type 'ecc-release'." ;;
           esac

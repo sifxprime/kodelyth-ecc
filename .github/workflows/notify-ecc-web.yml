@@ -106,7 +106,14 @@ jobs:
               }
             ' "$EXPIRY"
           else
-            echo "ECC_WEB_TOKEN expiry: no expiration header — token does not expire."
+            # Absence is evidence, not proof. GitHub sends this header only for
+            # tokens that carry an expiry, so no header normally means the token
+            # was created with "No expiration" — but it is inferred from an
+            # absent header rather than an explicit statement, so say so and
+            # point at the authoritative place to confirm.
+            echo "ECC_WEB_TOKEN expiry: no expiration header returned."
+            echo "That normally means the token was created with No expiration."
+            echo "Confirm at https://github.com/settings/personal-access-tokens"
           fi
 
           if [ "$STATUS" = "200" ]; then

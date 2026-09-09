@@ -75,6 +75,40 @@ jobs:
             echo "Token type: fine-grained PAT (no x-oauth-scopes header)."
           fi
 
+          # Fine-grained PATs always expire, and an expired one is what broke this
+          # integration the first time. GitHub returns the expiry on every
+          # authenticated response, so surface it on every run rather than
+          # relying on anyone remembering a calendar entry. A classic PAT with no
+          # expiry sends no header — that is reported as such, not as an error.
+          EXPIRY=$(grep -i '^github-authentication-token-expiration:' "$HDRS" \
+            | cut -d' ' -f2- | tr -d '\r' || true)
+          if [ -n "$EXPIRY" ]; then
+            node -e '
+              const raw = process.argv[1];
+              // GitHub sends e.g. "2026-10-09 19:08:42 UTC". Date parses that, but
+              // fall back to an ISO-ish rewrite if a future format trips it up.
+              let d = new Date(raw);
+              if (isNaN(d)) d = new Date(raw.replace(" UTC", "Z").replace(" ", "T"));
+              if (isNaN(d)) {
+                console.log("::warning::Token expiry header present but unparseable: " + raw);
+                process.exit(0);
+              }
+              const days = Math.floor((d - Date.now()) / 86400000);
+              console.log("ECC_WEB_TOKEN expires: " + d.toISOString().slice(0, 10) + "  (" + days + " days)");
+              if (days < 0) {
+                console.log("::error::The token has already expired.");
+              } else if (days <= 14) {
+                console.log("::warning::ECC_WEB_TOKEN expires in " + days + " days — reissue it soon.");
+                console.log("::warning::When it lapses this workflow fails and the site falls back");
+                console.log("::warning::to ecc-web'"'"'s cron, which GitHub throttles to hours, not minutes.");
+              } else if (days <= 30) {
+                console.log("::notice::ECC_WEB_TOKEN expires in " + days + " days.");
+              }
+            ' "$EXPIRY"
+          else
+            echo "ECC_WEB_TOKEN expiry: no expiration header — token does not expire."
+          fi
+
           if [ "$STATUS" = "200" ]; then
             node -e '
               const j = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"));

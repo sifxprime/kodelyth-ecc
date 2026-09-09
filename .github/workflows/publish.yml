@@ -35,7 +35,27 @@ jobs:
       - name: Run tests before publish
         run: node tests/run-all.js
 
+      # npm refuses to publish over an existing version, so a release created for
+      # a version already on the registry would fail here with a 403 that means
+      # "already done", not "broken". Versions have been published by hand from a
+      # workstation, so cutting a GitHub release after the fact is the normal
+      # case, not an error. Detect it and skip.
+      - name: Is this version already on npm?
+        id: exists
+        run: |
+          set -uo pipefail
+          PKG=$(node -p "require('./package.json').name")
+          VER=$(node -p "require('./package.json').version")
+          if npm view "$PKG@$VER" version >/dev/null 2>&1; then
+            echo "already=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::$PKG@$VER is already on npm — skipping publish."
+          else
+            echo "already=false" >> "$GITHUB_OUTPUT"
+            echo "$PKG@$VER not on npm — will publish."
+          fi
+
       - name: Publish to npm
+        if: steps.exists.outputs.already == 'false'
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

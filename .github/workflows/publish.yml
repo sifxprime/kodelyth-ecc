@@ -68,11 +68,48 @@ jobs:
             echo "$PKG@$VER not on npm — will publish."
           fi
 
-      - name: Publish to npm
+      # Publishing is currently done by hand from a workstation, and NPM_TOKEN in
+      # this repo is stale. A hard failure here would put a red X on every
+      # release meaning "the token is old" rather than "the release broke" —
+      # while the package itself shipped fine.
+      #
+      # So: check whether the token can actually authenticate, and publish only
+      # if it can. This is NOT "publishing is disabled". The moment a working
+      # token is set, this step resumes publishing with no further change.
+      - name: Can we authenticate to npm?
+        id: auth
         if: steps.exists.outputs.already == 'false'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -uo pipefail
+          if WHO=$(npm whoami 2>&1); then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+            echo "Authenticated to npm as: $WHO"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "npm whoami failed: $WHO"
+          fi
+
+      - name: Publish to npm
+        if: steps.exists.outputs.already == 'false' && steps.auth.outputs.ok == 'true'
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Loud, not fatal. This case means the release exists but the package did
+      # NOT reach npm — a real gap someone has to close by hand. It must be
+      # impossible to miss in the run summary, and it must not be mistaken for
+      # a successful automated publish.
+      - name: Publish skipped — say so clearly
+        if: steps.exists.outputs.already == 'false' && steps.auth.outputs.ok != 'true'
+        run: |
+          VER=$(node -p "require('./package.json').version")
+          echo "::warning::npm publish SKIPPED — NPM_TOKEN could not authenticate."
+          echo "::warning::v$VER is NOT on npm. The GitHub release exists; the package does not."
+          echo "::warning::Publish it by hand:  npm publish"
+          echo "::warning::Or set a working token:  gh secret set NPM_TOKEN --repo ${{ github.repository }}"
+          echo "::warning::(Granular Access Token, Read and write on this package.)"
 
       # ── Phase 2.9: SLSA / SBOM ───────────────────────────────────────────
       # npm publish above already issues SLSA Level 3 build provenance via

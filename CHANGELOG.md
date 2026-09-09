@@ -2,6 +2,27 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.21.2 — same content, with a GitHub release attached (September 2026)
+
+Identical to 2.21.1 in every shipped file. It exists because 2.21.1 could not be
+given a GitHub release.
+
+What happened: the v2.21.1 tag was created against a commit that predated a fix
+to `publish.yml`, and GitHub runs a release workflow from the tagged ref rather
+than from the default branch — so the release fired the old workflow, which
+tried to publish a version npm already had and failed. Deleting the release to
+retag was the wrong move: this repository has immutable releases enabled, so
+publishing a release permanently reserves its tag name and deleting it does not
+give the name back. `v2.21.1` is now unusable as a tag.
+
+2.21.1 remains a perfectly good version on npm. It simply has no GitHub release,
+and cannot be given one.
+
+The lesson is recorded in `publish.yml` itself: tag the commit that carries the
+workflow you want the release to run.
+
+**647 tests passing.**
+
 ## v2.21.1 — the release pipeline itself (September 2026)
 
 **No change to the toolkit.** The shipped package is byte-identical to 2.21.0 —

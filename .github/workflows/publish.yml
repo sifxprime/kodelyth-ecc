@@ -1,3 +1,17 @@
+# Fires when a GitHub release is published, and publishes that version to npm.
+#
+# IMPORTANT: GitHub runs this file FROM THE TAGGED REF, not from the default
+# branch. Tag a commit that predates a change here and the release will run the
+# OLD workflow. That happened on v2.21.1: the tag pointed at a commit without the
+# "already on npm" check below, so the release tried to republish an existing
+# version and failed.
+#
+# Worse, recovering from it is not possible by retagging. This repository has
+# immutable releases enabled, so publishing a release permanently reserves its
+# tag name — deleting the release does not release the name, and v2.21.1 can
+# never be tagged again.
+#
+# So: always tag a commit that already contains the workflow you want to run.
 name: Publish to npm
 
 on:

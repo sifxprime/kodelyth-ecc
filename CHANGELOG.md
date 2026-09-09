@@ -2,6 +2,85 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.21.1 — the release pipeline itself (September 2026)
+
+**No change to the toolkit.** The shipped package is byte-identical to 2.21.0 —
+797 files, zero differences. Every change below is CI and deploy infrastructure,
+which the package excludes. Upgrading gains you nothing; it is recorded here
+because the changelog is the project's memory.
+
+Hence a patch, not a minor: nothing was added to what you install.
+
+### Fixed — releases were not reaching the website
+
+The workflow that tells the website a release happened had been removed after it
+was found reporting green while returning HTTP 403. Its last line was:
+
+```bash
+[ "$STATUS" = "204" ] && echo ok || echo failed
+```
+
+which exits 0 either way, so a broken dispatch and a working one produced the
+same green check. It had silently done nothing for an unknown number of
+releases.
+
+Restored, with every failure path exiting non-zero. A preflight now separates
+the failure modes, which a bare response cannot: the site repo is private, so
+GitHub answers 404 rather than 403 to a token that cannot see it, making "wrong
+repo path", "no repository access", and "access but no write permission" look
+identical. It also reports the token type and its expiry, warning under 30 days
+and erroring once lapsed — an expired token is what broke this the first time.
+
+One correction worth recording: the preflight originally passed on
+`permissions.push` from the repo API. That field is the permission of the *user*
+who owns the token, not the permissions granted *to* the token, so a token
+holding only `Metadata: Read` reported `push=true` and was still refused every
+write. It now logs that as context and never gates on it.
+
+### Fixed — the site redeployed every cron tick for identical content
+
+Each content sync rewrites a `syncedAt` timestamp whether or not anything
+changed, so `git status` was never clean, `changed` was permanently true, and
+every scheduled run rebuilt and redeployed the server.
+
+Measured over 24 hours: **14 sync commits, 2 with a real change.** The other 12
+each ran a full install, build, rsync, an `rm -rf` and `mv` over the live
+directories, and a container recreate — to ship byte-identical output.
+Timestamp-only churn is now discarded rather than committed.
+
+### Fixed — the cache purge reported success when it failed
+
+The Cloudflare purge ended in the same shape as the dispatch bug —
+`grep -q ... && echo OK || { echo failed; exit 0; }` — always exiting 0 with the
+failure buried in a plain echo inside a green job. It now parses the response,
+surfaces Cloudflare's own error codes as annotations, and stays non-fatal on
+purpose: the site is live at origin and only the edge is stale, so failing the
+job would misreport a good deploy.
+
+### Added — deploys cannot collide
+
+Push, dispatch and cron could all fire at once, and the swap step `rm -rf`s and
+`mv`s live directories on the server. Runs are now queued on one concurrency
+group rather than cancelled, since cancelling mid-swap is the state being
+avoided. It caught three real collisions on the day it was added.
+
+### Changed — actions on v7
+
+`actions/checkout` and `actions/setup-node` moved v4 to v7, clearing GitHub's
+Node 20 deprecation warning on every run. The majors were checked rather than
+crossed blind: `setup-node` v5 auto-enables caching when `package.json` declares
+`packageManager`, which neither repo does. `appleboy/ssh-action` stays on v1,
+already current within that major.
+
+### Measured — the cron is not a 10-minute backstop
+
+The schedule is configured `*/10`, but GitHub throttles high-frequency
+schedules. Across the last 14 scheduled runs the average gap was **228 minutes**,
+the longest **345**. Documented in the workflow so nobody plans around ten
+minutes again.
+
+**647 tests passing.**
+
 ## v2.21.0 — the hooks were never actually turned on (September 2026)
 
 Every hook ECC ships has been inert since the shell installer was written. Not

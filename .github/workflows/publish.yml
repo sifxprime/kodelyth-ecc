@@ -84,11 +84,24 @@ jobs:
       - name: Generate content manifest
         run: node bin/kodelyth-ecc.js manifest --out kodelyth-ecc-manifest.json
 
-      - name: Upload SBOM + manifest to the GitHub release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload "$GITHUB_REF_NAME" \
-            kodelyth-ecc-sbom.cdx.json \
-            kodelyth-ecc-manifest.json \
-            --clobber
+      # These were uploaded as RELEASE assets. That cannot work on this
+      # repository: immutable releases is enabled, and GitHub rejects asset
+      # uploads to an already-published release with
+      #   HTTP 422: Cannot upload assets to an immutable release.
+      # This workflow runs on release:published — by definition after the point
+      # assets can be attached — so the step could never have succeeded here,
+      # whatever permissions it was given. (It also had contents:read, which
+      # would have failed it with a 403 first.)
+      #
+      # Workflow artifacts instead: same files, downloadable from the run,
+      # retained 90 days, and no dependency on release mutability. npm publish
+      # --provenance above already issues the SLSA attestation, so the release
+      # page is not the only record.
+      - name: Upload SBOM + manifest as workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-and-manifest-${{ github.ref_name }}
+          path: |
+            kodelyth-ecc-sbom.cdx.json
+            kodelyth-ecc-manifest.json
+          if-no-files-found: error

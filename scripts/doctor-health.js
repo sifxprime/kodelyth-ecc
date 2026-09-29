@@ -115,8 +115,20 @@ function checkPromptInjectionGuard() {
   return { status: PASS, detail: `prompt-injection guard active (mode=${mode})` };
 }
 
+// Remediation has to be platform-correct or it is worse than none. RTK and the
+// codebase graph ship as native binaries with no Windows installer, so
+// "kodelythecc rtk install" on Windows just reports that it cannot, and the user
+// follows a dead end. Point at the release page there instead.
+const IS_WIN = process.platform === 'win32';
+
 function checkRtk() {
-  if (!onPath('rtk')) return { status: WARN, detail: 'RTK not installed (input savings inactive)', fix: 'kodelythecc rtk install' };
+  if (!onPath('rtk')) return {
+    status: WARN,
+    detail: 'RTK not installed (input savings inactive)',
+    fix: IS_WIN
+      ? 'no Windows installer yet — download: https://github.com/rtk-ai/rtk/releases'
+      : 'kodelythecc rtk install',
+  };
   try {
     const v = execFileSync('rtk', ['--version'], { encoding: 'utf8' }).trim();
     return { status: PASS, detail: `${v} installed`, };
@@ -130,7 +142,13 @@ function checkTerse() {
 }
 
 function checkCodebaseGraph() {
-  if (!onPath('codebase-memory-mcp')) return { status: WARN, detail: 'codebase graph not installed (optional)', fix: 'kodelythecc codebase install' };
+  if (!onPath('codebase-memory-mcp')) return {
+    status: WARN,
+    detail: 'codebase graph not installed (optional)',
+    fix: IS_WIN
+      ? 'no Windows installer yet — download: https://github.com/DeusData/codebase-memory-mcp/releases'
+      : 'kodelythecc codebase install',
+  };
   return { status: PASS, detail: 'codebase-memory-mcp installed' };
 }
 

@@ -96,7 +96,7 @@ You never typed `use debug-detective`. You didn't have to. The toolkit read the 
 | Quality hooks | ✅ 22+ | Some | ❌ | ❌ |
 | IDE platforms | **11** (Claude Code, Windsurf, Cursor, Codex, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI) | 1-2 | 1 | Varies |
 | Telemetry | ❌ none | Varies | ❌ | Varies |
-| Test coverage | ✅ 373 tests | ❌ | ❌ | ❌ |
+| Test coverage | ✅ 647 tests | ❌ | ❌ | ❌ |
 | Distributed via | `npx`, curl, clone | Manual | Manual | Manual |
 
 ---
@@ -118,7 +118,7 @@ kodelythecc --target claude-code --codebase-graph
 That's it. This single flow:
 
 1. Installs both binaries (`kodelyth-ecc` and short-form `kodelythecc`) to your PATH
-2. Copies 70 agents + 196 skills + 103 commands + 22 hooks + 15 rules into your AI tool's config dir
+2. Copies 70 agents + 196 skills + 103 commands + 44 hook entries + 15 rules into your AI tool's config dir
 3. Auto-installs **RTK** binary and wires its PreToolUse hook (input compression starts on next AI restart)
 4. Installs **Terse mode** skill + `/terse` and `/terse-compress` slash commands (dormant — user types `/terse` to activate)
 5. Auto-installs **codebase-memory-mcp** and registers its MCP entries in your AI tool (with `--codebase-graph`)
@@ -189,6 +189,44 @@ What this means in practice:
 export KODELYTH_EXTRA_IDE_WATCH="$HOME/my-agent-logs,$HOME/other-tool/state"
 npx kodelyth-ecc dashboard
 ```
+
+### Windows
+
+The same command works. `npx kodelyth-ecc` detects Windows and runs `install.ps1`
+through PowerShell for you — there is nothing separate to download.
+
+```powershell
+npx kodelyth-ecc                              # Claude Code (default)
+npx kodelyth-ecc --target cursor-project      # any target works the same way
+```
+
+**Requirements.** Node.js 18+ and either PowerShell 7 (`pwsh`) or the Windows
+PowerShell 5.1 that ships with the OS. The installer tries `pwsh` first and falls
+back automatically, and it passes `-ExecutionPolicy Bypass` for its own process
+only, so you do not need to change your machine's execution policy.
+
+**What is fully automatic on Windows:** the 70 agents, 196 skills, 103 commands,
+15 rules, all 44 hook entries registered into `settings.json`, the ECC MCP server
+(16 tools), and Terse mode.
+
+**What still needs one manual step:** RTK and the codebase graph ship as native
+binaries without a Windows installer script. ECC tells you so during install and
+prints the download link rather than failing or skipping silently:
+
+| Component | Windows | Get it |
+|---|---|---|
+| RTK (token savings) | manual | [rtk-ai/rtk releases](https://github.com/rtk-ai/rtk/releases) |
+| Codebase graph | manual | [codebase-memory-mcp releases](https://github.com/DeusData/codebase-memory-mcp/releases) |
+
+**Verify:**
+
+```powershell
+kodelythecc doctor
+```
+
+Every install is exercised on a real `windows-latest` runner on each push — it
+packs the package, installs it globally, runs a real install, and asserts on
+what lands. See the `Windows install` workflow.
 
 ### Option 2 — npx from GitHub (always latest commit)
 
@@ -973,7 +1011,9 @@ npx kodelyth-ecc typescript python golang rust java kotlin php swift cpp dart ru
 | Google Antigravity | Full | `antigravity` | Agents → skills, commands → workflows, rules |
 | OpenCode | Rules only | `opencode` | Rules (agents + skills not yet supported by OpenCode) |
 
-**OS support:** macOS, Linux (`install.sh`), Windows (`install.ps1`), or any OS with Node.js 18+ (`npx`).
+**OS support:** macOS, Linux and Windows. `npx kodelyth-ecc` is the same command on all
+three — it dispatches to `install.sh` on macOS/Linux and `install.ps1` on Windows for you.
+See [Windows](#windows) for the two pieces that still need a manual step there.
 
 ---
 

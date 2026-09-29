@@ -2,6 +2,89 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.22.0 — Windows actually works now (September 2026)
+
+The Windows install was broken in three separate ways. Windows CI had been green
+throughout, because the test suite only ever exercised library functions — it
+never ran the installer, which takes a completely different path there
+(`install.ps1` through PowerShell rather than `install.sh` through bash).
+
+Every finding below was measured on a real `windows-latest` runner, not inferred
+from reading the code.
+
+### The documented command failed outright
+
+`install.sh` matches `claude-home|claude-code` in every case arm, so both
+spellings work on macOS and Linux. `install.ps1` had three separate
+`switch ($Target)` blocks that each matched only `claude-home`, so the other
+spelling hit the default arm:
+
+```
+Unknown target: claude-code
+Valid targets: claude-home, windsurf-project, ...
+```
+
+`claude-code` is what the README, the docs and the website install page all tell
+people to use. **Every Windows user following the documented instructions got a
+hard failure.** Aliases are now normalised once at the top of the file, which
+covers all three switches and keeps the accepted set identical to `install.sh`
+rather than merely similar.
+
+### None of the post-install wiring ever ran
+
+The Windows branch called `process.exit()` immediately after `install.ps1`, while
+the POSIX branch continued into MCP registration, RTK, Terse mode and the
+codebase graph. A Windows user got agents, skills and commands on disk and
+silently none of those, with no message explaining why.
+
+That block is now a shared `runPostInstall()` called by both branches.
+
+### Hooks shipped without their scripts, and were never registered
+
+`install.ps1` copied only `hooks/hooks.json` — the same defect `install.sh` had
+before 2.21.0, where Windows was missed. So the manifest landed with none of the
+scripts it points at, and `settings.json` was never written at all. Claude Code
+reads hooks from `settings.json`, so every hook was inert.
+
+### Before and after, measured
+
+```
+                        before        after
+--target claude-code    hard fail     works
+hook files                      1        12
+settings.json              ABSENT     present, 8 events
+Terse mode                 absent     present
+MCP registration           absent     present
+total files installed           —       502
+```
+
+### Guarded so it cannot regress
+
+A `Windows install` workflow now runs on every push to main: it packs the
+package as npm would, installs it globally on `windows-latest`, runs a real
+install into a scratch HOME, and asserts on what lands — counts per module,
+whether `settings.json` was written and with how many events, whether Terse and
+MCP registration happened, then runs `doctor`. Green CI now means the Windows
+install works, which it never did before.
+
+### Also
+
+`doctor` was telling Windows users to run `kodelythecc rtk install` and
+`kodelythecc codebase install`. Neither has a Windows installer, so both
+commands report that they cannot proceed and the user follows a dead end. Both
+hints now point at the release page on Windows. Remediation that fails on the
+reader's platform is worse than none.
+
+RTK and the codebase graph remain manual on Windows — they are native binaries
+without a Windows installer script. The difference is that ECC now says so
+during install rather than the feature being silently absent.
+
+README gains a Windows section covering what is automatic, what is not, and why
+no execution-policy change is needed. Two stale claims corrected there: 373
+tests became 647, and 22 hooks became 44 hook entries.
+
+**647 tests passing.**
+
 ## v2.21.2 — same content, with a GitHub release attached (September 2026)
 
 Identical to 2.21.1 in every shipped file. It exists because 2.21.1 could not be

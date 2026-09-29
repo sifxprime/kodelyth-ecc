@@ -1,0 +1,116 @@
+# Installs the package on a real Windows runner and reports what actually lands.
+#
+# The unit tests pass on Windows, but they test library functions — they never
+# run the installer. The installer takes a completely different code path there
+# (install.ps1 via PowerShell, rather than install.sh via bash), so "Windows CI
+# is green" has never meant "Windows install works".
+#
+# This job closes that gap: it packs the tree exactly as npm would, installs it
+# globally, runs a real install into a scratch HOME, and asserts on what is on
+# disk afterwards. Anything it reports is measured, not inferred.
+name: Windows install
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch: {}
+
+concurrency:
+  group: windows-install-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    name: Install on windows-latest
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+
+      - name: Pack and install globally
+        shell: pwsh
+        run: |
+          npm pack --silent
+          $tgz = Get-ChildItem -Filter "kodelyth-ecc-*.tgz" | Select-Object -First 1
+          Write-Host "packed: $($tgz.Name)"
+          npm i -g $tgz.FullName
+          kodelythecc --version
+
+      - name: Run the installer into a scratch HOME
+        shell: pwsh
+        env:
+          KODELYTH_NONINTERACTIVE: "1"
+        run: |
+          $scratch = Join-Path $env:RUNNER_TEMP "ecc-home"
+          New-Item -ItemType Directory -Force -Path $scratch | Out-Null
+          $env:USERPROFILE = $scratch
+          $env:HOME = $scratch
+          Write-Host "HOME set to $scratch"
+          # Do not fail the job on a non-zero exit — the point is to observe and
+          # report, and a hard failure here would hide everything downstream.
+          kodelythecc --target claude-code
+          Write-Host "installer exit code: $LASTEXITCODE"
+          "scratch=$scratch" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: What landed
+        shell: pwsh
+        run: |
+          $h = $env:scratch
+          $claude = Join-Path $h ".claude"
+
+          function Count($p) {
+            if (Test-Path $p) { (Get-ChildItem -Path $p -Recurse -File -ErrorAction SilentlyContinue).Count } else { 0 }
+          }
+
+          $agents   = Count (Join-Path $claude "agents")
+          $skills   = Count (Join-Path $claude "skills")
+          $commands = Count (Join-Path $claude "commands")
+          $rules    = Count (Join-Path $claude "rules")
+          $hooks    = Count (Join-Path $claude "hooks")
+          $total    = Count $claude
+
+          Write-Host "=== installed under ~/.claude ==="
+          Write-Host ("  agents   {0}" -f $agents)
+          Write-Host ("  skills   {0}" -f $skills)
+          Write-Host ("  commands {0}" -f $commands)
+          Write-Host ("  rules    {0}" -f $rules)
+          Write-Host ("  hooks    {0}" -f $hooks)
+          Write-Host ("  total    {0}" -f $total)
+
+          Write-Host "=== post-install steps ==="
+          $settings = Join-Path $claude "settings.json"
+          if (Test-Path $settings) {
+            $s = Get-Content $settings -Raw | ConvertFrom-Json
+            $events = if ($s.hooks) { ($s.hooks.PSObject.Properties | Measure-Object).Count } else { 0 }
+            Write-Host ("  settings.json     present, {0} hook events" -f $events)
+          } else {
+            Write-Host "  settings.json     ABSENT"
+          }
+
+          $terse = Join-Path $claude "skills\terse-mode\SKILL.md"
+          Write-Host ("  terse mode        {0}" -f $(if (Test-Path $terse) { "present" } else { "ABSENT" }))
+
+          $mcpClaude = Join-Path $h ".claude.json"
+          Write-Host ("  MCP registration  {0}" -f $(if (Test-Path $mcpClaude) { "present" } else { "ABSENT" }))
+
+          Write-Host "=== verdict ==="
+          if ($total -lt 100) {
+            Write-Host "::error::Only $total files installed — the Windows install is broken."
+            exit 1
+          }
+          Write-Host "$total files installed."
+
+      - name: doctor
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $env:USERPROFILE = $env:scratch
+          $env:HOME = $env:scratch
+          kodelythecc doctor

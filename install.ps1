@@ -260,10 +260,38 @@ switch ($Target) {
         Install-Dir  "$ScriptDir\commands" $CommandsDest "Commands (79)"
 
         # Hooks
+        #
+        # Copy the whole tree, not just the manifest. Every command inside
+        # hooks.json points at ${CLAUDE_PLUGIN_ROOT}/hooks/{memory,safety}/*.js,
+        # so copying hooks.json alone registers hooks whose scripts are absent.
+        #
+        # Then register them into settings.json. Claude Code reads hooks from
+        # settings.json, NOT from hooks.json — a manifest sitting on disk does
+        # nothing. install.sh was fixed for this in 2.21.0; this file was missed,
+        # so Windows installs shipped 1 hook file and no settings.json at all
+        # (measured on a windows-latest runner).
         if ($HooksDest) {
             if (-not (Test-Path $HooksDest)) { New-Item -ItemType Directory -Path $HooksDest -Force | Out-Null }
-            Copy-Item "$ScriptDir\hooks\hooks.json" "$HooksDest\hooks.json" -Force
-            Write-Host "  [OK] Hooks -> $HooksDest" -ForegroundColor Green
+            Copy-Item "$ScriptDir\hooks\*" $HooksDest -Recurse -Force
+            $hookScripts = (Get-ChildItem -Path $HooksDest -Recurse -Filter "*.js" -ErrorAction SilentlyContinue).Count
+            Write-Host "  [OK] Hooks -> $HooksDest ($hookScripts scripts)" -ForegroundColor Green
+
+            $registrar = Join-Path $ScriptDir "scripts\install\register-hooks.js"
+            if (Test-Path $registrar) {
+                $nodeCmd = Get-Command node -ErrorAction SilentlyContinue
+                if ($nodeCmd) {
+                    $summary = & node $registrar $Dest 2>&1
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Host "  [OK] Hooks registered ($summary)" -ForegroundColor Green
+                    } else {
+                        Write-Host "  [!] Hook registration failed: $summary" -ForegroundColor Yellow
+                        Write-Host "      Retry: node `"$registrar`" `"$Dest`"" -ForegroundColor Gray
+                    }
+                } else {
+                    Write-Host "  [!] Hooks copied but not registered -- node not found" -ForegroundColor Yellow
+                    Write-Host "      Run after installing Node: node `"$registrar`" `"$Dest`"" -ForegroundColor Gray
+                }
+            }
         }
 
         # Rules

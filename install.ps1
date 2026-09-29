@@ -32,6 +32,33 @@ $ErrorActionPreference = "Stop"
 # Non-interactive mode: set by npx launcher (KODELYTH_NONINTERACTIVE=1) or --yes flag
 $NonInteractive = ($env:KODELYTH_NONINTERACTIVE -eq '1')
 
+# -- Target aliases -----------------------------------------------------------
+# install.sh matches "claude-home|claude-code" in every one of its case arms, so
+# both spellings work on macOS and Linux. This file had three separate
+# switch ($Target) blocks that each matched only "claude-home", so
+# "--target claude-code" fell through to the default arm and exited 1.
+#
+# That is the spelling the README, the docs and the website install page all
+# tell people to use, so the documented primary command failed outright on
+# Windows while working everywhere else. Measured on a windows-latest runner:
+#
+#   Unknown target: claude-code
+#   Valid targets: claude-home, windsurf-project, ...
+#
+# Normalising once here fixes all three switches at the same time, and keeps the
+# accepted set identical to install.sh rather than merely similar. Matching is
+# case-insensitive because PowerShell users reasonably type -Target Claude-Code.
+$TargetAliases = @{
+    'claude-code' = 'claude-home'
+    'claude'      = 'claude-home'
+}
+$targetKey = $Target.ToLower()
+if ($TargetAliases.ContainsKey($targetKey)) {
+    $Target = $TargetAliases[$targetKey]
+} else {
+    $Target = $targetKey
+}
+
 # -- Bundle handling (audience-tailored cheat sheets) -------------------------
 if ($Bundle) {
     switch ($Bundle.ToLower()) {

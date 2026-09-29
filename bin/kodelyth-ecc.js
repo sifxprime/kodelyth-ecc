@@ -1806,79 +1806,20 @@ if (args.includes('--version') || args.includes('-v')) {
 }
 
 // ── Run installer ─────────────────────────────────────────────────────────────
-if (isWin) {
-  const ps1 = path.join(ROOT, 'install.ps1');
-  if (!fs.existsSync(ps1)) {
-    console.error('Error: install.ps1 not found. Please clone the repo and run install.ps1 manually.');
-    process.exit(1);
-  }
-
-  // Map CLI args (--target X, --bundle X, --profile X) → PowerShell named params (-Target X, -Bundle X)
-  // Positional language args (e.g. "typescript python") → collected for -Languages
-  const psArgs = [];
-  const languages = [];
-  for (let i = 0; i < args.length; i++) {
-    const a = args[i];
-    if ((a === '--target' || a === '-target') && args[i + 1]) {
-      psArgs.push('-Target', args[++i]); continue;
-    }
-    if ((a === '--bundle' || a === '-bundle') && args[i + 1]) {
-      psArgs.push('-Bundle', args[++i]); continue;
-    }
-    if ((a === '--profile' || a === '-profile') && args[i + 1]) {
-      // profile maps to languages in ps1
-      languages.push(args[++i]); continue;
-    }
-    if (!a.startsWith('-')) {
-      // positional = language module
-      languages.push(a); continue;
-    }
-    // pass through any other flags unmapped
-    psArgs.push(a);
-  }
-  if (languages.length > 0) {
-    psArgs.push('-Languages', languages.join(','));
-  }
-
-  // Try pwsh (PowerShell 7+) first, then fall back to powershell (5.1)
-  function trySpawn(bin) {
-    return spawnSync(bin, ['-NoLogo', '-ExecutionPolicy', 'Bypass', '-File', ps1, ...psArgs], {
-      stdio: 'inherit',
-      shell: false,
-      env: { ...process.env, KODELYTH_NONINTERACTIVE: '1' },
-    });
-  }
-
-  let result = trySpawn('pwsh');
-  if (result.error && result.error.code === 'ENOENT') {
-    // pwsh not found — try legacy powershell.exe
-    result = trySpawn('powershell');
-  }
-
-  if (result.error) {
-    console.error(
-      '\nError: Could not launch PowerShell to run the installer.\n' +
-      'Make sure PowerShell is installed and accessible in your PATH.\n' +
-      '  • Try:   pwsh --version\n' +
-      '  • Or:    powershell -Version\n' +
-      '\nAlternatively, run the installer manually:\n' +
-      `  powershell -ExecutionPolicy Bypass -File "${ps1}"\n`
-    );
-    process.exit(1);
-  }
-  process.exit(result.status ?? 1);
-} else {
-  try { require(path.join(ROOT, 'scripts', 'migrate-legacy.js')).main(); } catch {}
-  const sh = path.join(ROOT, 'install.sh');
-  if (!fs.existsSync(sh)) {
-    console.error('Error: install.sh not found in package root:', ROOT);
-    process.exit(1);
-  }
-  fs.chmodSync(sh, 0o755);
-  const result = spawnSync('bash', [sh, ...args], { stdio: 'inherit', shell: false });
-
+// Post-install wiring: MCP registration, RTK, Terse mode, codebase graph.
+//
+// This lived inside the POSIX branch, and the Windows branch called
+// process.exit() straight after install.ps1 — so none of it ran on Windows. A
+// Windows user got agents, skills and commands on disk and silently none of:
+// the MCP server (16 tools), RTK token savings, /terse and /terse-compress, or
+// the codebase graph. Five advertised features, absent with no message.
+//
+// Every block below already guards itself and reports a reason when it cannot
+// proceed, which is what makes sharing it safe: on Windows the parts that work
+// now run, and the parts that cannot say so instead of vanishing.
+function runPostInstall(status, args) {
   // Post-install: auto-register ECC's own MCP server in Claude Code + Desktop.
-  if (result.status === 0 && !args.includes('--no-mcp-register')) {
+  if (status === 0 && !args.includes('--no-mcp-register')) {
     try {
       const reg = require(path.join(ROOT, 'scripts', 'mcp', 'register-self.js'));
       process.stdout.write('\n━ ECC MCP server registration ' + '─'.repeat(31) + '\n');
@@ -1894,7 +1835,7 @@ if (isWin) {
   }
 
   // Post-install: auto-install + wire RTK for the target IDE (opt-out via --no-rtk).
-  if (result.status === 0 && !args.includes('--no-rtk')) {
+  if (status === 0 && !args.includes('--no-rtk')) {
     try {
       const rtk = require(path.join(ROOT, 'scripts', 'rtk', 'index.js'));
       const targetIdx = args.indexOf('--target');
@@ -1972,5 +1913,80 @@ if (isWin) {
     }
   }
 
+}
+
+if (isWin) {
+  const ps1 = path.join(ROOT, 'install.ps1');
+  if (!fs.existsSync(ps1)) {
+    console.error('Error: install.ps1 not found. Please clone the repo and run install.ps1 manually.');
+    process.exit(1);
+  }
+
+  // Map CLI args (--target X, --bundle X, --profile X) → PowerShell named params (-Target X, -Bundle X)
+  // Positional language args (e.g. "typescript python") → collected for -Languages
+  const psArgs = [];
+  const languages = [];
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if ((a === '--target' || a === '-target') && args[i + 1]) {
+      psArgs.push('-Target', args[++i]); continue;
+    }
+    if ((a === '--bundle' || a === '-bundle') && args[i + 1]) {
+      psArgs.push('-Bundle', args[++i]); continue;
+    }
+    if ((a === '--profile' || a === '-profile') && args[i + 1]) {
+      // profile maps to languages in ps1
+      languages.push(args[++i]); continue;
+    }
+    if (!a.startsWith('-')) {
+      // positional = language module
+      languages.push(a); continue;
+    }
+    // pass through any other flags unmapped
+    psArgs.push(a);
+  }
+  if (languages.length > 0) {
+    psArgs.push('-Languages', languages.join(','));
+  }
+
+  // Try pwsh (PowerShell 7+) first, then fall back to powershell (5.1)
+  function trySpawn(bin) {
+    return spawnSync(bin, ['-NoLogo', '-ExecutionPolicy', 'Bypass', '-File', ps1, ...psArgs], {
+      stdio: 'inherit',
+      shell: false,
+      env: { ...process.env, KODELYTH_NONINTERACTIVE: '1' },
+    });
+  }
+
+  let result = trySpawn('pwsh');
+  if (result.error && result.error.code === 'ENOENT') {
+    // pwsh not found — try legacy powershell.exe
+    result = trySpawn('powershell');
+  }
+
+  if (result.error) {
+    console.error(
+      '\nError: Could not launch PowerShell to run the installer.\n' +
+      'Make sure PowerShell is installed and accessible in your PATH.\n' +
+      '  • Try:   pwsh --version\n' +
+      '  • Or:    powershell -Version\n' +
+      '\nAlternatively, run the installer manually:\n' +
+      `  powershell -ExecutionPolicy Bypass -File "${ps1}"\n`
+    );
+    process.exit(1);
+  }
+  runPostInstall(result.status, args);
+  process.exit(result.status ?? 1);
+} else {
+  try { require(path.join(ROOT, 'scripts', 'migrate-legacy.js')).main(); } catch {}
+  const sh = path.join(ROOT, 'install.sh');
+  if (!fs.existsSync(sh)) {
+    console.error('Error: install.sh not found in package root:', ROOT);
+    process.exit(1);
+  }
+  fs.chmodSync(sh, 0o755);
+  const result = spawnSync('bash', [sh, ...args], { stdio: 'inherit', shell: false });
+
+  runPostInstall(result.status, args);
   process.exit(result.status ?? 1);
 }

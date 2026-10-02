@@ -2,6 +2,69 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.23.0 — Windows has no manual step left (October 2026)
+
+2.22.0 made the Windows install work but left two components needing a manual
+download: RTK and the codebase graph. That turned out to be a gap in ECC, not a
+limitation upstream — **both projects publish Windows builds** and ECC simply
+never fetched them:
+
+```
+rtk-x86_64-pc-windows-msvc.zip
+codebase-memory-mcp-windows-amd64.zip  /  -arm64.zip
+```
+
+Both now install automatically. Windows is at parity with macOS and Linux.
+
+### How it works
+
+A shared `scripts/lib/win-install.js`, used by both. It pulls from GitHub's
+`releases/latest/download/<asset>` URL, which always redirects to the newest
+release — no API call, so no token and no rate limit.
+
+Download and extraction use `curl.exe` and `tar.exe`. Both ship with Windows 10
+1803 and later, and `tar` there is bsdtar, which handles zip. That avoids
+PowerShell quoting entirely. Both are probed before use, so an older machine
+gets a clear message instead of a spawn error.
+
+Architecture comes from `process.arch`: the codebase graph has a native arm64
+build, while RTK publishes x86_64 only — fine on arm64 Windows, which runs x64
+under emulation.
+
+### PATH is yours, not ours
+
+Binaries land in `%LOCALAPPDATA%\Kodelyth\bin`. ECC does **not** edit your PATH.
+It prints the one command that does:
+
+```powershell
+setx PATH "%PATH%;%LOCALAPPDATA%\Kodelyth\bin"
+```
+
+This mirrors the POSIX path, which reports `~/.local/bin` rather than writing to
+a shell rc. Whether the directory is already persistent is read from
+`HKCU\Environment`, not from `process.env` — the latter would always say yes
+right after the installer prepends it for its own process, and would wrongly
+tell you there is nothing left to do.
+
+### Verified, not asserted
+
+The Windows CI job now installs for real and asserts both binaries exist and
+run:
+
+```
+install dir: C:\Users\runneradmin\AppData\Local\Kodelyth\bin
+  rtk.exe  10,285,056 bytes
+rtk 0.51.0
+codebase-memory-mcp 0.11.0
+```
+
+`doctor`'s Windows hints changed too. They previously said "no Windows installer
+yet" and pointed at a release page; the install command is now correct on every
+platform, and the hint names the PATH step rather than implying the command
+alone finishes the job.
+
+**647 tests passing.**
+
 ## v2.22.0 — Windows actually works now (September 2026)
 
 The Windows install was broken in three separate ways. Windows CI had been green

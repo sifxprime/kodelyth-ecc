@@ -205,18 +205,22 @@ PowerShell 5.1 that ships with the OS. The installer tries `pwsh` first and fall
 back automatically, and it passes `-ExecutionPolicy Bypass` for its own process
 only, so you do not need to change your machine's execution policy.
 
-**What is fully automatic on Windows:** the 70 agents, 196 skills, 103 commands,
-15 rules, all 44 hook entries registered into `settings.json`, the ECC MCP server
-(16 tools), and Terse mode.
+**Everything installs automatically**, same as macOS and Linux: the 70 agents,
+196 skills, 103 commands, 15 rules, all 44 hook entries registered into
+`settings.json`, the ECC MCP server (16 tools), Terse mode, **RTK**, and the
+**codebase graph**.
 
-**What still needs one manual step:** RTK and the codebase graph ship as native
-binaries without a Windows installer script. ECC tells you so during install and
-prints the download link rather than failing or skipping silently:
+The last two are native binaries. ECC downloads the published Windows builds
+straight from GitHub releases and puts them in `%LOCALAPPDATA%\Kodelyth\bin`.
+That directory is not on `PATH` by default, so the installer prints the one
+command that fixes it:
 
-| Component | Windows | Get it |
-|---|---|---|
-| RTK (token savings) | manual | [rtk-ai/rtk releases](https://github.com/rtk-ai/rtk/releases) |
-| Codebase graph | manual | [codebase-memory-mcp releases](https://github.com/DeusData/codebase-memory-mcp/releases) |
+```powershell
+setx PATH "%PATH%;%LOCALAPPDATA%\Kodelyth\bin"
+```
+
+Run it once, reopen your terminal, done. ECC does not edit `PATH` for you —
+that is your environment to change.
 
 **Verify:**
 

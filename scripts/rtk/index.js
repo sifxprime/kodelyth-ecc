@@ -80,13 +80,37 @@ function getVersion() {
 // ── Install RTK binary ───────────────────────────────────────────────────────
 // Mac: prefer `brew install rtk` if brew is on PATH (fastest, cached).
 // Otherwise: pipe the official install script through sh (installs to ~/.local/bin).
-// Windows: skipped (needs manual .zip download from releases).
+// Windows: downloads the published .zip from GitHub releases.
 function install({ log = () => {} } = {}) {
   if (isInstalled()) {
     return { installed: false, skipped: true, reason: 'already installed', version: getVersion() };
   }
   if (os.platform() === 'win32') {
-    return { installed: false, skipped: true, reason: 'windows requires manual install: https://github.com/rtk-ai/rtk/releases' };
+    // RTK publishes a Windows build; ECC just never downloaded it and told the
+    // user to do it by hand. Only x86_64 is published, which is fine on arm64
+    // Windows because it runs x64 binaries under emulation.
+    const win = require('../lib/win-install.js');
+    const r = win.installFromRelease({
+      repo: 'rtk-ai/rtk',
+      asset: 'rtk-x86_64-pc-windows-msvc.zip',
+      binName: 'rtk.exe',
+      log,
+    });
+    if (!r.installed) {
+      return { installed: false, skipped: true, reason: `${r.reason} — or install by hand: https://github.com/rtk-ai/rtk/releases` };
+    }
+    if (!isInstalled()) {
+      return { installed: false, skipped: true, reason: `installed to ${r.dir} but not runnable from PATH` };
+    }
+    return {
+      installed: true,
+      method: 'github-release',
+      version: getVersion(),
+      dir: r.dir,
+      // Reported so the caller can tell the user what is still needed. PATH is
+      // not edited for them — that is their environment to change.
+      pathHint: r.onPath ? null : win.setxHint(r.dir),
+    };
   }
 
   // Try Homebrew first on macOS.

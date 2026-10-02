@@ -115,10 +115,11 @@ function checkPromptInjectionGuard() {
   return { status: PASS, detail: `prompt-injection guard active (mode=${mode})` };
 }
 
-// Remediation has to be platform-correct or it is worse than none. RTK and the
-// codebase graph ship as native binaries with no Windows installer, so
-// "kodelythecc rtk install" on Windows just reports that it cannot, and the user
-// follows a dead end. Point at the release page there instead.
+// Both tools DO publish Windows builds, and since 2.23.0 ECC downloads them, so
+// the install command is now the right advice on every platform. What differs is
+// what happens afterwards: on Windows the binary lands in
+// %LOCALAPPDATA%\Kodelyth\bin, which is not on PATH by default, so the hint
+// mentions that rather than implying the command alone finishes the job.
 const IS_WIN = process.platform === 'win32';
 
 function checkRtk() {
@@ -126,7 +127,7 @@ function checkRtk() {
     status: WARN,
     detail: 'RTK not installed (input savings inactive)',
     fix: IS_WIN
-      ? 'no Windows installer yet — download: https://github.com/rtk-ai/rtk/releases'
+      ? 'kodelythecc rtk install  (installs to %LOCALAPPDATA%\\Kodelyth\\bin — add it to PATH)'
       : 'kodelythecc rtk install',
   };
   try {
@@ -146,7 +147,7 @@ function checkCodebaseGraph() {
     status: WARN,
     detail: 'codebase graph not installed (optional)',
     fix: IS_WIN
-      ? 'no Windows installer yet — download: https://github.com/DeusData/codebase-memory-mcp/releases'
+      ? 'kodelythecc codebase install  (installs to %LOCALAPPDATA%\\Kodelyth\\bin — add it to PATH)'
       : 'kodelythecc codebase install',
   };
   return { status: PASS, detail: 'codebase-memory-mcp installed' };

@@ -1850,6 +1850,13 @@ function runPostInstall(status, args) {
           const en = rtk.enableFor(target, { log: () => {} });
           if (en.enabled) {
             w(`  ✓ RTK ${(rtk.getVersion() || '').replace(/^rtk /,'')} — wired for ${target}`);
+            // On Windows the binary goes to %LOCALAPPDATA%\Kodelyth\bin. ECC does
+            // not edit PATH for the user, so say plainly what is left to do —
+            // otherwise rtk works during this install and vanishes next shell.
+            if (inst.pathHint) {
+              w(`  ! ${inst.dir} is not on your PATH yet`);
+              w(`    run once, then reopen your terminal:  ${inst.pathHint}`);
+            }
             w(`  ✓ Restart your AI tool to activate. 60-90% token savings on shell commands.`);
           } else {
             w(`  · skipped: ${en.reason}`);

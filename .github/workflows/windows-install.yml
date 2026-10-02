@@ -107,6 +107,45 @@ jobs:
           }
           Write-Host "$total files installed."
 
+      # 2.23.0 claims RTK and the codebase graph now install on Windows. Both
+      # publish Windows builds; ECC previously told the user to fetch them by
+      # hand. Assert the binaries are actually on disk afterwards, because a
+      # claim like that is exactly the kind that rots quietly.
+      - name: Native binaries installed
+        shell: pwsh
+        run: |
+          $binDir = Join-Path $env:LOCALAPPDATA "Kodelyth\bin"
+          Write-Host "install dir: $binDir"
+          if (Test-Path $binDir) {
+            Get-ChildItem $binDir | ForEach-Object { Write-Host ("  {0}  {1} bytes" -f $_.Name, $_.Length) }
+          } else {
+            Write-Host "  (directory does not exist)"
+          }
+
+          $rtk = Join-Path $binDir "rtk.exe"
+          if (Test-Path $rtk) {
+            Write-Host "rtk: present"
+            & $rtk --version
+          } else {
+            Write-Host "::error::rtk.exe was not installed — the Windows download path did not work."
+            exit 1
+          }
+
+      - name: Codebase graph installs on Windows
+        shell: pwsh
+        run: |
+          $env:USERPROFILE = $env:scratch
+          $env:HOME = $env:scratch
+          kodelythecc codebase install
+          $bin = Join-Path (Join-Path $env:LOCALAPPDATA "Kodelyth\bin") "codebase-memory-mcp.exe"
+          if (Test-Path $bin) {
+            Write-Host "codebase-memory-mcp: present"
+            & $bin --version
+          } else {
+            Write-Host "::error::codebase-memory-mcp.exe was not installed."
+            exit 1
+          }
+
       - name: doctor
         shell: pwsh
         continue-on-error: true

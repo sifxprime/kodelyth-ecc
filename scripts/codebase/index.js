@@ -25,7 +25,32 @@ function getVersion() {
 function install({ log = () => {} } = {}) {
   if (isInstalled()) return { installed: false, skipped: true, reason: 'already installed', version: getVersion() };
   if (os.platform() === 'win32') {
-    return { installed: false, skipped: true, reason: 'windows requires manual install: https://github.com/DeusData/codebase-memory-mcp/releases' };
+    // This project publishes Windows builds for both architectures; ECC just
+    // never downloaded them. Pick by process.arch so an arm64 machine gets the
+    // native build rather than running x64 under emulation.
+    const win = require('../lib/win-install.js');
+    const asset = process.arch === 'arm64'
+      ? 'codebase-memory-mcp-windows-arm64.zip'
+      : 'codebase-memory-mcp-windows-amd64.zip';
+    const r = win.installFromRelease({
+      repo: 'DeusData/codebase-memory-mcp',
+      asset,
+      binName: `${BIN}.exe`,
+      log,
+    });
+    if (!r.installed) {
+      return { installed: false, skipped: true, reason: `${r.reason} — or install by hand: https://github.com/DeusData/codebase-memory-mcp/releases` };
+    }
+    if (!isInstalled()) {
+      return { installed: false, skipped: true, reason: `installed to ${r.dir} but not runnable from PATH` };
+    }
+    return {
+      installed: true,
+      method: 'github-release',
+      version: getVersion(),
+      dir: r.dir,
+      pathHint: r.onPath ? null : win.setxHint(r.dir),
+    };
   }
   log('[codebase] installing codebase-memory-mcp via official curl script…');
   const script = 'curl -fsSL https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh | bash';

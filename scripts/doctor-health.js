@@ -155,7 +155,29 @@ function checkCodebaseGraph() {
 
 // ── Runner ───────────────────────────────────────────────────────────────────
 
-function run() {
+/**
+ * Whether the installed version is current.
+ *
+ * Takes a pre-fetched result rather than doing its own network call, so run()
+ * stays synchronous and testable, and doctor never blocks on the registry. When
+ * nothing was fetched — offline, timed out, caller did not bother — this is
+ * silently absent rather than a warning. "Could not reach npm" is not a health
+ * problem with the user's install, and reporting it as one trains people to
+ * ignore the output.
+ */
+function checkVersion(update) {
+  if (!update || !update.latest) return null;
+  if (!update.updateAvailable) {
+    return { status: PASS, detail: `v${update.current} is the latest` };
+  }
+  return {
+    status: WARN,
+    detail: `v${update.current} installed, v${update.latest} available`,
+    fix: `npm i -g kodelyth-ecc    what changed: ${update.releaseNotes || 'github.com/sifxprime/kodelyth-ecc/releases'}`,
+  };
+}
+
+function run({ update } = {}) {
   const checks = [
     check('binaries',            checkBinaries),
     check('install-target',      checkInstallTarget),
@@ -169,6 +191,11 @@ function run() {
     check('terse',               checkTerse),
     check('codebase-graph',      checkCodebaseGraph),
   ];
+
+  // Appended rather than inlined: it is the only check that depends on the
+  // network, and it drops out entirely when no result was supplied.
+  const version = checkVersion(update);
+  if (version) checks.push({ id: 'version', ...version });
   const summary = {
     total: checks.length,
     pass: checks.filter(c => c.status === PASS).length,
@@ -178,4 +205,4 @@ function run() {
   return { checks, summary };
 }
 
-module.exports = { run, PASS, WARN, FAIL };
+module.exports = { run, checkVersion, PASS, WARN, FAIL };

@@ -47,7 +47,9 @@ async function buildOptions({ ROOT }) {
   if (update.updateAvailable) {
     opts.push({
       label: `Update to v${update.latest}`,
-      hint:  'npm i -g kodelyth-ecc  (installs new version)',
+      // Say what it is AND where to read what changed. A version number alone
+      // is a nag; a reason is an invitation.
+      hint:  `what changed: ${update.releaseNotes || 'github.com/sifxprime/kodelyth-ecc/releases'}`,
       run:   () => runUpdate(),
       badge: 'NEW',
     });

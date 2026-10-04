@@ -54,7 +54,19 @@ function cmpVersion(a, b) {
   return 0;
 }
 
-// Public: returns { current, latest, updateAvailable, cached } or nulls on failure.
+/**
+ * Where to read what actually changed in a given version.
+ *
+ * "update available: v2.23.2" is a nag — it tells you a number and no reason.
+ * A link to the release notes turns the same notice into something worth acting
+ * on, which is the whole point of owning a monthly touchpoint.
+ */
+function releaseNotesUrl(version) {
+  if (!version) return null;
+  return `https://github.com/sifxprime/kodelyth-ecc/releases/tag/v${version}`;
+}
+
+// Public: returns { current, latest, updateAvailable, cached, releaseNotes } or nulls on failure.
 async function check({ current, force = false } = {}) {
   if (!force) {
     const c = readCache();
@@ -63,6 +75,7 @@ async function check({ current, force = false } = {}) {
         current, latest: c.latest,
         updateAvailable: c.latest && cmpVersion(c.latest, current) > 0,
         cached: true,
+        releaseNotes: releaseNotesUrl(c.latest),
       };
     }
   }
@@ -72,7 +85,30 @@ async function check({ current, force = false } = {}) {
     current, latest,
     updateAvailable: !!(latest && cmpVersion(latest, current) > 0),
     cached: false,
+    releaseNotes: releaseNotesUrl(latest),
   };
 }
 
-module.exports = { check, cmpVersion };
+/**
+ * Cache-only read. No network, no promise, no timeout — safe to call from a
+ * synchronous command.
+ *
+ * doctor uses this rather than check(): it is the command people run when
+ * something is already wrong, so it must never wait on the registry. The cache
+ * is warmed by the interactive menu, which does hit the network. A cold cache
+ * simply yields null and the version row does not appear, which is correct —
+ * "I could not reach npm" is not a fact about the health of your install.
+ */
+function cachedCheck(current) {
+  const c = readCache();
+  if (!c || !c.latest) return null;
+  return {
+    current,
+    latest: c.latest,
+    updateAvailable: cmpVersion(c.latest, current) > 0,
+    cached: true,
+    releaseNotes: releaseNotesUrl(c.latest),
+  };
+}
+
+module.exports = { check, cachedCheck, cmpVersion, releaseNotesUrl };

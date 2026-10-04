@@ -707,7 +707,23 @@ if (args[0] === 'god' || args[0] === 'evil' || args[0] === 'arena') {
 
 if (args[0] === 'doctor') {
   const { run, PASS, WARN, FAIL } = require(path.join(ROOT, 'scripts', 'doctor-health.js'));
-  const report = run();
+
+  // Cache-only, deliberately. doctor is what people run when something is
+  // already wrong, so it must not wait on the registry — and an unreachable npm
+  // is not a fact about the health of their install. The cache is warmed by the
+  // interactive menu; a cold one yields null and the version row is simply
+  // absent.
+  let update;
+  try {
+    const { cachedCheck } = require(path.join(ROOT, 'scripts', 'cli', 'update-check.js'));
+    const vf = path.join(ROOT, 'VERSION');
+    const current = fs.existsSync(vf)
+      ? fs.readFileSync(vf, 'utf8').trim()
+      : require(path.join(ROOT, 'package.json')).version;
+    update = cachedCheck(current) || undefined;
+  } catch { /* never let a version hint break the health check */ }
+
+  const report = run({ update });
   if (args.includes('--json')) {
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
     process.exit(report.summary.fail > 0 ? 1 : 0);

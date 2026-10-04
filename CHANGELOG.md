@@ -2,6 +2,56 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.24.3 — remove decorative emoji from docs and catalog (October 2026)
+
+Documentation only. No code, no behaviour change.
+
+`rules/common/coding-style.md` bans decorative emoji and names the permitted
+status indicators: `PASS`/`FAIL` or the text characters `✓` (U+2713) and `✗`
+(U+2717). Three shipped files were not following it.
+
+### README comparison table
+
+39 emoji across 11 rows replaced with `✓` / `✗`.
+
+This also fixed a polarity bug the emoji were hiding. In every row `❌` meant
+"lacks this", where lacking it is the bad outcome. In the telemetry row it meant
+"none", where none is the *good* outcome — so one glyph carried opposite meanings
+in the same column, and ECC's `❌` sat beside a competitor's `❌` looking like
+agreement while reading as praise and criticism. A mechanical swap would have
+preserved that, so the row now states the value instead of a verdict:
+
+    | Telemetry | **None** | Varies | None | Varies |
+
+### Agent and command bodies
+
+10 decorative `❌` prefixes removed from bullet lists in
+`agents/chaos-engineer.md` and `commands/devil-mode.md`. Dropped rather than
+swapped for `✗`: both lists sit under headings that already state the negation —
+"What You DON'T Do" and "When NOT to Use" — so every bullet was marked negative
+twice.
+
+These two files were also the upstream source of the emoji appearing on the
+website. `ecc-web` syncs agent bodies into `src/lib/agents.json`, so the site
+inherited them and could not be fixed there; a site-side edit would be
+overwritten by the next sync.
+
+### Deliberately left alone
+
+`rules/common/coding-style.md` still contains `✅ 🔍 🎯 🚀 ❌`. Every one sits in
+the **Wrong** column of the table teaching which emoji not to use. They are
+quoted specimens, not decoration — stripping them would empty the column and
+leave the rule unable to demonstrate its own point. Future emoji sweeps should
+skip that file.
+
+The `←  ↑  ↓  ⚙` in README.md are also kept. They sit inside terminal-output code
+blocks and reproduce what the CLI actually prints — the gear comes from
+`scripts/cli/menu.js:243`. Changing them would make the README stop matching the
+tool.
+
+Catalog parsing verified unchanged: 70 agents, 103 commands, frontmatter intact.
+**665 tests across 43 files.**
+
 ## v2.24.2 — adversarial pass: path traversal in get_rule, unrecallable memories (October 2026)
 
 **Security fix.** Three defects found by attacking the memory store, MCP server

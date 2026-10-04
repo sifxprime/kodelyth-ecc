@@ -2,6 +2,52 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.24.1 — verify Windows downloads before running them (October 2026)
+
+**Security fix.** The Windows installer added in 2.23.0 downloaded a release zip
+over HTTPS and extracted it straight into the user's PATH directory **with no
+integrity check at all**.
+
+This repository ships a `supply-chain-auditor` agent whose entire job is catching
+"downloads and executes a binary without verifying it". The code doing it was
+ours. Both upstream projects publish a `checksums.txt` in the same release, in
+standard `sha256sum` format, and nothing was reading it.
+
+### What it does now
+
+Fetches `checksums.txt` from the release, finds the line for the asset it just
+downloaded, hashes the file with Node's `crypto`, and compares.
+
+- **Mismatch is fatal.** It refuses to install and reports both hashes.
+- **Missing or unlisted warns and proceeds.** The fetch is HTTPS from
+  github.com so transport tampering is already hard, and a release that stops
+  publishing checksums should not make ECC look broken. The case this control
+  exists for is a mismatch, and that stays fatal.
+
+Hashing uses Node's `crypto` rather than shelling out, because `certutil`,
+`sha256sum` and `shasum` differ in availability and output format across the
+machines this has to run on.
+
+### Proven, not asserted
+
+Checked against the real artifact before a single test was written: the genuine
+RTK Windows asset hashes to its published sha256, and flipping one byte produces
+a mismatch.
+
+Nine tests cover a matching checksum, a single changed byte, an unlisted asset,
+a malformed entry, picking the right line out of a full file, uppercase hex, and
+that a filename merely *ending* with the asset name does not satisfy the lookup
+(`evil-asset.zip` must not pass as `asset.zip`).
+
+The Windows CI job asserts the gate is exercised on every push — a security
+control nobody runs is decoration. From a real `windows-latest` runner:
+
+```
+[win] checksum verified (sha256 1623e9b45d28…)
+```
+
+**656 tests across 43 files.**
+
 ## v2.24.0 — the update notice now tells you why (October 2026)
 
 The CLI has always polled npm for new versions and cached the answer for 24

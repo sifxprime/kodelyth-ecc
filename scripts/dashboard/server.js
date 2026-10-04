@@ -151,7 +151,18 @@ function serveStaticFile(res, filePath) {
 // baseDir is injectable so the containment logic can be tested against a real
 // symlink without planting one in the shipped static/ directory.
 function resolveStatic(reqPath, baseDir = STATIC_DIR) {
-  const decoded = decodeURIComponent(reqPath.replace(/^\/+/, ''));
+  // decodeURIComponent throws URIError on malformed percent-encoding — "/%",
+  // "/%zz", a truncated "/%e0%a4". That threw out to the route handler, which
+  // turned a client's malformed URI into a 500 "internal server error" and wrote
+  // a line to stderr, so any local process could both mislabel its own bad
+  // request as a server fault and spam the terminal the dashboard runs in.
+  // A path that cannot be decoded names no file, so it is simply not found.
+  let decoded;
+  try {
+    decoded = decodeURIComponent(reqPath.replace(/^\/+/, ''));
+  } catch {
+    return null;
+  }
   if (decoded.includes('..')) return null;
   if (decoded === '' || decoded === '/') return path.join(baseDir, 'index.html');
   // Containment, including symlink resolution — see scripts/lib/safe-fs.js.

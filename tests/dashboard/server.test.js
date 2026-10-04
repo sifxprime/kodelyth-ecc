@@ -335,3 +335,15 @@ test('regression: a missing or empty Host header is rejected, not waved through'
     server.close();
   }
 });
+
+test('resolveStatic survives malformed percent-encoding', () => {
+  // decodeURIComponent throws URIError on these. That exception escaped to the
+  // route handler, which answered a malformed client URI with 500 "internal
+  // server error" and wrote a line to stderr — so any local process could spam
+  // the terminal the dashboard runs in, one line per request. A path that cannot
+  // be decoded names no file, so it is a 404 like any other miss.
+  for (const p of ['/%', '/%zz', '/%e0%a4', '/%ff%fe', '/%c0%80', '/a%2']) {
+    assert.doesNotThrow(() => _internals.resolveStatic(p), `resolveStatic(${p}) must not throw`);
+    assert.equal(_internals.resolveStatic(p), null, `resolveStatic(${p}) must not resolve`);
+  }
+});

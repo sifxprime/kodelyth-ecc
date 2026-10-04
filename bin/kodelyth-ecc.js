@@ -724,7 +724,13 @@ if (args[0] === 'doctor') {
   w('─'.repeat(60));
   const s = report.summary;
   w(`${s.pass} pass · ${s.warn} warn · ${s.fail} fail  (of ${s.total} checks)`);
-  if (s.fail === 0 && s.warn === 0) w('\x1b[32mEverything is wired and working.\x1b[0m');
+  if (s.fail === 0 && s.warn === 0) {
+    w('\x1b[32mEverything is wired and working.\x1b[0m');
+    // An all-green doctor is the other honest moment to ask. Shares the install
+    // marker, so nobody is asked twice on the same machine, and it stays silent
+    // when anything is warning or failing — that is not the time.
+    maybeAskForAStar(0);
+  }
   else if (s.fail === 0) w('\x1b[33mWorking, with optional features not yet enabled (warnings above).\x1b[0m');
   else w('\x1b[31mSome subsystems are broken — see fixes above.\x1b[0m');
   w('');
@@ -1817,6 +1823,33 @@ if (args.includes('--version') || args.includes('-v')) {
 // Every block below already guards itself and reports a reason when it cannot
 // proceed, which is what makes sharing it safe: on Windows the parts that work
 // now run, and the parts that cannot say so instead of vanishing.
+/**
+ * One quiet line at the end of a successful install.
+ *
+ * This is the highest-intent moment there is — someone has just watched the
+ * whole thing land and work — and it was going unused. It is deliberately shown
+ * ONCE per machine, not on every target install: somebody wiring up four IDEs
+ * should not be asked four times. The marker lives beside the other ECC state.
+ *
+ * Never shown on a failed install, and never blocks or prompts.
+ */
+function maybeAskForAStar(status) {
+  if (status !== 0) return;
+  try {
+    const dir = path.join(os.homedir(), '.kodelythecc');
+    const marker = path.join(dir, 'star-asked');
+    if (fs.existsSync(marker)) return;
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(marker, new Date().toISOString() + '\n');
+
+    process.stdout.write('\n');
+    process.stdout.write('  If ECC saved you time today, a star helps others find it:\n');
+    process.stdout.write('  https://github.com/sifxprime/kodelyth-ecc\n\n');
+  } catch {
+    // A star request is never worth failing an install over.
+  }
+}
+
 function runPostInstall(status, args) {
   // Post-install: auto-register ECC's own MCP server in Claude Code + Desktop.
   if (status === 0 && !args.includes('--no-mcp-register')) {
@@ -1983,6 +2016,7 @@ if (isWin) {
     process.exit(1);
   }
   runPostInstall(result.status, args);
+  maybeAskForAStar(result.status);
   process.exit(result.status ?? 1);
 } else {
   try { require(path.join(ROOT, 'scripts', 'migrate-legacy.js')).main(); } catch {}
@@ -1995,5 +2029,6 @@ if (isWin) {
   const result = spawnSync('bash', [sh, ...args], { stdio: 'inherit', shell: false });
 
   runPostInstall(result.status, args);
+  maybeAskForAStar(result.status);
   process.exit(result.status ?? 1);
 }

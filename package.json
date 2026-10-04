@@ -1,7 +1,7 @@
 {
   "name": "kodelyth-ecc",
   "version": "2.23.0",
-  "description": "Production-grade AI coding toolkit — 70 agents (incl. devil-mode adversarial crew), 194 skills, 97 commands, parallel multi-agent commands, semantic intent routing, self-learning memory, and a built-in MCP server (16 tools / 6 prompts / 377 resources) that bridges to Claude Desktop, LangGraph, AutoGen, CrewAI, and OpenAI Agents SDK. Works with Claude Code, Windsurf, Cursor, Codex, Antigravity, OpenCode, Cline, RooCode, Aider, Kimi, and Gemini CLI.",
+  "description": "Production-grade AI coding toolkit — 70 agents (incl. devil-mode adversarial crew), 196 skills, 103 commands, parallel multi-agent commands, semantic intent routing, self-learning memory, and a built-in MCP server (16 tools / 6 prompts / 377 resources) that bridges to Claude Desktop, LangGraph, AutoGen, CrewAI, and OpenAI Agents SDK. Works on macOS, Linux and Windows with Claude Code, Windsurf, Cursor, Codex, Antigravity, OpenCode, Cline, RooCode, Aider, Kimi, and Gemini CLI.",
   "author": "Kodelyth <github.com/sifxprime>",
   "license": "MIT",
   "repository": {
@@ -54,7 +54,16 @@
     "local-memory",
     "hooks",
     "slash-commands",
-    "productivity"
+    "productivity",
+    "claude",
+    "agent",
+    "agents",
+    "ai",
+    "subagents",
+    "prompt-engineering",
+    "ai-assistant",
+    "code-review",
+    "windows"
   ],
   "bin": {
     "kodelyth-ecc": "bin/kodelyth-ecc.js",

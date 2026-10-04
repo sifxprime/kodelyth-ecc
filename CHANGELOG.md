@@ -2,6 +2,51 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.23.1 — the shop window said the wrong numbers (October 2026)
+
+No change to the toolkit. This exists because npm metadata only refreshes when
+you publish, and three public-facing surfaces had gone stale.
+
+Measured before changing anything: **9,233 npm downloads in the last 30 days
+against 11 GitHub stars** — roughly 840:1, where a healthy project runs 50:1 to
+200:1. Discovery is not the constraint; thousands install this and nothing
+converts them.
+
+### Corrected
+
+| Surface | Said | Actual |
+|---|---|---|
+| `package.json` description | 194 skills, 97 commands | 196, 103 |
+| GitHub repo description | 102 commands, 22+ hooks | 103, **44** |
+| README badges | **373 tests**, Skills-194 | **647 tests**, 196 |
+
+Wrong numbers in the first thing anyone sees read as abandoned. Both
+descriptions now also name Windows, which became a real differentiator in 2.23.0
+and went unmentioned.
+
+### Asked, once
+
+The end of a successful install is the highest-intent moment there is, and an
+all-green `doctor` is the other. Both were silent. Both now print a single line.
+
+It is gated hard, because an ask that repeats is an annoyance:
+
+- shown **once per machine**, via a marker beside the other ECC state
+- never after a failed install
+- never when `doctor` reports a warning or a failure
+- wrapped so it can never break an install
+
+Someone wiring up four IDEs is asked once, not four times.
+
+### Keywords
+
+Strong on the long tail (`devil-mode`, `bm25`, `intent-routing`), missing the
+broad terms people actually type. Added `claude`, `agent`, `agents`, `ai`,
+`subagents`, `prompt-engineering`, `ai-assistant`, `code-review`, `windows`.
+41 to 50.
+
+**647 tests passing.**
+
 ## v2.23.0 — Windows has no manual step left (October 2026)
 
 2.22.0 made the Windows install work but left two components needing a manual

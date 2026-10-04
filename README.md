@@ -107,18 +107,18 @@ Most "AI agent kits" are folders of markdown files you have to remember the name
 | Feature | **Kodelyth ECC** | `agency-agents` | `awesome-claude-agents` | Generic prompt libs |
 |---|---|---|---|---|
 | Specialist agents | **70** | ~30 | ~20 | Varies |
-| Skills as separate layer | ✅ 196 | ❌ | ❌ | ❌ |
-| Slash commands | ✅ 103 | Some | Some | ❌ |
-| **Parallel multi-agent commands** | ✅ 8 (incl. `/devil-mode`) | ❌ | ❌ | ❌ |
-| **Intent routing (plain language → agent)** | ✅ 10-tier rule | ❌ | ❌ | ❌ |
-| **Local BM25 self-learning memory** | ✅ | ❌ | ❌ | ❌ |
-| **Compound learning from corrections** | ✅ `tasks/lessons.md` | ❌ | ❌ | ❌ |
-| **Adversarial / red-team agents** | ✅ 8 (devil-mode) | ❌ | ❌ | ❌ |
-| **Adversarial build/attack loop** | ✅ `/arena` — scored, verified, converges | ❌ | ❌ | ❌ |
-| Quality hooks | ✅ 44 | Some | ❌ | ❌ |
+| Skills as separate layer | ✓ 196 | ✗ | ✗ | ✗ |
+| Slash commands | ✓ 103 | Some | Some | ✗ |
+| **Parallel multi-agent commands** | ✓ 8 (incl. `/devil-mode`) | ✗ | ✗ | ✗ |
+| **Intent routing (plain language → agent)** | ✓ 10-tier rule | ✗ | ✗ | ✗ |
+| **Local BM25 self-learning memory** | ✓ | ✗ | ✗ | ✗ |
+| **Compound learning from corrections** | ✓ `tasks/lessons.md` | ✗ | ✗ | ✗ |
+| **Adversarial / red-team agents** | ✓ 8 (devil-mode) | ✗ | ✗ | ✗ |
+| **Adversarial build/attack loop** | ✓ `/arena` — scored, verified, converges | ✗ | ✗ | ✗ |
+| Quality hooks | ✓ 44 | Some | ✗ | ✗ |
 | IDE platforms | **11** (Claude Code, Windsurf, Cursor, Codex, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI) | 1-2 | 1 | Varies |
-| Telemetry | ❌ none | Varies | ❌ | Varies |
-| Test coverage | ✅ 665 tests | ❌ | ❌ | ❌ |
+| Telemetry | **None** | Varies | None | Varies |
+| Test coverage | ✓ 665 tests | ✗ | ✗ | ✗ |
 | Distributed via | `npx`, curl, clone | Manual | Manual | Manual |
 
 ---

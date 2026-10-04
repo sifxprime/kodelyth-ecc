@@ -2,6 +2,61 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.24.0 — the update notice now tells you why (October 2026)
+
+The CLI has always polled npm for new versions and cached the answer for 24
+hours. That monthly touchpoint was spent on almost nothing: the result surfaced
+only in the interactive menu, as a version number and an install command.
+
+```
+Update to v2.23.2
+npm i -g kodelyth-ecc  (installs new version)
+```
+
+A version number is a nag. It states a fact and gives no reason to act on it.
+
+### It now links what changed
+
+```
+Update to v2.24.0
+what changed: github.com/sifxprime/kodelyth-ecc/releases/tag/v2.24.0
+```
+
+`check()` returns a `releaseNotes` URL alongside the version, so every consumer
+gets it without doing its own string building.
+
+### doctor surfaces it too
+
+A second natural touchpoint — `doctor` is run deliberately, usually when
+somebody is already paying attention:
+
+```
+! version — v2.23.2 installed, v2.24.0 available
+    → npm i -g kodelyth-ecc    what changed: .../releases/tag/v2.24.0
+```
+
+### Cache-only, on purpose
+
+The new `cachedCheck()` reads the 24-hour cache and never touches the network.
+`doctor` is the command people reach for when something is **already** wrong, so
+it must not wait on the registry — and an unreachable npm is not a fact about
+the health of your install. A cold or stale cache yields nothing and the row is
+simply absent, rather than reported as a warning. A check that fires on "I could
+not reach the network" teaches people to ignore the output.
+
+`run()` stays synchronous and takes the result as a parameter, so it remains
+testable and `doctor` adds no latency.
+
+Verified across every state: a newer version warns with the link, being current
+passes, a stale cache is ignored, a corrupt cache leaves `doctor` working on its
+11 checks, and a cold cache omits the row.
+
+### What this does not do
+
+No nagging on every command. Nothing auto-updates. Nothing blocks.
+
+**647 tests passing.**
+
 ## v2.23.2 — the README leads with the product, not the badges (October 2026)
 
 No change to the toolkit. The README **is** the npm landing page, and npm only

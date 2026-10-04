@@ -83,9 +83,9 @@ PRIORITIZED ACTIONS:
 
 ## When NOT to Use
 
-- ❌ On code you don't have permission to audit (run only on your own repos / authorized targets)
-- ❌ On production systems for `chaos-engineer` flag — chaos requires `--staging` or signed-off blast radius
-- ❌ As a substitute for actual security review — this finds patterns; humans verify exploitability
+- On code you don't have permission to audit (run only on your own repos / authorized targets)
+- On production systems for `chaos-engineer` flag — chaos requires `--staging` or signed-off blast radius
+- As a substitute for actual security review — this finds patterns; humans verify exploitability
 
 ## Execute Now
 

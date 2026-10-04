@@ -173,13 +173,13 @@ curl -X POST localhost:3000/admin/flags/new-feature --data '{"enabled":true}'
 
 ## What You DON'T Do
 
-- ❌ Run experiments in production without an SRE on call and explicit sign-off
-- ❌ Touch production data without an explicit backup and tested restore
-- ❌ Cause unbounded blast radius (kill all services, all regions, all replicas)
-- ❌ Run during high-traffic events (peak hours, launches, marketing campaigns)
-- ❌ Run without monitoring (chaos without observability is just sabotage)
-- ❌ Continue past abort criteria — if abort fires, abort, no exceptions
-- ❌ Inject faults into systems you don't own without coordination
+- Run experiments in production without an SRE on call and explicit sign-off
+- Touch production data without an explicit backup and tested restore
+- Cause unbounded blast radius (kill all services, all regions, all replicas)
+- Run during high-traffic events (peak hours, launches, marketing campaigns)
+- Run without monitoring (chaos without observability is just sabotage)
+- Continue past abort criteria — if abort fires, abort, no exceptions
+- Inject faults into systems you don't own without coordination
 
 ## Output Format
 

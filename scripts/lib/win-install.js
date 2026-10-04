@@ -26,6 +26,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const crypto = require('crypto');
 const { execFileSync, spawnSync } = require('child_process');
 
 /** Where ECC puts binaries it installs on Windows. User-writable, no admin. */
@@ -79,6 +80,29 @@ function installFromRelease({ repo, asset, binName, log = () => {} }) {
     }
     if (!fs.existsSync(zip) || fs.statSync(zip).size === 0) {
       return { installed: false, reason: `downloaded file is empty — ${url}` };
+    }
+
+    // Verify the download before extracting, let alone running it.
+    //
+    // ECC ships a supply-chain-auditor agent whose whole job is catching
+    // "downloads and executes a binary with no integrity check" — and the first
+    // version of this file did exactly that. Both projects publish a
+    // checksums.txt in the same release, so there is no excuse.
+    const verdict = verifyChecksum({ repo, asset, file: zip, log });
+    if (verdict.status === 'mismatch') {
+      return {
+        installed: false,
+        reason: `checksum mismatch for ${asset} — expected ${verdict.expected}, got ${verdict.actual}. Refusing to install.`,
+      };
+    }
+    if (verdict.status === 'unavailable') {
+      // Warn rather than fail. The fetch is HTTPS from github.com, so transport
+      // tampering is already hard, and a release that simply stops publishing
+      // checksums should not make ECC look broken. A MISMATCH is still fatal —
+      // that is the case this check exists for.
+      log(`[win] WARNING: no checksum available for ${asset} (${verdict.reason}) — proceeding on HTTPS alone`);
+    } else {
+      log(`[win] checksum verified (sha256 ${verdict.expected.slice(0, 12)}…)`);
     }
 
     log('[win] extracting…');
@@ -154,4 +178,42 @@ function setxHint(dir) {
   return `setx PATH "%PATH%;${dir}"`;
 }
 
-module.exports = { installFromRelease, installDir, isOnUserPath, setxHint, findBinary };
+
+/**
+ * Check a downloaded asset against the release's checksums.txt.
+ *
+ * Both upstreams publish the standard sha256sum format:
+ *   <64 hex>  <filename>
+ *
+ * Returns { status: 'ok' | 'mismatch' | 'unavailable' }. Hashing is done with
+ * Node's crypto rather than shelling out, because certutil, sha256sum and
+ * shasum all differ in availability and output format across the machines this
+ * has to run on.
+ */
+function verifyChecksum({ repo, asset, file, log = () => {}, checksumText }) {
+  // checksumText is injectable so the parsing and comparison can be tested
+  // without reaching the network. Production callers never pass it.
+  let text = checksumText;
+  if (text === undefined) {
+    const url = `https://github.com/${repo}/releases/latest/download/checksums.txt`;
+    try {
+      text = execFileSync('curl', ['-fsSL', url], { encoding: 'utf8', timeout: 20000 });
+    } catch {
+      return { status: 'unavailable', reason: 'checksums.txt could not be fetched' };
+    }
+  }
+
+  const line = text.split('\n').find((l) => l.trim().endsWith(` ${asset}`) || l.trim().endsWith(`  ${asset}`));
+  if (!line) return { status: 'unavailable', reason: `${asset} not listed in checksums.txt` };
+
+  const expected = (line.trim().split(/\s+/)[0] || '').toLowerCase();
+  if (!/^[0-9a-f]{64}$/.test(expected)) {
+    return { status: 'unavailable', reason: 'malformed checksum entry' };
+  }
+
+  const actual = crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  if (actual !== expected) return { status: 'mismatch', expected, actual };
+  return { status: 'ok', expected };
+}
+
+module.exports = { installFromRelease, installDir, isOnUserPath, setxHint, findBinary, verifyChecksum };

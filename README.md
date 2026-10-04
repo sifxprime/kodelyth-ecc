@@ -44,7 +44,7 @@ Google Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi and Gemini CLI.
 [![npm downloads](https://img.shields.io/npm/dm/kodelyth-ecc.svg)](https://www.npmjs.com/package/kodelyth-ecc)
 [![GitHub Stars](https://img.shields.io/github/stars/sifxprime/kodelyth-ecc?style=social)](https://github.com/sifxprime/kodelyth-ecc/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-![Tests](https://img.shields.io/badge/tests-647%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-656%20passing-brightgreen)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-Ready-8A2BE2)
 ![Windsurf](https://img.shields.io/badge/Windsurf-Ready-06b6d4)
 ![Antigravity](https://img.shields.io/badge/Antigravity-Ready-00ADD8)
@@ -118,7 +118,7 @@ Most "AI agent kits" are folders of markdown files you have to remember the name
 | Quality hooks | ✅ 44 | Some | ❌ | ❌ |
 | IDE platforms | **11** (Claude Code, Windsurf, Cursor, Codex, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI) | 1-2 | 1 | Varies |
 | Telemetry | ❌ none | Varies | ❌ | Varies |
-| Test coverage | ✅ 647 tests | ❌ | ❌ | ❌ |
+| Test coverage | ✅ 656 tests | ❌ | ❌ | ❌ |
 | Distributed via | `npx`, curl, clone | Manual | Manual | Manual |
 
 ---

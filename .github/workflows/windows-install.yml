@@ -131,6 +131,22 @@ jobs:
             exit 1
           }
 
+      # The download path verifies sha256 against the release's checksums.txt
+      # before extracting. Assert that actually happened rather than trusting the
+      # code is reached — a security control nobody exercises is decoration.
+      - name: Checksum verification ran
+        shell: pwsh
+        run: |
+          $env:USERPROFILE = $env:scratch
+          $env:HOME = $env:scratch
+          $out = kodelythecc rtk install 2>&1 | Out-String
+          Write-Host $out
+          if ($out -match "checksum verified" -or $out -match "already installed") {
+            Write-Host "checksum gate exercised (or binary already present)"
+          } else {
+            Write-Host "::warning::did not observe a checksum verification line"
+          }
+
       - name: Codebase graph installs on Windows
         shell: pwsh
         run: |

@@ -2,6 +2,68 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.24.2 — adversarial pass: path traversal in get_rule, unrecallable memories (October 2026)
+
+**Security fix.** Three defects found by attacking the memory store, MCP server
+and dashboard rather than reading them.
+
+### `get_rule` returned any markdown file on the machine
+
+`loadRule` was the only catalog loader that built a filesystem path out of its
+argument. Every other loader — agents, skills, commands, bundles — enumerates a
+directory and matches by name, so a caller can only ever select something already
+listed. This one did `path.join(PATHS.rules, name + '.md')`, so:
+
+    get_rule("../../README")              -> 51,297 bytes of ROOT/README.md
+    get_rule("testing/../../../README")   -> same, via nested traversal
+
+The `.md` suffix was the only thing bounding the reach, which left every readable
+markdown file on the machine in scope.
+
+This matters because the caller is not always the user. An MCP tool argument can
+originate in text the agent merely read — a dependency README, an issue comment,
+a fetched page — which made this an arbitrary-markdown-read primitive reachable
+by prompt injection. That is exactly the class ECC's own `prompt-injection-hunter`
+agent exists to catch.
+
+Fixed with two guards that fail differently: a name pattern that rejects anything
+that is a path rather than a name before touching disk, and the existing
+`resolveContained()` from `scripts/lib/safe-fs.js`, which proves the target sits
+under `rules/common` once symlinks resolve. The pattern alone is not enough —
+`escape-probe` is a valid rule name, and a symlink under that name reads 51KB.
+
+`loadRule` had no test coverage at all, which is why this survived. It now has
+four tests, including the symlink case.
+
+### One memory was mathematically unrecallable
+
+`search()` defaulted to an absolute `minScore` of 0.5 against unnormalised BM25
+scores. BM25 IDF is `log(1 + (N - df + 0.5) / (df + 0.5))`, so a term appearing in
+every memory drives IDF toward zero and can never clear a fixed floor at any
+corpus size. The floor is now relative to the top hit, so it scales with the
+corpus instead of fighting it. An explicitly passed `minScore` is still honoured
+exactly. `recall_memory` passes none, so it was using the broken default.
+
+### Malformed request URIs returned 500 and wrote to stderr
+
+`decodeURIComponent` throws on `/%`, `/%zz` or a truncated `/%e0%a4`. The dashboard
+did not guard it, so a malformed *client* URI became a 500 "internal server error"
+plus one stderr line per request — meaning any local process could spam the
+terminal the dashboard runs in. A path that cannot be decoded names no file, so
+it is now a 404 like any other miss.
+
+### What resisted
+
+Worth recording, since the absence of findings was tested rather than assumed.
+Dashboard traversal (plain, encoded, double-encoded, backslash, absolute,
+null-byte) all returned 404. Host validation rejects absent, empty and foreign
+`Host` headers. Non-GET is 405. Stored XSS was tested in a real browser: a memory
+captured through the real store with breakout payloads in problem, approach, tags,
+language and project rendered as visible text, setting no global, creating no
+element and no attribute, with the `</pre>` breakout still inside its `<pre>`.
+
+**665 tests across 43 files.**
+
 ## v2.24.1 — verify Windows downloads before running them (October 2026)
 
 **Security fix.** The Windows installer added in 2.23.0 downloaded a release zip

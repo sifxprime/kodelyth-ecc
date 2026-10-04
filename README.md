@@ -5,7 +5,38 @@
   <img src="brand/ecc-lockup-light.svg" alt="Kodelyth ECC — Elite Code Crew" width="440"/>
 </picture>
 
-<br><br>
+
+</div>
+
+### Describe your problem in plain words. The right specialist shows up.
+
+No agent names to memorise. No prompt engineering. Nothing leaves your machine.
+
+```
+You:   "I've been staring at this NullPointerException for two hours,
+        I'm losing my mind."
+
+AI:    → Routing to debug-detective (your error + frustration matches the bug-tracking signal)
+
+       That kind of bug is exhausting — let's trace it properly so we
+       fix the root cause, not the symptom.
+
+       First, can you share the full stack trace and...
+```
+
+You never typed `use debug-detective`. You did not have to — ECC read the intent,
+picked the specialist out of 70, and told you which one it chose and why.
+
+```bash
+npx kodelyth-ecc
+```
+
+Works on **macOS, Linux and Windows** with Claude Code, Windsurf, Cursor, Codex CLI,
+Google Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi and Gemini CLI.
+
+---
+
+<div align="center">
 
 <img src="social/readme-hero.svg" alt="Kodelyth ECC — AI Agent Toolkit" width="900"/>
 
@@ -31,6 +62,7 @@
 ![Codebase Graph](https://img.shields.io/badge/Codebase%20Graph-158%20languages-green)
 ![Interactive CLI](https://img.shields.io/badge/CLI-interactive%20menu-blue)
 
+
 </div>
 
 **Kodelyth ECC** is a production-grade AI coding toolkit — **70 specialist agents (incl. an 8-agent devil-mode adversarial crew), 196 skills, 103 commands**, a god-tier **semantic intent-routing system**, local self-learning memory, MCP server, swarm orchestrator, and an observability dashboard — all local, zero telemetry.
@@ -48,23 +80,13 @@ Works with **Claude Code**, **Windsurf**, **Cursor**, **Codex CLI**, **Google An
 
 ---
 
+You never typed `use debug-detective`. You didn't have to. The toolkit read the intent, picked the specialist, and announced the routing. Next time you can invoke it directly — but you don't have to remember names to get senior-grade help.
+
+---
+
 ## Why ECC ≠ Another Agent Collection
 
 Most "AI agent kits" are folders of markdown files you have to remember the names of. **ECC is infrastructure** — a layered system where intent routing, compound memory, parallel orchestration, and quality hooks all reinforce each other.
-
-```
-You:   "I've been staring at this NullPointerException for two hours,
-        I'm losing my mind."
-
-AI:    → Routing to debug-detective (your error + frustration matches the bug-tracking signal)
-
-       That kind of bug is exhausting — let's trace it properly so we
-       fix the root cause, not the symptom.
-
-       First, can you share the full stack trace and...
-```
-
-You never typed `use debug-detective`. You didn't have to. The toolkit read the intent, picked the specialist, and announced the routing. Next time you can invoke it directly — but you don't have to remember names to get senior-grade help.
 
 ### The Layer Stack
 
@@ -76,7 +98,7 @@ You never typed `use debug-detective`. You didn't have to. The toolkit read the 
 | **103 commands** | Slash workflows (`/tdd`, `/arena`, `/devil-mode`, `/team-review`) | Limited or none |
 | **8 parallel commands** | Fire 3-8 agents simultaneously, aggregate results | Rare |
 | **Compound memory** | BM25 local recall + auto-inject + project lessons | Cloud-only or absent |
-| **22+ hooks** | Quality gates, secret scan, project-DNA detection | Often missing |
+| **44 hook entries** | Quality gates, secret scan, project-DNA detection | Often missing |
 | **11 IDE platforms** | Claude Code, Windsurf, Cursor, Codex, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI (13 install targets) | 1-2 platforms typical |
 | **Zero telemetry** | Everything stays on your disk; verifiable | Many kits phone home |
 
@@ -85,15 +107,15 @@ You never typed `use debug-detective`. You didn't have to. The toolkit read the 
 | Feature | **Kodelyth ECC** | `agency-agents` | `awesome-claude-agents` | Generic prompt libs |
 |---|---|---|---|---|
 | Specialist agents | **70** | ~30 | ~20 | Varies |
-| Skills as separate layer | ✅ 194 | ❌ | ❌ | ❌ |
-| Slash commands | ✅ 97 | Some | Some | ❌ |
+| Skills as separate layer | ✅ 196 | ❌ | ❌ | ❌ |
+| Slash commands | ✅ 103 | Some | Some | ❌ |
 | **Parallel multi-agent commands** | ✅ 8 (incl. `/devil-mode`) | ❌ | ❌ | ❌ |
 | **Intent routing (plain language → agent)** | ✅ 10-tier rule | ❌ | ❌ | ❌ |
 | **Local BM25 self-learning memory** | ✅ | ❌ | ❌ | ❌ |
 | **Compound learning from corrections** | ✅ `tasks/lessons.md` | ❌ | ❌ | ❌ |
 | **Adversarial / red-team agents** | ✅ 8 (devil-mode) | ❌ | ❌ | ❌ |
 | **Adversarial build/attack loop** | ✅ `/arena` — scored, verified, converges | ❌ | ❌ | ❌ |
-| Quality hooks | ✅ 22+ | Some | ❌ | ❌ |
+| Quality hooks | ✅ 44 | Some | ❌ | ❌ |
 | IDE platforms | **11** (Claude Code, Windsurf, Cursor, Codex, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI) | 1-2 | 1 | Varies |
 | Telemetry | ❌ none | Varies | ❌ | Varies |
 | Test coverage | ✅ 647 tests | ❌ | ❌ | ❌ |
@@ -262,7 +284,7 @@ npx kodelyth-ecc --bundle red-team        # Security engineer — devil-mode + a
 npx kodelyth-ecc --bundle enterprise      # Compliance / audit team — SBOM, license, supply chain
 ```
 
-Each bundle installs the full ECC toolkit (all 70 agents, 196 skills, 103 commands, 22+ hooks), adds a `BUNDLE.md` cheat sheet, and biases the AI toward audience-fit workflows on every session.
+Each bundle installs the full ECC toolkit (all 70 agents, 196 skills, 103 commands, 44 hook entries), adds a `BUNDLE.md` cheat sheet, and biases the AI toward audience-fit workflows on every session.
 
 Combine with any target:
 

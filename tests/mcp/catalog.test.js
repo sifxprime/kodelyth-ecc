@@ -96,3 +96,71 @@ test('stats returns expected fields', () => {
 test('findAgent returns null for unknown name', () => {
   assert.equal(catalog.findAgent('this-agent-does-not-exist'), null);
 });
+
+// ── loadRule containment ─────────────────────────────────────────────────────
+// loadRule was the only catalog loader that built a path out of its argument
+// instead of matching against a directory listing, so `../../README` returned
+// ROOT/README.md — 51KB of the wrong file from a tool whose contract is "return
+// a rule". It had no test at all, which is why it survived. These are the exact
+// payloads that leaked.
+
+test('loadRule refuses path traversal', () => {
+  const payloads = [
+    '../../README',                 // leaked 51,297 B
+    '../../CHANGELOG',              // leaked 188,170 B
+    'testing/../../../README',      // nested traversal, also leaked
+    '../../../../etc/passwd',
+    '../../CLAUDE',
+    '../../SECURITY',
+    'rules/common/testing',         // a real rule, but reached as a path
+    './testing',                    // non-canonical form of a real rule
+    '..',
+    '.',
+    '/etc/hosts',
+    '',
+  ];
+  for (const name of payloads) {
+    assert.equal(catalog.loadRule(name), null, `loadRule(${JSON.stringify(name)}) must not resolve`);
+  }
+});
+
+test('loadRule rejects non-string input without throwing', () => {
+  // A JSON-RPC client can send any type for `name`; a crash here would take the
+  // whole stdio server down rather than returning one tool error.
+  for (const name of [null, undefined, 42, {}, ['testing'], true]) {
+    assert.equal(catalog.loadRule(name), null, `loadRule(${JSON.stringify(name) ?? 'undefined'})`);
+  }
+});
+
+test('loadRule still loads every real rule by name', () => {
+  const all = catalog.loadAllRules();
+  assert.ok(all.length > 0, 'fixture check: rules/common should not be empty');
+  for (const rule of all) {
+    const got = catalog.loadRule(rule.name);
+    assert.ok(got, `${rule.name} must still load`);
+    assert.equal(got.body.length, rule.body.length, `${rule.name} body must match`);
+  }
+});
+
+test('loadRule rejects a symlink inside rules/common that points outside it', () => {
+  // The name pattern cannot catch this: `escape-probe` is a perfectly valid rule
+  // name. Only resolving the target proves where it actually lands. This is the
+  // layer that makes the fix defence-in-depth rather than a regex.
+  const fs   = require('node:fs');
+  const path = require('node:path');
+  const link = path.join(catalog.PATHS.rules, 'escape-probe.md');
+  const target = path.join(catalog.ROOT, 'README.md');
+
+  if (fs.existsSync(link)) return;              // never clobber a real file
+  if (!fs.existsSync(target)) return;           // nothing to point at
+  try {
+    fs.symlinkSync(target, link);
+  } catch {
+    return;                                     // no symlink permission (CI on Windows)
+  }
+  try {
+    assert.equal(catalog.loadRule('escape-probe'), null, 'symlink out of rules/common must not resolve');
+  } finally {
+    fs.unlinkSync(link);
+  }
+});

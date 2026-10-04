@@ -185,8 +185,33 @@ function indexMemory(index, memory) {
 }
 
 // ── BM25 retrieval (k1=1.5, b=0.75) ──────────────────────────────────────────
+/**
+ * Fraction of the best hit's score a result must reach to be kept, when the
+ * caller does not impose an absolute floor of its own.
+ *
+ * Relative, not absolute, and that is the whole point. BM25 scores are not
+ * normalised — they scale with corpus size and term rarity — so any fixed
+ * threshold is really a statement about how many memories you have. The old
+ * default of 0.5 made a single stored memory mathematically unrecallable: with
+ * N=1 and df=1 the IDF term caps the score at ~0.288, so recall() returned
+ * nothing no matter what you searched for.
+ *
+ * It was worse for common words. A token appearing in every memory scores
+ * 0.288 at N=1, 0.087 at N=5 and 0.010 at N=50 — correct BM25 behaviour, since
+ * a term that is everywhere carries no signal, but under a fixed floor it meant
+ * those words never matched at any corpus size.
+ *
+ * Three call sites had already worked around this by passing minScore: 0.1
+ * (doctor and two tests, one of which names the ~0.29 figure outright). The
+ * user-facing paths had not: the MCP recall_memory tool, the memory CLI and
+ * SessionStart injection all used the default and silently returned nothing.
+ */
+const RELATIVE_SCORE_FLOOR = 0.25;
+
 function search(query, options = {}) {
-  const { limit = 5, minScore = 0.5, projectFilter = null } = options;
+  // minScore stays honoured when passed, so existing callers keep their exact
+  // behaviour; only the default changes from an absolute floor to a relative one.
+  const { limit = 5, minScore = null, projectFilter = null } = options;
   const index   = loadIndex();
   const tokens  = tokenise(query);
   if (tokens.length === 0 || index.docCount === 0) return [];
@@ -208,9 +233,13 @@ function search(query, options = {}) {
     }
   }
 
-  const ranked = Object.entries(scores)
-    .filter(([, score]) => score >= minScore)
-    .sort(([, a], [, b]) => b - a)
+  const sorted = Object.entries(scores).sort(([, a], [, b]) => b - a);
+  const topScore = sorted.length ? sorted[0][1] : 0;
+  const floor = minScore !== null && minScore !== undefined
+    ? minScore
+    : topScore * RELATIVE_SCORE_FLOOR;
+  const ranked = sorted
+    .filter(([, score]) => score >= floor)
     .slice(0, limit * 3);
 
   if (ranked.length === 0) return [];

@@ -430,3 +430,81 @@ test('a memory whose id is a prototype key does not break the fold', () => {
   assert.doesNotThrow(() => store.recall('proto id', { limit: 5 }));
   assert.equal({}.polluted, undefined);
 });
+
+// ── Regression: a single stored memory was unrecallable ──────────────────────
+//
+// search() defaulted to an ABSOLUTE minScore of 0.5. BM25 scores are not
+// normalised — they scale with corpus size and term rarity — so with one
+// document (N=1, df=1) the IDF term caps the score at ~0.288 and recall()
+// returned nothing for any query at all.
+//
+// It was worse for common words: a token in every memory scores 0.288 at N=1,
+// 0.087 at N=5 and 0.010 at N=50, so under a fixed floor those never matched at
+// any corpus size.
+//
+// doctor and two tests already worked around it with minScore: 0.1. The
+// user-facing paths did not — the MCP recall_memory tool, the memory CLI and
+// SessionStart injection all used the default and silently found nothing.
+//
+// These two cases need a store of a known size, and this file shares one TMP
+// store across every test, so they run in a child process with their own dir.
+
+function inFreshStore(body) {
+  const { execFileSync } = require('child_process');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kodelyth-mem-iso-'));
+  try {
+    const script = `
+      const store = require(${JSON.stringify(path.resolve(__dirname, '../../scripts/memory/store.js'))});
+      ${body}
+    `;
+    const out = execFileSync(process.execPath, ['-e', script], {
+      encoding: 'utf8',
+      env: { ...process.env, KODELYTH_MEMORY_DIR: dir },
+    });
+    return JSON.parse(out.trim().split('\n').pop());
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+test('regression: the very first memory is recallable', () => {
+  const counts = inFreshStore(`
+    store.capture({ problem: 'CORS error in Express', approach: 'added cors middleware', tags: ['cors'] });
+    console.log(JSON.stringify({
+      cors: store.recall('CORS').length,
+      express: store.recall('express').length,
+      middleware: store.recall('middleware').length,
+    }));
+  `);
+  // Every one of these was 0 before the floor became relative.
+  assert.ok(counts.cors >= 1, 'a lone memory must be findable by "CORS"');
+  assert.ok(counts.express >= 1, 'a lone memory must be findable by "express"');
+  assert.ok(counts.middleware >= 1, 'a lone memory must be findable by "middleware"');
+});
+
+test('regression: a term present in every memory is still recallable', () => {
+  const res = inFreshStore(`
+    for (let i = 0; i < 9; i++) {
+      store.capture({ problem: 'database timeout ' + i, approach: 'tuned pool ' + i, tags: ['database'] });
+    }
+    console.log(JSON.stringify({ hits: store.recall('database').length }));
+  `);
+  // df === N drives IDF toward zero. Correct BM25, fatal under an absolute floor.
+  assert.ok(res.hits >= 1, 'a term in every memory must still match');
+});
+
+test('the relative floor does not turn into "always return something"', () => {
+  // Runs against the shared store, which by now holds several memories.
+  assert.equal(store.recall('quantum mechanics unrelated').length, 0);
+  assert.equal(store.recall('zzzzzqqqq').length, 0);
+});
+
+test('an explicit minScore is still honoured exactly', () => {
+  // Callers that already pass a floor — doctor passes 0.1 — must be unaffected.
+  // Captures its own memory rather than relying on the shared store: an earlier
+  // test in this file tombstones the stripe record via forget().
+  const token = 'zeppelinoscope';
+  store.capture({ problem: `${token} failure in prod`, approach: `restarted the ${token}`, tags: [token] });
+  assert.equal(store.recall(token, { minScore: 99 }).length, 0, 'a high floor still filters');
+  assert.ok(store.recall(token, { minScore: 0.1 }).length >= 1, 'a low floor still matches');
+});

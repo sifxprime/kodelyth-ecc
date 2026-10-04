@@ -8,6 +8,7 @@
 
 const fs   = require('fs');
 const path = require('path');
+const { resolveContained } = require('../lib/safe-fs');
 
 const ROOT = path.join(__dirname, '..', '..');
 
@@ -157,8 +158,28 @@ function loadCommands() {
 }
 
 // ── Rules ────────────────────────────────────────────────────────────────────
+// A rule name is a flat basename: rules/common has no subdirectories, and every
+// other loader here resolves a name against a directory LISTING, so a caller can
+// only ever select something already enumerated. This one built a path out of the
+// argument instead, which made `../../README` read ROOT/README.md — any .md file
+// the process could reach, through a tool whose contract is "return a rule".
+//
+// That matters because the caller is not always the user. An MCP tool argument
+// can originate in text the agent merely read — a dependency's README, an issue
+// comment, a fetched page — so this was an arbitrary-markdown-read primitive
+// reachable by prompt injection, which is exactly what ECC's own
+// prompt-injection-hunter agent exists to catch.
+//
+// Two guards, because they fail differently. The pattern rejects anything that is
+// a path rather than a name, before touching disk. resolveContained then proves
+// the target really sits under rules/common once symlinks are resolved, which a
+// pattern cannot know.
+const RULE_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+
 function loadRule(name) {
-  const file = path.join(PATHS.rules, `${name}.md`);
+  if (typeof name !== 'string' || !RULE_NAME.test(name)) return null;
+  const file = resolveContained(path.join(PATHS.rules, `${name}.md`), PATHS.rules);
+  if (file === null) return null;
   const raw = safeReadFile(file);
   if (raw === null) return null;
   return { name, file, relpath: path.relative(ROOT, file), body: raw };

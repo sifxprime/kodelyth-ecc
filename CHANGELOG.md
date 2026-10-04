@@ -2,6 +2,46 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.23.2 — the README leads with the product, not the badges (October 2026)
+
+No change to the toolkit. The README **is** the npm landing page, and npm only
+re-renders it on publish, so this exists to make the rewrite actually reach
+anyone.
+
+### What changed
+
+It opened with a logo, a 900px hero and **21 shields — 35 lines before a single
+word of what this is**. Someone arriving from npm search had to scroll past a
+wall of badges to learn whether they cared.
+
+The strongest thing in the file was buried too: the routing transcript, where
+
+```
+You:   "I've been staring at this NullPointerException for two hours,
+        I'm losing my mind."
+
+AI:    → Routing to debug-detective
+```
+
+explains the product faster than any paragraph could, and sat at line 55.
+
+The first screen is now: logo, one-line claim, that transcript, `npx
+kodelyth-ecc`, and the platform list. Badges and hero follow below a rule.
+
+**Nothing was cut.** All 1,100+ lines and every badge are intact — just no
+longer first.
+
+### Corrected while reading
+
+The comparison tables still claimed 194 skills, 97 slash commands and "22+"
+quality hooks in three places. Actual: 196, 103, 44. Those tables make direct
+claims against other kits, so wrong numbers there cost more than anywhere else.
+
+Verified: 82 code fences balanced, 19 `div`s balanced, zero stale figures left,
+and a line-by-line diff against the previous file confirming no content lost.
+
+**647 tests passing.**
+
 ## v2.23.1 — the shop window said the wrong numbers (October 2026)
 
 No change to the toolkit. This exists because npm metadata only refreshes when

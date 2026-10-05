@@ -2,6 +2,46 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.24.5 — fix path traversal in session bundles (October 2026)
+
+**Security fix.** A session bundle is a portable, shareable artifact — that is the
+entire point of the format — so every string in one is untrusted input from
+whoever built it. `validateBundle` type-checked `session` and each worker `slug`
+and nothing else, and both are used to build filesystem paths:
+
+    targetDir = path.join(coordRoot, bundle.session)   -> fs.rmSync(recursive, force)
+    wdir      = path.join(targetDir, w.slug)           -> mkdirSync + 3x writeFileSync
+
+### Arbitrary file write
+
+A slug of `../../fake-claude/rules/common/injected` wrote `task.md`, `handoff.md`
+and `status.md` with bundle-chosen contents three levels outside the import
+target. Aimed at a real install that path is an always-on rule file, so a shared
+bundle plants standing instructions into every future session. The CLI printed
+`imported bundle into: .../.orchestration/looks-normal` and then printed the
+escaped path in its own `inspect:` hint.
+
+### Arbitrary recursive delete
+
+A session of `../important-work` with `--overwrite` reached
+`fs.rmSync(dir, { recursive: true, force: true })` and recursively deleted an
+unrelated project directory. It printed success for that too.
+
+Both were confirmed by running the real CLI against a sandboxed victim tree, not
+by reading the code.
+
+### The fix
+
+`session` and every `slug` must now be a single path segment. `exportBundle` only
+ever emits those — `session` is a `path.basename`, each `slug` a `readdirSync`
+entry name that `slugify` constrains to `[a-z0-9-]+` — so this rejects nothing a
+genuine bundle contains, which a real export/import round-trip confirms with
+identical trees. A containment check was added at the write site as a backstop for
+future callers; the comment states plainly that it guards no currently reachable
+vector, because `importBundle` always creates the directory it writes into.
+
+**672 tests across 43 files.**
+
 ## v2.24.4 — fix catastrophic backtracking in the prompt-injection guard (October 2026)
 
 **Security fix.** The guard that scans untrusted text for prompt injection could

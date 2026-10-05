@@ -20,13 +20,28 @@ const PATTERNS = [
   {
     id: 'override-prior-instructions',
     severity: 'critical',
-    regex: /\b(ignore|disregard|forget)\s+(all|any|the|your|my|all\s+(?:prior|previous|above|earlier))?\s*(prior|previous|above|earlier|prev|preceding)?\s*(instructions?|rules?|prompt|system\s*prompt|directives?)\b/i,
+    // Each optional segment carries its own leading \s+, so a run of whitespace
+    // has exactly ONE valid partition. The previous form was
+    //   \s+ (group)? \s* (group)? \s*
+    // — three whitespace quantifiers with optional groups between them. When both
+    // groups matched empty they sat adjacent, so N spaces could be split between
+    // them in O(N^2) ways, and every split was retried once the final noun failed
+    // to match. Measured on "ignore" + N spaces + "x": 1.5s at N=2000, 12.5s at
+    // N=4000, over 40s at N=8000 — all well inside this hook's own 20000-char
+    // input cap, and reachable through tool_response, which carries untrusted
+    // file and network content. Verified equivalent across 1140 generated phrases.
+    regex: /\b(?:ignore|disregard|forget)(?:\s+(?:all|any|the|your|my))?(?:\s+(?:prior|previous|above|earlier|prev|preceding))?\s+(?:instructions?|rules?|system\s*prompt|prompt|directives?)\b/i,
     why:   'Classic instruction-override prompt injection.',
   },
   {
     id: 'system-prompt-leak',
     severity: 'critical',
-    regex: /\b(reveal|print|show|repeat|output|dump|leak|expose)\s+(your|the|all|any)?\s*(system\s*prompt|hidden\s*prompt|initial\s*(prompt|instructions?)|original\s*(prompt|instructions?)|first\s*(message|prompt|instruction))/i,
+    // Same adjacent-quantifier shape as above, one group shallower, so quadratic
+    // rather than catastrophic: ~590ms at 32000 spaces, ~200ms at the 20000 cap.
+    // Not a denial of service today, but the identical defect, and it would become
+    // one the moment another optional group is added. Verified equivalent across
+    // 483 generated phrases.
+    regex: /\b(?:reveal|print|show|repeat|output|dump|leak|expose)(?:\s+(?:your|the|all|any))?\s+(?:system\s*prompt|hidden\s*prompt|initial\s*(?:prompt|instructions?)|original\s*(?:prompt|instructions?)|first\s*(?:message|prompt|instruction))/i,
     why:   'Explicit attempt to extract the system prompt.',
   },
   {

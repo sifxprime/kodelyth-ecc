@@ -2,6 +2,66 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.24.7 — the brand render scripts could not run (October 2026)
+
+Developer tooling only. Nothing here ships in the npm package — `brand/` is not in
+the `files` allowlist — but it is what kept the published artwork correct.
+
+2.24.6 fixed brand assets that had drifted to v2.7.0 with counts seven releases
+stale. This fixes the reason they drifted: **both scripts meant to regenerate them
+were broken, and had been for months.**
+
+`brand/convert.js` and `brand/veltix-convert.js` each required `puppeteer-core`,
+which is neither installed nor declared in `package.json`, so a clean checkout
+failed with module-not-found before rendering anything. Both also hardcoded
+`/Applications/Google Chrome.app/...`, so neither could have run on Linux or
+Windows even with the dependency present. `.gitignore` names `brand/convert.js`
+as the way to regenerate `brand/*.png`; it pointed at a script that crashed on
+line 9.
+
+`convert.js` was wrong in two further ways. It referenced `favicon.svg`, which
+does not exist in that directory, so three of its eleven entries rendered nothing.
+And it omitted five assets that do have published PNGs — the ECC badge, the icon
+at both 192 and 512, and both ECC lockups, plus the legacy post. Its list is now
+derived from the files actually present.
+
+### What changed
+
+Both now use `rsvg-convert`. That keeps ECC's no-runtime-dependency rule intact —
+adding `puppeteer-core` would pull a large dependency into a package that
+deliberately has none — and matches `scripts/brand/export-assets.js`, so the whole
+brand pipeline renders through one tool.
+
+Sizes reduce to a target **width**. Every published PNG was checked against its
+SVG's viewBox and all twenty-one are exact aspect-preserving scales, with ratios
+from 2x to 6x, so letting rsvg derive the height reproduces each one without a
+second number that can drift from the artwork. Every output keeps its exact
+published dimensions, captured before and after.
+
+The renderer substitution was verified rather than assumed: re-rendering a
+Chrome-produced export gave a byte-comparable file at identical dimensions, and
+the text-bearing assets were viewed after rendering. The old `document.fonts.ready`
+wait needs no counterpart — these SVGs ask for `'Space Grotesk'`, `'Inter'`,
+`system-ui`, which are font-family names resolved against installed fonts rather
+than `@font-face` webfonts, so rsvg resolves them the same way Chrome did.
+
+### One gate for all brand artwork
+
+All four scripts now share a `--check` mode that exits non-zero when anything is
+stale:
+
+```bash
+node brand/convert.js --check \
+  && node brand/veltix-convert.js --check \
+  && node scripts/brand/sync-asset-version.js --check \
+  && node scripts/brand/export-assets.js --check
+```
+
+This release is the first to run that pipeline end to end: bump, stamp the version
+into 46 SVGs across both repositories, then render 70 PNGs.
+
+**672 tests across 43 files.**
+
 ## v2.24.6 — brand assets advertised the wrong version and stale counts (October 2026)
 
 Assets and documentation only. No code changes to the toolkit.

@@ -183,7 +183,25 @@ function buildOrchestrationPlan(config = {}) {
     config.coordinationRoot || path.join(repoRoot, '.orchestration')
   );
   const coordinationDir = path.join(coordinationRoot, sessionName);
+  // baseRef is the only value in this file that reaches a command's argv without
+  // being slugified or path-resolved first. Every spawn here uses the array form
+  // with no shell, which stops shell injection — but it does NOT stop ARGUMENT
+  // injection: git parses argv itself, so a ref beginning with "-" is read as an
+  // option rather than a commit-ish. In
+  //     git worktree add -b <branch> <path> <commit-ish>
+  // a baseRef of "--git-dir=/elsewhere" silently redirects git at another
+  // repository, and "--force" changes the command's meaning. It is user-settable
+  // through --base-ref, and swarm configs get shared, so it is not only
+  // self-inflicted.
+  //
+  // Rejecting a leading "-" is enough: git refs cannot begin with one anyway
+  // (git check-ref-format forbids it), so nothing legitimate is lost.
   const baseRef = config.baseRef || 'HEAD';
+  if (typeof baseRef !== 'string' || baseRef.startsWith('-')) {
+    throw new Error(
+      `baseRef must be a ref name, not an option: ${JSON.stringify(String(baseRef))}`
+    );
+  }
   const defaultLauncher = config.launcherCommand || '';
 
   if (workers.length === 0) {

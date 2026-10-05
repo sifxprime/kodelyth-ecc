@@ -186,3 +186,63 @@ test('buildSwarmPlan + orchestrator: worker tasks contain agent-shaped prompt', 
     assert.match(w.task, new RegExp(w.workerName));
   }
 });
+
+// ── baseRef argument injection ───────────────────────────────────────────────
+// Every spawn in the orchestrator uses the array form with no shell, which stops
+// shell injection — and that was verified by executing every generated send-keys
+// string in a real shell with a payload that would touch a marker file. Nothing
+// fired, across sessionName, worker name, task, repoRoot and baseRef.
+//
+// Array form does not stop ARGUMENT injection, though. git parses its own argv,
+// so in `git worktree add -b <branch> <path> <commit-ish>` a commit-ish beginning
+// with "-" is read as an option: "--git-dir=/elsewhere" points git at another
+// repository, "--force" changes the command's meaning. baseRef was the only value
+// reaching argv without being slugified or path-resolved first, and it is
+// user-settable through --base-ref.
+
+const Orch = require('../../scripts/lib/tmux-worktree-orchestrator');
+
+function planWith(baseRef) {
+  return Orch.buildOrchestrationPlan({
+    repoRoot: '/tmp/repo',
+    sessionName: 'probe',
+    launcherCommand: 'true',
+    workers: [{ name: 'alpha', task: 'do a thing' }],
+    baseRef,
+  });
+}
+
+test('baseRef that looks like an option is rejected', () => {
+  for (const ref of ['--force', '-f', '--git-dir=/tmp/evil', '--upload-pack=sh', '-']) {
+    assert.throws(() => planWith(ref), /must be a ref name, not an option/,
+      `baseRef ${JSON.stringify(ref)} must be rejected`);
+  }
+});
+
+test('ordinary refs still work', () => {
+  // git check-ref-format forbids a leading "-", so nothing legitimate is lost.
+  for (const ref of ['HEAD', 'main', 'v1.2.3', 'feature/x', 'origin/main', 'abc123']) {
+    assert.doesNotThrow(() => planWith(ref), `baseRef ${ref} must be accepted`);
+    assert.equal(planWith(ref).workerPlans[0].gitArgs.at(-1), ref);
+  }
+});
+
+test('a worker name cannot escape the worktree root', () => {
+  // slugify reduces to [a-z0-9-], so traversal collapses rather than escaping.
+  const plan = Orch.buildOrchestrationPlan({
+    repoRoot: '/tmp/repo', sessionName: 'probe', launcherCommand: 'true',
+    workers: [{ name: '../../../../etc/evil', task: 't' }],
+  });
+  const w = plan.workerPlans[0];
+  assert.equal(w.workerSlug, 'etc-evil');
+  assert.ok(!w.worktreePath.includes('..'), `worktreePath escaped: ${w.worktreePath}`);
+  assert.ok(!w.coordinationDir.includes('..'), `coordinationDir escaped: ${w.coordinationDir}`);
+});
+
+test('seedPaths cannot reach outside repoRoot', () => {
+  for (const seed of ['../../../etc/passwd', '/etc/passwd', '..', 'sub/../../../etc']) {
+    assert.throws(() => Orch.normalizeSeedPaths([seed], '/tmp/repo'),
+      /must stay inside repoRoot/, `seedPath ${JSON.stringify(seed)} must be rejected`);
+  }
+  assert.deepEqual(Orch.normalizeSeedPaths(['./ok', 'a/b'], '/tmp/repo'), ['ok', 'a/b']);
+});

@@ -440,3 +440,79 @@ test('a real session still resolves after the symlink hardening', () => {
     cleanup(root);
   }
 });
+
+// ── safeReadExcerpt reads a bounded window ───────────────────────────────────
+// It used to readFileSync the WHOLE file and then slice 800 characters off the
+// front. A large file in a coordination directory therefore cost its full size in
+// time and memory to produce a fixed-size excerpt: a 300MB task.md measured 196ms
+// and +628MB RSS for 800 characters, scaling linearly. The dashboard is single
+// threaded, so that blocks every other request, and it runs three times per worker
+// (task, handoff, status) across every session.
+
+const { safeReadExcerpt } = data._internals;
+
+function withFile(body, fn) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kodelyth-excerpt-'));
+  const file = path.join(dir, 't.md');
+  try {
+    fs.writeFileSync(file, body);
+    return fn(file, dir);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+test('safeReadExcerpt output is unchanged by the windowed read', () => {
+  // The previous implementation, verbatim. Any divergence is a regression —
+  // especially for multi-byte text, where slicing a byte window rather than
+  // counting characters would cut a character in half.
+  const previous = (p, max = 800) => {
+    try {
+      const content = fs.readFileSync(p, 'utf8');
+      return content.length > max ? content.slice(0, max) + '\n…(truncated)' : content;
+    } catch {
+      return null;
+    }
+  };
+
+  const bodies = {
+    empty:             '',
+    'short ascii':     'hello world',
+    'exactly 800':     'a'.repeat(800),
+    '801 ascii':       'a'.repeat(801),
+    'long ascii':      'a'.repeat(100000),
+    'multibyte short': '日本語テスト'.repeat(5),
+    'multibyte 801':   '日'.repeat(801),
+    'emoji boundary':  '🎉'.repeat(500),
+    mixed:             'héllo wörld 日本 🎉 '.repeat(2000),
+  };
+
+  for (const [label, body] of Object.entries(bodies)) {
+    withFile(body, (file) => {
+      assert.equal(safeReadExcerpt(file), previous(file), `diverged on: ${label}`);
+    });
+  }
+});
+
+test('safeReadExcerpt returns null for a missing path or a directory', () => {
+  withFile('x', (file, dir) => {
+    assert.equal(safeReadExcerpt(path.join(dir, 'nope.md')), null);
+    assert.equal(safeReadExcerpt(dir), null);
+  });
+});
+
+test('safeReadExcerpt does not read the whole file', () => {
+  // The guarantee, stated as memory rather than time so it holds on a slow or
+  // busy machine: pulling an 800-character excerpt out of a 64MB file must not
+  // cost anything close to 64MB. The old version allocated the file twice over —
+  // once as a Buffer, once as a UTF-16 string.
+  const big = 'a'.repeat(64 * 1024 * 1024);
+  withFile(big, (file) => {
+    const before = process.memoryUsage().rss;
+    const out = safeReadExcerpt(file);
+    const grewMb = (process.memoryUsage().rss - before) / 1048576;
+
+    assert.equal(out.length, 800 + '\n…(truncated)'.length);
+    assert.ok(grewMb < 8, `read grew RSS by ${grewMb.toFixed(0)}MB for an 800-char excerpt`);
+  });
+});

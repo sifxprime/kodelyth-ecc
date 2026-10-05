@@ -35,6 +35,7 @@
 
 const fs   = require('fs');
 const path = require('path');
+const { resolveContainedForWrite } = require('../lib/safe-fs');
 
 const BUNDLE_SCHEMA = 'kodelyth.session-bundle/v1';
 const BUNDLE_VERSION = '1.7.0';
@@ -94,6 +95,21 @@ function readBundle(bundlePath) {
   return validateBundle(raw);
 }
 
+// One path segment: no separator, no traversal, no leading dot. This matches what
+// exportBundle actually emits — slugify yields [a-z0-9-]+ and session is a
+// basename — so it rejects nothing a genuine bundle contains.
+const SAFE_SEGMENT = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+const MAX_SEGMENT = 128;
+
+function assertSafeSegment(value, label) {
+  if (typeof value !== 'string' || value.length > MAX_SEGMENT || !SAFE_SEGMENT.test(value)) {
+    throw new Error(
+      `bundle: ${label} must be a single path segment matching ${SAFE_SEGMENT} ` +
+      `(got ${JSON.stringify(String(value).slice(0, 60))})`
+    );
+  }
+}
+
 function validateBundle(raw) {
   if (!raw || typeof raw !== 'object') throw new Error('bundle: not an object');
   if (raw.schema !== BUNDLE_SCHEMA) {
@@ -102,11 +118,26 @@ function validateBundle(raw) {
   if (typeof raw.session !== 'string' || !raw.session) {
     throw new Error('bundle: missing "session"');
   }
+  // A bundle exists to be SHARED — that is the whole point of the format — so every
+  // string in it is untrusted input. exportBundle only ever emits single path
+  // segments here: `session` is a path.basename and each `slug` is a readdirSync
+  // entry name. Nothing legitimate contains a separator, so anything that does is
+  // an attempt to escape the directory the importer chose.
+  //
+  // Unchecked, `session` became the import target via path.join(coordRoot, session),
+  // and with --overwrite that target is handed to fs.rmSync(recursive, force):
+  // "../important-work" recursively deleted an unrelated project while the CLI
+  // printed success. Each `slug` became path.join(targetDir, slug) for a
+  // mkdirSync(recursive) plus three writeFileSync calls, so
+  // "../../.claude/rules/common/x" planted an always-on rule file whose contents
+  // the bundle author chose.
+  assertSafeSegment(raw.session, 'session');
   if (!Array.isArray(raw.workers) || raw.workers.length === 0) {
     throw new Error('bundle: "workers" must be a non-empty array');
   }
   for (const w of raw.workers) {
     if (!w || typeof w.slug !== 'string') throw new Error('bundle: each worker needs a string "slug"');
+    assertSafeSegment(w.slug, 'worker slug');
   }
   return raw;
 }
@@ -122,7 +153,14 @@ function importBundle(bundle, { targetDir, overwrite = false } = {}) {
   }
   fs.mkdirSync(dir, { recursive: true });
   for (const w of bundle.workers) {
-    const wdir = path.join(dir, w.slug);
+    // Backstop, not the primary guard: validateBundle already rejected every slug
+    // containing a separator, and `dir` was just created by this function (an
+    // existing targetDir is either refused or rmSync'd above), so no attacker-planted
+    // symlink can survive into this loop today. The check costs nothing and keeps the
+    // invariant true for any future caller that hands importBundle a directory it
+    // did not create — which is the only way the symlink case becomes reachable.
+    const wdir = resolveContainedForWrite(path.join(dir, w.slug), dir);
+    if (!wdir) throw new Error(`importBundle: worker slug escapes targetDir: ${w.slug}`);
     fs.mkdirSync(wdir, { recursive: true });
     if (typeof w.task    === 'string') fs.writeFileSync(path.join(wdir, 'task.md'),    w.task,    'utf8');
     if (typeof w.handoff === 'string') fs.writeFileSync(path.join(wdir, 'handoff.md'), w.handoff, 'utf8');

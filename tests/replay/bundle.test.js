@@ -179,3 +179,81 @@ test('nextReplayName: skips taken numbers', () => {
 test('nextReplayName: strips existing -replay-N suffix to find canonical base', () => {
   assert.equal(B.nextReplayName('swarm-x-replay-3'), 'swarm-x-replay-1');
 });
+
+// ── Containment: a bundle is untrusted input ─────────────────────────────────
+// A session bundle exists to be shared, so every string in it comes from whoever
+// built it. validateBundle used to type-check `session` and each `slug` and
+// nothing else, and both are used to build filesystem paths:
+//
+//   targetDir = path.join(coordRoot, bundle.session)   -> fs.rmSync(recursive, force)
+//   wdir      = path.join(targetDir, w.slug)           -> mkdirSync + 3x writeFileSync
+//
+// So "../important-work" as a session deleted an unrelated project under
+// --overwrite, and "../../.claude/rules/common/x" as a slug planted an always-on
+// rule file with contents the bundle author chose. Both printed success.
+
+function bundleWith(overrides) {
+  return {
+    schema:  'kodelyth.session-bundle/v1',
+    session: 'swarm-2026-10-05-2a',
+    workers: [{ slug: 'code-reviewer', task: 't', handoff: 'h', status: 's' }],
+    meta:    {},
+    ...overrides,
+  };
+}
+
+test('validateBundle rejects a traversing session name', () => {
+  for (const session of [
+    '../important-work', '../../etc', 'a/b', 'a\\b', '..', '.', '',
+    '/absolute', './rel', '.hidden', 'x'.repeat(200),
+  ]) {
+    assert.throws(() => B.validateBundle(bundleWith({ session })),
+      /session must be a single path segment|missing "session"/,
+      `session ${JSON.stringify(session)} must be rejected`);
+  }
+});
+
+test('validateBundle rejects a traversing worker slug', () => {
+  for (const slug of [
+    '../../.claude/rules/common/injected', '../escape', 'a/b', 'a\\b',
+    '..', '.', '', '/abs', '.hidden', 'x'.repeat(200),
+  ]) {
+    assert.throws(() => B.validateBundle(bundleWith({ workers: [{ slug, task: 't' }] })),
+      /slug must be a single path segment|needs a string "slug"/,
+      `slug ${JSON.stringify(slug)} must be rejected`);
+  }
+});
+
+test('validateBundle still accepts what exportBundle actually produces', () => {
+  // slugify yields [a-z0-9-]+ and session is a path.basename, so the guard must
+  // not reject any real bundle. Underscores and dots appear in hand-made
+  // directory names, so they stay allowed too.
+  for (const name of [
+    'swarm-2026-10-05-3a', 'code-reviewer', 'tdd-guide', 'worker1',
+    'a', 'A-B_c.d', '2026-10-05',
+  ]) {
+    assert.doesNotThrow(() => B.validateBundle(bundleWith({
+      session: name,
+      workers: [{ slug: name, task: 't' }],
+    })), `${name} must be accepted`);
+  }
+});
+
+test('importBundle writes nothing outside targetDir', () => {
+  // Functional backstop for the two unit tests above: even if validation were
+  // bypassed, nothing may land outside the directory the caller named.
+  const root   = tmp();
+  const target = path.join(root, 'coord', 'session');
+  const canary = path.join(root, 'canary');
+  fs.mkdirSync(canary, { recursive: true });
+  fs.writeFileSync(path.join(canary, 'task.md'), 'ORIGINAL');
+
+  assert.throws(() => B.importBundle(
+    bundleWith({ workers: [{ slug: '../../canary', task: 'OVERWRITTEN' }] }),
+    { targetDir: target }
+  ));
+
+  assert.equal(fs.readFileSync(path.join(canary, 'task.md'), 'utf8'), 'ORIGINAL',
+    'a file outside targetDir was modified');
+  fs.rmSync(root, { recursive: true, force: true });
+});

@@ -1157,6 +1157,20 @@ command you ran, the full error, and your `kodelythecc doctor` output.
 
 <div align="center">
 
+### If ECC saved you time
+
+Starring the repo is the main way other developers find it — the project has no
+marketing budget and no telemetry, so visibility is the only signal that it is
+worth anyone's time.
+
+[![Star on GitHub](https://img.shields.io/github/stars/sifxprime/kodelyth-ecc?style=social)](https://github.com/sifxprime/kodelyth-ecc)
+
+</div>
+
+---
+
+<div align="center">
+
 [![npm](https://img.shields.io/badge/npm-kodelyth--ecc-red.svg)](https://www.npmjs.com/package/kodelyth-ecc)
 [![GitHub](https://img.shields.io/badge/GitHub-sifxprime%2Fkodelyth--ecc-181717.svg)](https://github.com/sifxprime/kodelyth-ecc)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)

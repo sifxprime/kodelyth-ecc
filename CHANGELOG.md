@@ -2,6 +2,75 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.24.4 — fix catastrophic backtracking in the prompt-injection guard (October 2026)
+
+**Security fix.** The guard that scans untrusted text for prompt injection could
+be hung indefinitely by the text it was scanning.
+
+### What was wrong
+
+`override-prior-instructions` — the critical-severity pattern matching the single
+most common injection phrase — was written as
+
+    \s+ (group)? \s* (group)? \s*
+
+Three whitespace quantifiers with optional groups between them. With both groups
+matching empty they sat adjacent, so a run of N spaces could be partitioned
+between them in O(N^2) ways, and every partition was retried once the trailing
+noun failed to match. On `"ignore" + N spaces + "x"`:
+
+| N | time |
+|---|---|
+| 2,000 | 1.5s |
+| 4,000 | 12.5s |
+| 8,000 | never observed to finish |
+| 19,000 | never observed to finish |
+
+The guard caps input at 20,000 characters, so the cap does not help: the blow-up
+begins around N=2,000, well inside it. Confirmed end to end through the hook's own
+stdin path with the payload delivered in `tool_response`, which is where
+untrusted file and network content arrives.
+
+### Why it is more than a hang
+
+This hook runs on every tool call and is fail-open by design. In the default
+`warn` mode the session stalls until the harness kills the hook, and no warning is
+ever emitted. In `block` mode it is worse: a guard that never returns never exits
+2, so the critical pattern it exists to catch goes unblocked. The denial of
+service doubles as a bypass of the control itself.
+
+### The fix
+
+Each optional segment now carries its own leading `\s+` inside the group —
+`(?:\s+X)?` rather than `\s+(X)?\s*` — so a whitespace run has exactly one valid
+partition and there is nothing to backtrack through. The pattern now takes 4.8ms
+at the full 20,000-character cap, and stays linear beyond it: 3.9ms on a million
+spaces.
+
+`system-prompt-leak` carried the same shape one group shallower, making it
+quadratic rather than catastrophic (~590ms at 32,000 spaces, ~200ms at the cap).
+Not a denial of service today, but the identical defect and one optional group
+away from becoming one, so it is rewritten the same way. The other ten patterns
+were swept with trigger words they actually match and are unaffected (4-5ms at
+the cap).
+
+### Detection is unchanged
+
+Verified rather than assumed. Both rewrites were checked against every phrase
+their grammars generate — 1,140 for the first, 483 for the second — and agree
+with the originals on all 1,623, with no phrase matched by one and not the other.
+
+New tests cover the detections that must still fire, the ordinary text that must
+not, and the timing. The timing test runs in a child process with a hard timeout
+on purpose: a catastrophic regex is synchronous and CPU-bound, so node:test's own
+timeout cannot interrupt it — against the old pattern the assertion was never
+reached and the suite simply hung, which is a red build with no explanation. The
+child turns the same regression into a named failure. Verified in both
+directions: the old regex is killed at 15s with `ETIMEDOUT`, the new one finishes
+in 59ms.
+
+**668 tests across 43 files.**
+
 ## v2.24.3 — remove decorative emoji from docs and catalog (October 2026)
 
 Documentation only. No code, no behaviour change.

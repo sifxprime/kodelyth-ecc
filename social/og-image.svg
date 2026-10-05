@@ -26,13 +26,13 @@
               fill="none"/>
   </g>
 
-  <!-- v2.24.1 pill — below mark -->
+  <!-- v2.24.5 pill — below mark -->
   <rect x="60" y="432" width="84" height="24" rx="12"
         fill="none" stroke="#ffffff" stroke-width="1" opacity="0.20"/>
   <text x="102" y="449"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="12" font-weight="500" text-anchor="middle"
-        fill="#ffffff" opacity="0.35">v2.24.1</text>
+        fill="#ffffff" opacity="0.35">v2.24.5</text>
 
   <!-- Wordmark -->
   <text x="206" y="272"
@@ -60,7 +60,7 @@
   <text x="210" y="383"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="12" font-weight="400"
-        fill="#ffffff" opacity="0.28">70 agents · 196 skills · 97 commands</text>
+        fill="#ffffff" opacity="0.28">70 agents · 196 skills · 103 commands</text>
   <text x="210" y="399"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="12" font-weight="400"
@@ -113,7 +113,7 @@
   <text x="665" y="386"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="68" font-weight="700" text-anchor="middle"
-        fill="#ffffff">97</text>
+        fill="#ffffff">103</text>
   <text x="665" y="450"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="12" font-weight="600" text-anchor="middle" letter-spacing="3"
@@ -126,7 +126,7 @@
   <text x="987" y="386"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="68" font-weight="700" text-anchor="middle"
-        fill="#ffffff">22+</text>
+        fill="#ffffff">44</text>
   <text x="987" y="450"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="12" font-weight="600" text-anchor="middle" letter-spacing="3"

@@ -144,3 +144,82 @@ test('verifyAgainstManifest: round-trips clean across copy', () => {
     assert.equal(r.summary.ok, manifest.file_count);
   } finally { cleanup(dir1); cleanup(dir2); }
 });
+
+// ── strict mode folds extras into the verdict ────────────────────────────────
+// An EXTRA file is advisory by default and does not fail verification. That is
+// right for a toolkit people extend: anyone who added their own agent or skill
+// would otherwise see verify fail forever.
+//
+// It is wrong for automation. A planted file returned ok true and exit code 0, so
+// `verify && deploy` passed with an unknown file in place — and in this product an
+// extra .md under rules/, agents/ or commands/ is not inert data, it is loaded as
+// instructions, so an injected rules/common/zz.md becomes an always-on rule.
+// strict is opt-in so both callers are served.
+
+function seedTree() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kodelyth-strict-'));
+  fs.mkdirSync(path.join(dir, 'rules', 'common'), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'agents'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'rules', 'common', 'coding-style.md'), '# legit rule\n');
+  fs.writeFileSync(path.join(dir, 'agents', 'planner.md'), '# legit agent\n');
+  return dir;
+}
+
+test('an extra file is advisory by default and fatal under strict', () => {
+  const dir = seedTree();
+  try {
+    const manifest = M.generateManifest({ rootDir: dir });
+
+    assert.equal(V.verifyAgainstManifest({ rootDir: dir, manifest }).ok, true);
+    assert.equal(V.verifyAgainstManifest({ rootDir: dir, manifest, strict: true }).ok, true);
+
+    // An always-on rule file nobody shipped.
+    fs.writeFileSync(path.join(dir, 'rules', 'common', 'zz-injected.md'), '# planted\n');
+
+    const lenient = V.verifyAgainstManifest({ rootDir: dir, manifest });
+    assert.equal(lenient.ok, true, 'default must stay lenient — extending the toolkit is normal');
+    assert.equal(lenient.summary.extra, 1);
+    assert.deepEqual(lenient.details.extra, ['rules/common/zz-injected.md']);
+
+    const strict = V.verifyAgainstManifest({ rootDir: dir, manifest, strict: true });
+    assert.equal(strict.ok, false, 'strict must fail on a planted file');
+    assert.equal(strict.summary.extra, 1);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('strict does not change how modified or missing files are judged', () => {
+  const dir = seedTree();
+  try {
+    const manifest = M.generateManifest({ rootDir: dir });
+
+    fs.writeFileSync(path.join(dir, 'agents', 'planner.md'), '# tampered\n');
+    for (const strict of [false, true]) {
+      const r = V.verifyAgainstManifest({ rootDir: dir, manifest, strict });
+      assert.equal(r.ok, false, `tampering must fail with strict=${strict}`);
+      assert.equal(r.summary.modified, 1);
+    }
+
+    fs.unlinkSync(path.join(dir, 'agents', 'planner.md'));
+    for (const strict of [false, true]) {
+      const r = V.verifyAgainstManifest({ rootDir: dir, manifest, strict });
+      assert.equal(r.ok, false, `deletion must fail with strict=${strict}`);
+      assert.equal(r.summary.missing, 1);
+    }
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('the report says which mode produced the verdict', () => {
+  const dir = seedTree();
+  try {
+    const manifest = M.generateManifest({ rootDir: dir });
+    // A JSON consumer must not have to guess whether extras were counted.
+    assert.equal(V.verifyAgainstManifest({ rootDir: dir, manifest }).strict, false);
+    assert.equal(V.verifyAgainstManifest({ rootDir: dir, manifest, strict: true }).strict, true);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});

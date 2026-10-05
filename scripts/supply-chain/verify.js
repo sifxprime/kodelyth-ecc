@@ -23,7 +23,7 @@ const { hashFile, walkFiles, MANIFEST_SCHEMA } = require('./manifest.js');
 
 const VERIFY_RESULT_KEYS = ['ok', 'modified', 'missing', 'extra'];
 
-function verifyAgainstManifest({ rootDir, manifest } = {}) {
+function verifyAgainstManifest({ rootDir, manifest, strict = false } = {}) {
   if (!rootDir)  throw new Error('verifyAgainstManifest: rootDir is required');
   if (!manifest) throw new Error('verifyAgainstManifest: manifest is required');
   if (manifest.schema !== MANIFEST_SCHEMA) {
@@ -81,11 +81,27 @@ function verifyAgainstManifest({ rootDir, manifest } = {}) {
     extra:    extraFiles.length,
   };
 
-  // verify is "ok" if no missing and no modified files. Extras are non-fatal.
-  const ok = summary.missing === 0 && summary.modified === 0;
+  // By default an EXTRA file is advisory: it does not fail the verdict. That is
+  // deliberate and correct for a toolkit people are meant to extend — anyone who
+  // has added their own agent or skill would otherwise see verify fail forever.
+  //
+  // It is the wrong default for automation, though. A planted file returns ok
+  // true and exit code 0, so `verify && deploy` passes with an unknown file in
+  // place — and in this product an extra .md under rules/, agents/ or commands/
+  // is not inert data, it is loaded as instructions, so an injected
+  // rules/common/zz.md becomes an always-on rule. Confirmed: a clean tree reports
+  // ok true, planting that file still reports ok true with extra 1.
+  //
+  // So the choice is offered rather than made. strict folds extras into the
+  // verdict for callers that want a gate; the default is unchanged.
+  const ok =
+    summary.missing === 0 &&
+    summary.modified === 0 &&
+    (!strict || summary.extra === 0);
 
   return {
     ok,
+    strict,
     summary,
     details: {
       ok:       okFiles,

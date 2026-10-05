@@ -1288,7 +1288,7 @@ if (args[0] === 'session-export' || args[0] === 'session-import' || args[0] === 
 // Usage:
 //   kodelyth-ecc sbom        [--root DIR] [--out FILE] [--json]
 //   kodelyth-ecc manifest    [--root DIR] [--out FILE] [--json]
-//   kodelyth-ecc verify      [--root DIR] [--manifest FILE] [--json]
+//   kodelyth-ecc verify      [--root DIR] [--manifest FILE] [--json] [--strict]
 if (args[0] === 'sbom' || args[0] === 'manifest' || args[0] === 'verify') {
   (async () => {
     const fs   = require('fs');
@@ -1355,7 +1355,12 @@ if (args[0] === 'sbom' || args[0] === 'manifest' || args[0] === 'verify') {
           throw new Error(`verify: manifest not found at ${manifestPath} (use --manifest FILE)`);
         }
         const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-        const report = verifyAgainstManifest({ rootDir, manifest });
+        // --strict folds EXTRA files into the verdict. Off by default, because a
+        // toolkit people extend would otherwise fail verify for everyone who added
+        // their own agent; on for automation, where an unknown file under rules/ or
+        // agents/ is loaded as instructions and should stop a deploy.
+        const strict = has('--strict');
+        const report = verifyAgainstManifest({ rootDir, manifest, strict });
 
         if (has('--json')) {
           process.stdout.write(JSON.stringify(report, null, 2) + '\n');
@@ -1370,7 +1375,7 @@ if (args[0] === 'sbom' || args[0] === 'manifest' || args[0] === 'verify') {
         console.log(`    ✓ ok:       ${s.ok}`);
         console.log(`    ✗ modified: ${s.modified}`);
         console.log(`    ✗ missing:  ${s.missing}`);
-        console.log(`    ⚠ extra:    ${s.extra} (advisory)`);
+        console.log(`    ⚠ extra:    ${s.extra} ${strict ? '(fails verify: --strict)' : '(advisory — use --strict to fail on these)'}`);
 
         if (report.details.modified.length) {
           console.log(`\nModified files:`);
@@ -1724,6 +1729,7 @@ if (args.includes('--help') || args.includes('-h')) {
     npx kodelyth-ecc sbom [--out file.json]       Emit a CycloneDX 1.5 SBOM for the package
     npx kodelyth-ecc manifest [--out file.json]   Emit a sha256 content manifest of all assets
     npx kodelyth-ecc verify [--manifest file]     Verify installed copy against a content manifest
+    npx kodelyth-ecc verify --strict              ...and fail on unexpected extra files too
     npx kodelyth-ecc evolve analyze               Generate skill / routing proposals from memory + miss signals
     npx kodelyth-ecc dashboard                    Boot localhost-only observability dashboard (zero telemetry)
 

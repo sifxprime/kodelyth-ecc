@@ -2,6 +2,62 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.24.6 — brand assets advertised the wrong version and stale counts (October 2026)
+
+Assets and documentation only. No code changes to the toolkit.
+
+### What was wrong
+
+Every social and brand SVG carries its version and headline counts as literal
+artwork, and nothing kept them in step with releases.
+
+ECC's 23 SVGs said `v2.24.1`, four releases behind. The website's copies said
+`v2.18.0` — seven behind — and the two sets had drifted apart, so the marketing
+images on the site advertised a different version from the ones in the README.
+
+The counts were worse, and were nearly missed: grepping for the *correct* values
+(70 agents, 196 skills) found them and suggested the counts were fine. Rendering
+`github-social-preview.png` showed otherwise — **97 COMMANDS** and **22+ HOOKS**
+against an actual 103 and 44, on the flagship image used for the repository's
+social card. Fixed across 11 SVGs per repo: 97 to 103 commands, 22+/20+ to 44
+hooks, 384 to 672 tests, 14 to 15 rules.
+
+The PNG exports were worse still, at `v2.7.0`.
+
+### Root cause
+
+`.gitignore` names `node brand/convert.js` as the way to regenerate the exports.
+That script covers only the `brand/` lockups from a hardcoded list, never the 49
+`social/` exports — and it cannot run at all, because `puppeteer-core` is neither
+installed nor declared in `package.json`. The documented regeneration path was
+broken, and because the PNGs are gitignored build artifacts the drift was
+invisible.
+
+### What ships
+
+Two scripts, so this cannot recur silently:
+
+- `scripts/brand/sync-asset-version.js` stamps the version from `package.json`
+  into every SVG. Takes `--root` so the website's copies are driven from the same
+  source of truth, and `--check` exits non-zero when anything is stale.
+- `scripts/brand/export-assets.js` renders all 49 exports at 7680px, taking each
+  height from the SVG's own viewBox. `--check` compares mtimes and fails when a
+  PNG is older than its source.
+
+Counts are deliberately NOT stamped by script. They are laid out as artwork, and
+some numbers that look like catalog counts are not: "20+ rules stacked" counts
+accumulated lessons, and "4 agents" / "8 agents" describe how many a given
+parallel command fires. A blanket replace would rewrite those into nonsense, so
+each count fix here was read in context first and those were left alone.
+
+### Also
+
+The README now asks for a star. The post-install CLI asked once; the README —
+which is also the npm package page, and the first thing most people see — never
+did.
+
+**672 tests across 43 files.**
+
 ## v2.24.5 — fix path traversal in session bundles (October 2026)
 
 **Security fix.** A session bundle is a portable, shareable artifact — that is the

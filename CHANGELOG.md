@@ -2,6 +2,88 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.24.8 — adversarial pass: swarm, dashboard, supply-chain (October 2026)
+
+Three defects found by attacking the remaining unprobed surfaces rather than
+reading them.
+
+### `baseRef` could reach git's argv as an option
+
+Every spawn in the swarm orchestrator uses `spawnSync`'s array form with no shell,
+so shell injection does not work — and that was tested, not assumed: every
+generated `send-keys` string was executed in a real shell with a payload that
+would touch a marker file, across sessionName, worker name, task, repoRoot and
+baseRef. No marker was ever created.
+
+Array form does not stop **argument** injection, though. git parses its own argv,
+so in `git worktree add -b <branch> <path> <commit-ish>` a commit-ish beginning
+with `-` is read as an option: `--git-dir=/elsewhere` points git at another
+repository, `--force` changes the command's meaning. `baseRef` was the only value
+reaching argv without being slugified or path-resolved first — sessionName goes
+through `slugify`, branchName carries a literal prefix, worktreePath is absolute —
+and it is user-settable through `--base-ref`. Swarm configs get shared, so this is
+not purely self-inflicted.
+
+Rejecting a leading `-` costs nothing: `git check-ref-format` forbids refs that
+start with one, so `HEAD`, `main`, `v1.2.3` and `origin/main` all still work.
+
+### An 800-character excerpt read the entire file
+
+The dashboard's `safeReadExcerpt` called `readFileSync` on the whole file and then
+sliced 800 characters off the front, so a fixed-size excerpt cost the full size of
+the file. Measured on a 300MB `task.md`: **196ms and +628MB RSS** for 800
+characters, scaling linearly — roughly twice the file, since the bytes land in a
+Buffer and again as a UTF-16 string.
+
+The dashboard is single threaded, so that blocks every other request, and it runs
+three times per worker — task, handoff, status — across every session in
+`.orchestration`. Those files are written by swarm workers, so their size is not
+something the dashboard controls.
+
+It now reads a bounded window: stat first, then `max * 4 + 4` bytes. Four because
+UTF-8 encodes a character in at most four, so the window always holds at least
+`max` characters. That detail is load bearing — the truncation decision counts
+CHARACTERS, as it always did, so slicing a byte window would cut a multi-byte
+character in half. 300MB now costs 0ms and +0MB. Output was diffed against the old
+implementation across twelve cases including emoji on the boundary; all identical.
+
+### `verify` passed with a planted file
+
+An EXTRA file — present on disk, absent from the manifest — was advisory:
+`ok: true`, exit code 0. Confirmed against the real CLI, where tampering and
+deletion correctly exit 1 but planting `rules/common/zz-injected.md` exits 0.
+
+The human output did say `⚠ extra: 1 (advisory)`. Automation did not hear it:
+`kodelyth-ecc verify && deploy` passed with an unknown file in place — and in this
+product an extra `.md` under `rules/`, `agents/` or `commands/` is not inert data.
+Those directories are enumerated and loaded as instructions, so an injected rule
+file becomes an always-on rule in every future session. That is the payload the
+session-bundle traversal delivered in 2.24.5, reached a different way.
+
+The default is deliberately unchanged. This is a toolkit people are meant to
+extend, and failing verify on extras would fail it forever for anyone who added
+their own agent — a check that always fails gets ignored. The choice is offered
+instead:
+
+```bash
+kodelyth-ecc verify            # extras advisory, exit 0 (unchanged)
+kodelyth-ecc verify --strict   # extras fail the verdict, exit 1
+```
+
+The report now carries `strict`, so a `--json` consumer need not infer which mode
+produced the verdict.
+
+### What held up
+
+`scripts/evolve` was already hardened, and its comment records the same traversal
+class found in replay along with how it was confirmed. Re-tested anyway: target
+path traversal blocked, legitimate paths written, no prototype pollution. Swarm
+worker names collapse through `slugify` rather than escaping the worktree root,
+and `normalizeSeedPaths` rejects `..`, absolute paths and embedded traversal —
+both now pinned by tests so a later change cannot quietly lose them.
+
+**682 tests across 43 files.**
+
 ## v2.24.7 — the brand render scripts could not run (October 2026)
 
 Developer tooling only. Nothing here ships in the npm package — `brand/` is not in

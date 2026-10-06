@@ -126,12 +126,16 @@ test('unregistering also leaves an unparseable config alone', () => {
 });
 
 test('writing preserves the existing file mode', () => {
-  // A user config may carry permissions the user chose; an install should not
-  // widen them.
+  // A user config may carry permissions they chose; an install should not widen
+  // them. Asserted as "unchanged" rather than "equals 0600" on purpose: Windows
+  // has no POSIX permission bits, so chmod there is close to a no-op and
+  // node reports 0666 whatever you set. Comparing before against after tests the
+  // property we actually care about and is true on every platform.
   withFile(JSON.stringify(realisticConfig(), null, 2), (f) => {
     fs.chmodSync(f, 0o600);
+    const before = fs.statSync(f).mode & 0o777;
     registerInFile(f);
-    assert.equal(fs.statSync(f).mode & 0o777, 0o600);
+    assert.equal(fs.statSync(f).mode & 0o777, before);
   });
 });
 

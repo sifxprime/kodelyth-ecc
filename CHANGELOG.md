@@ -2,6 +2,74 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.24.9 — a malformed Claude config was silently replaced on install (October 2026)
+
+**Data-loss fix. Upgrade before running an install on a machine whose
+`~/.claude.json` may have been hand-edited.**
+
+MCP self-registration read the user's Claude config, merged ECC's server entry in,
+and wrote it back:
+
+```js
+const existing = readJson(file) || {};
+const next = { ...existing, mcpServers: servers };
+writeJson(file, next);
+```
+
+`readJson` returned `null` for **every** failure. So a config that merely failed to
+parse — one trailing comma from a hand-edit, a half-written file, a bad mount —
+was indistinguishable from a config that did not exist, and `|| {}` turned it into
+an empty object. The merge then wrote that back.
+
+Measured on a realistic config with two other MCP servers, a `projects` block with
+history, and user settings: **366 bytes in, 140 bytes out**. Every other MCP
+server, every project entry, the theme and `autoUpdates` — gone. No error, no
+warning, no backup.
+
+This runs automatically during install. So `npx kodelyth-ecc` on a machine whose
+`.claude.json` had any syntax error destroyed the user's Claude configuration.
+
+### What changed
+
+`readConfig` now returns one of three states instead of a nullable value:
+
+| state | meaning | action |
+|---|---|---|
+| `absent` | missing, empty, or whitespace-only | safe to treat as `{}` and create |
+| `present` | parsed to an object | merge normally |
+| `unreadable` | exists but will not parse, or is not an object | **refuse** |
+
+Refusing is the point: there is no safe way to merge into a file whose contents
+cannot be reconstructed. The file is left byte-identical and the error names it
+along with the parse failure. `unregisterInFile` applies the same rule on the way
+out — removing an entry from a file we cannot read means writing a file we cannot
+reconstruct.
+
+Writes now go through `safeFs.replaceFilePreservingMode`: atomic via
+temp-and-rename, so a crash or a full disk partway through cannot truncate the
+config — the same data loss by a different route — and the file keeps its existing
+permissions rather than having them widened.
+
+### Two mistakes caught while fixing it
+
+The first version of the fix called `replaceFileAtomic` without its `mode`
+argument, which threw on **every** path including valid configs. Testing the happy
+path, not just the bug, is what surfaced it; verifying only that the refusal
+worked would have shipped an installer that never registered anything.
+
+The mode-preservation test then asserted `mode === 0o600` and failed Windows CI
+with `438 !== 384`. Windows has no POSIX permission bits, so `chmod` there is close
+to a no-op and node reports `0666` regardless. The property worth testing was never
+the literal value but that the write does not *change* the mode, which is true on
+every platform.
+
+Eight tests, where this file previously had none: the three read states,
+preservation of unrelated config on a valid merge, byte-identical refusal across
+four kinds of malformed input, creation from absent and empty, idempotence,
+unregister's refusal, mode preservation, and no stray temp files.
+
+**690 tests across 44 files.**
+
 ## v2.24.8 — adversarial pass: swarm, dashboard, supply-chain (October 2026)
 
 Three defects found by attacking the remaining unprobed surfaces rather than

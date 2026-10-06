@@ -118,7 +118,7 @@ Most "AI agent kits" are folders of markdown files you have to remember the name
 | Quality hooks | ✓ 44 | Some | ✗ | ✗ |
 | IDE platforms | **11** (Claude Code, Windsurf, Cursor, Codex, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI) | 1-2 | 1 | Varies |
 | Telemetry | **None** | Varies | None | Varies |
-| Test coverage | ✓ 682 tests | ✗ | ✗ | ✗ |
+| Test coverage | ✓ 690 tests | ✗ | ✗ | ✗ |
 | Distributed via | `npx`, curl, clone | Manual | Manual | Manual |
 
 ---

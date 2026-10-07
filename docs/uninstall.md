@@ -14,7 +14,8 @@ keywords:
   - MCP removal
 og_title: "Uninstall Kodelyth ECC — Full Cleanup"
 og_description: "Interactive picker + CLI flags for total ECC removal. Dry-run friendly. Preserves user-authored files."
-og_image: /social/section-mcp.svg
+og_image: /docs/uninstall.svg
+hero_alt: "A complete removal: 777 shipped files, the RTK hook, codebase-mcp configs, ECC MCP entries and the memory directory, via menu or one command."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/uninstall/

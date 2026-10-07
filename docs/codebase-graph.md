@@ -15,7 +15,8 @@ keywords:
   - LSP semantic types
 og_title: "Codebase Graph — Kodelyth ECC"
 og_description: "158-language AST knowledge graph. 99% fewer tokens on structural queries. Auto-installed with ECC."
-og_image: /social/hype-mcp-server.svg
+og_image: /docs/codebase-graph.svg
+hero_alt: "An AST-parsed knowledge graph answering a structural query like who calls processPayment at 99% fewer tokens than reading files."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/codebase-graph/

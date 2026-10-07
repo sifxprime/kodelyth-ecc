@@ -11,7 +11,8 @@ keywords:
   - AI toolkit learning
 og_title: "Self-Evolving Memory — Compound Learning in Kodelyth ECC"
 og_description: "Turn repeated memory hits and routing misses into PR-ready skill upgrades and rule additions. Never auto-applies — produces drafts you review."
-og_image: /social/hype-compound-learning.svg
+og_image: /docs/evolve.svg
+hero_alt: "Repeated memory hits and routing misses becoming PR-ready skill upgrades and rule additions that you review — never auto-applied."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/evolve/

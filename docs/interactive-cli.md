@@ -14,7 +14,8 @@ keywords:
   - CLI TUI
 og_title: "Interactive CLI — Kodelyth ECC"
 og_description: "Arrow-key navigation, update check, IDE picker, background daemon, full uninstall — all in one menu."
-og_image: /social/x-card-hook.svg
+og_image: /docs/interactive-cli.svg
+hero_alt: "Typing kodelythecc alone opening an arrow-key menu: update check, dashboard, IDE installer, background daemon. Zero-dependency raw-mode terminal."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/interactive-cli/

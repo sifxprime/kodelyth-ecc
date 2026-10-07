@@ -14,7 +14,8 @@ keywords:
   - Claude Code MCP setup
 og_title: "Getting Started — Kodelyth ECC"
 og_description: "One-command install for 70 AI agents + token savings + codebase graph across 11 AI coding IDEs."
-og_image: /social/card-install.svg
+og_image: /docs/getting-started.svg
+hero_alt: "One install command wiring 70 agents, RTK savings, Terse mode and the codebase graph into Claude Code, Cursor, Windsurf, Codex and 11 platforms."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/getting-started/

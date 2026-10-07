@@ -11,7 +11,8 @@ keywords:
   - AI debugging
 og_title: "Session Replay — Deterministic AI Session Bundles (Kodelyth ECC)"
 og_description: "Export any Kodelyth ECC coordination session as a portable bundle. Deterministic replay with variations. Perfect for reproducing bugs and A/B testing agent workflows."
-og_image: /social/hype-parallel-agents.svg
+og_image: /docs/replay.svg
+hero_alt: "Exporting a live session to a portable bundle.json, then replaying it deterministically with variations to reproduce bugs or A/B test configs."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/replay/

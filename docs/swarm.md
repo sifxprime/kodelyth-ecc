@@ -11,7 +11,8 @@ keywords:
   - AI orchestrator
 og_title: "Swarm Orchestrator — Parallel AI Agents in Git Worktrees"
 og_description: "Run N specialist AI agents simultaneously in isolated git worktrees + tmux sessions. Auto-picks agents from task signals. Maximum parallelism for Kodelyth ECC."
-og_image: /social/hype-parallel-agents.svg
+og_image: /docs/swarm.svg
+hero_alt: "One task fanning out to N specialist agents, each in its own isolated git worktree and tmux session, running in parallel."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/swarm/

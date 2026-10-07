@@ -11,7 +11,8 @@ keywords:
   - sha256 verification
 og_title: "Supply Chain Verification — SBOM, Manifest, SLSA L3 Provenance"
 og_description: "CycloneDX 1.5 SBOM, sha256 content manifest, SLSA L3 provenance verification for Kodelyth ECC. Verify your installed toolkit hasn't been tampered with."
-og_image: /social/hype-devil-mode.svg
+og_image: /docs/supply-chain.svg
+hero_alt: "Three artifacts — a CycloneDX 1.5 SBOM, a sha256 content manifest, and SLSA L3 provenance — verifying the installed toolkit was not tampered with."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/supply-chain/

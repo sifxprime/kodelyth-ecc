@@ -11,7 +11,8 @@ keywords:
   - kodelythecc dashboard
 og_title: "Local Observability Dashboard — Kodelyth ECC"
 og_description: "Localhost-only observability dashboard for Kodelyth ECC — Memory (BM25), RTK savings, Terse mode, Codebase graph, Arena, Evolve, Catalog, Sessions. Zero telemetry, zero external deps."
-og_image: /social/section-dashboard.svg
+og_image: /docs/dashboard.svg
+hero_alt: "The localhost-only dashboard: eight tiles — Memory, RTK savings, Terse, Codebase graph, Arena, Evolve, Catalog, Sessions. Reads only local files."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/dashboard/

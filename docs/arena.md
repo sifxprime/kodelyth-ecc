@@ -11,7 +11,8 @@ keywords:
   - ECC arena
 og_title: "The Arena — GOD vs EVIL Adversarial Loop"
 og_description: "Two agent crews fight over your code until the attacker gives up. Scored findings, adversarial verification, hard budget stops, compound memory."
-og_image: /social/card-arena.svg
+og_image: /docs/arena.svg
+hero_alt: "Two agent crews in a loop: GOD builds and hardens, EVIL attacks and proves, verified findings return to GOD, repeating until the attacker gives up."
 canonical: /docs/arena/
 last_updated: 2026-08-21
 version: 2.10.0

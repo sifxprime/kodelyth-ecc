@@ -11,7 +11,8 @@ keywords:
   - AI tool integration
 og_title: "External MCP Servers — Register Stripe, GitHub, Postgres, Redis"
 og_description: "Register external MCP servers with Kodelyth ECC. Auto-detect tools + prompts + resources from Stripe, GitHub, Postgres, Redis, Slack, and any MCP-compatible service."
-og_image: /social/section-mcp.svg
+og_image: /docs/mcp-clients.svg
+hero_alt: "Registering external MCP servers — Stripe, GitHub, Postgres, Redis, Slack — with their tools, prompts and resources auto-detected and catalogued."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/mcp-clients/

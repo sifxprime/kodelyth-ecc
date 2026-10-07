@@ -26,13 +26,13 @@
               fill="none"/>
   </g>
 
-  <!-- v2.24.9 pill — below mark -->
+  <!-- v2.24.10 pill — below mark -->
   <rect x="60" y="432" width="84" height="24" rx="12"
         fill="none" stroke="#ffffff" stroke-width="1" opacity="0.20"/>
   <text x="102" y="449"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="12" font-weight="500" text-anchor="middle"
-        fill="#ffffff" opacity="0.35">v2.24.9</text>
+        fill="#ffffff" opacity="0.35">v2.24.10</text>
 
   <!-- Wordmark -->
   <text x="206" y="272"
@@ -70,7 +70,7 @@
   <text x="210" y="448"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="14" font-weight="500" letter-spacing="1"
-        fill="#f59e0b" opacity="0.65">kodelyth.com</text>
+        fill="#f59e0b" opacity="0.65">ecc.kodelyth.com</text>
 
   <!-- Vertical separator -->
   <line x1="494" y1="54" x2="494" y2="574"

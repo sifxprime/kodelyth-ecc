@@ -113,7 +113,7 @@
   <text x="330" y="738"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="18" font-weight="500" letter-spacing="1"
-        fill="#ffffff" opacity="0.38">kodelyth.com</text>
+        fill="#ffffff" opacity="0.38">ecc.kodelyth.com</text>
 
   <!-- Version pill -->
   <rect x="330" y="760" width="80" height="24" rx="12"
@@ -121,7 +121,7 @@
   <text x="370" y="777"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="12" font-weight="500" text-anchor="middle"
-        fill="#ffffff" opacity="0.30">v2.24.9</text>
+        fill="#ffffff" opacity="0.30">v2.24.10</text>
 
   <!-- Platform list -->
   <text x="330" y="860"

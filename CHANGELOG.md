@@ -2,6 +2,60 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.24.10 — the same config-destroying read, now on settings.json (October 2026)
+
+**Data-loss fix.** 2.24.9 fixed a nullable JSON read coalesced to `{}` in
+`register-self.js`, which destroyed `~/.claude.json`. Grepping the codebase for
+that pattern found it a second time, in `register-hooks.js`, on a file that
+matters more.
+
+```js
+const settings = readJsonOrNull(settingsPath) || {};
+// …
+const body = JSON.stringify({ ...settings, hooks: merged }, null, 2);
+```
+
+Same shape, same consequence: a `settings.json` that merely failed to parse was
+indistinguishable from one that did not exist, so the merge wrote it back
+carrying only the hooks block. Measured on a realistic file: **477 bytes in, 106
+bytes out** — losing `permissions.allow` and `.deny`, `env`, `model`,
+`statusLine`, and the user's *own* hook entries. Losing permissions silently
+re-prompts them for every tool; losing hooks silently stops their quality gates.
+
+Worth recording how it survived review: the **write** here was already hardened to
+preserve the file's mode, with a comment explaining that an installer has no
+business changing a user config's permissions. Someone thought carefully about the
+write and not at all about the read.
+
+### What changed
+
+`readSettings` now returns `absent` / `present` / `unreadable`, and an unreadable
+config returns status `unreadable-settings` with the parse reason, writing
+nothing. The existing `readJsonOrNull` is kept for ECC's own shipped `hooks.json`,
+where null on failure is correct — that is a file we ship, not one a user can
+hand-edit into a broken state.
+
+### A documented behaviour was deliberately reversed
+
+A test existed for this case: *"a corrupt settings.json does not lose the hooks"*,
+asserting status `ok` with ECC's three hook events written. The intent — don't
+lose ECC's hooks over a broken config — sounds right until it is priced. The only
+way to write into a file that will not parse is to discard everything else in it.
+
+ECC's hooks not installing is recoverable: fix the JSON, re-run. The user's
+permissions and env are not. The test is rewritten rather than deleted, asserting
+the opposite contract with the trade-off stated in the test body.
+
+**693 tests across 44 files.**
+
+### Also: brand art pointed at the wrong site
+
+Four ECC cards printed `kodelyth.com` — the parent company site — rather than
+`ecc.kodelyth.com`, where ECC actually lives. `og-image`, `github-social-preview`
+and `fb-post-launch` all advertise ECC, so anyone reading the card and typing the
+URL landed somewhere else. `section-author` keeps the parent domain, since that
+one is about the company rather than the product.
+
 ## v2.24.9 — a malformed Claude config was silently replaced on install (October 2026)
 
 **Data-loss fix. Upgrade before running an install on a machine whose

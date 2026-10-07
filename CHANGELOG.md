@@ -2,6 +2,28 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.24.11 — every docs page gets its own diagram (October 2026)
+
+Documentation and site only. No code change.
+
+The website renders a doc's `og_image` on the page now, not just in the social
+card, so the image a doc points at is something readers actually see above the
+content. Most docs pointed at shared generic cards — one card was doing duty for
+four unrelated pages — which is worse on-page than no image at all.
+
+Seventeen of the eighteen docs now carry a purpose-built 1200x630 diagram that
+teaches their own subject: the Arena's GOD-vs-EVIL loop, swarm's fan-out into
+isolated worktrees, the real RTK token ledger, the eight hook events sized by how
+many entries each carries, evolve's propose-then-you-review gate, the MCP tool
+surface, and so on. Each gains `hero_alt` describing the diagram's data, so it is
+legible to a screen reader and in the social card. The index hub keeps the main
+product card, which is the right image for a landing page.
+
+The diagrams live as static SVG in the website repo; this release carries the
+`og_image` / `hero_alt` frontmatter for the docs that ship from here.
+
+**693 tests across 44 files.**
+
 ## v2.24.10 — the same config-destroying read, now on settings.json (October 2026)
 
 **Data-loss fix.** 2.24.9 fixed a nullable JSON read coalesced to `{}` in

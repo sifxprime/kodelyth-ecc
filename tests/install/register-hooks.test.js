@@ -117,12 +117,29 @@ test('preserves unrelated settings keys', () => {
   fs.rmSync(root, { recursive: true, force: true });
 });
 
-test('a corrupt settings.json does not lose the hooks', () => {
+test('a corrupt settings.json is preserved rather than replaced', () => {
+  // This test previously asserted the opposite: status 'ok' and ECC's three hook
+  // events written. The intent was "don't lose ECC's hooks just because
+  // settings.json is corrupt", which sounds right until you price it.
+  //
+  // The only way to write hooks into a file that will not parse is to discard
+  // whatever else was in it. On a realistic settings.json that meant 477 bytes
+  // in, 106 bytes out — permissions.allow and .deny, env, model, statusLine and
+  // the user's own hook entries, all gone, silently, during an install.
+  //
+  // ECC's hooks not being installed is recoverable: fix the JSON, re-run. The
+  // user's permissions and env are not. So the contract is now the other way
+  // round — refuse, report why, and leave the file exactly as found.
   const root = makeTarget(SAMPLE);
-  fs.writeFileSync(path.join(root, 'settings.json'), '{ this is not json');
+  const settingsPath = path.join(root, 'settings.json');
+  fs.writeFileSync(settingsPath, '{ this is not json');
+  const before = fs.readFileSync(settingsPath, 'utf8');
+
   const r = registerHooks(root);
-  assert.strictEqual(r.status, 'ok');
-  assert.strictEqual(Object.keys(readSettings(root).hooks).length, 3);
+
+  assert.strictEqual(r.status, 'unreadable-settings');
+  assert.ok(r.reason, 'reports why it refused');
+  assert.strictEqual(fs.readFileSync(settingsPath, 'utf8'), before, 'file untouched');
   fs.rmSync(root, { recursive: true, force: true });
 });
 
@@ -203,4 +220,98 @@ test('every script a shipped hook points at exists in the repo', () => {
   }
 
   assert.deepStrictEqual(missing, [], `hooks reference scripts that are not in the repo:\n  ${missing.join('\n  ')}`);
+});
+
+// ── a settings.json that will not parse must never be overwritten ───────────
+// readJsonOrNull returned null for every failure and the caller wrote `|| {}`, so
+// a settings.json that merely failed to parse — one trailing comma from a
+// hand-edit — was indistinguishable from one that did not exist. The merge then
+// wrote it back carrying only the hooks block. Measured: 477 bytes in, 106 out,
+// losing permissions.allow and .deny, env, model, and the user's OWN hook entries.
+// Losing permissions silently re-prompts them for every tool; losing hooks
+// silently stops their gates.
+//
+// Same defect as the one fixed in scripts/mcp/register-self.js for ~/.claude.json.
+// The write here was already mode-preserving — the write was careful and the read
+// was not, which is how it survived review.
+
+function seedTarget(settingsContents) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kodelyth-rh-'));
+  fs.mkdirSync(path.join(root, 'hooks'), { recursive: true });
+  const hooksPath = path.join(root, 'hooks', 'hooks.json');
+  fs.writeFileSync(hooksPath, JSON.stringify({
+    hooks: { PreToolUse: [{ matcher: 'Edit', hooks: [{ type: 'command', command: 'ecc-hook' }] }] },
+  }));
+  const settingsPath = path.join(root, 'settings.json');
+  if (settingsContents !== null) fs.writeFileSync(settingsPath, settingsContents);
+  return { root, hooksPath, settingsPath };
+}
+
+/** A settings.json shaped like a real one, not just hooks. */
+function realSettings() {
+  return {
+    permissions: { allow: ['Bash(npm test)', 'Read(**)'], deny: ['Bash(rm -rf *)'] },
+    env: { MY_TOKEN: 'abc123' },
+    model: 'claude-opus-5',
+    statusLine: { type: 'command', command: 'my-status' },
+    hooks: { PreToolUse: [{ matcher: 'Write', hooks: [{ type: 'command', command: 'my-own-hook' }] }] },
+  };
+}
+
+test('merging into a valid settings.json preserves everything else', () => {
+  const { root, hooksPath, settingsPath } = seedTarget(JSON.stringify(realSettings(), null, 2));
+  try {
+    const r = registerHooks(root, hooksPath);
+    assert.strictEqual(r.status, 'ok');
+
+    const after = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+    assert.deepStrictEqual(after.permissions.allow, ['Bash(npm test)', 'Read(**)'], 'permissions kept');
+    assert.deepStrictEqual(after.permissions.deny, ['Bash(rm -rf *)'], 'deny list kept');
+    assert.strictEqual(after.env.MY_TOKEN, 'abc123', 'env kept');
+    assert.strictEqual(after.model, 'claude-opus-5', 'model kept');
+    assert.ok(after.statusLine, 'statusLine kept');
+
+    const hooksBlob = JSON.stringify(after.hooks);
+    assert.ok(hooksBlob.includes('my-own-hook'), "the user's own hook survived");
+    assert.ok(hooksBlob.includes('ecc-hook'), "ECC's hook was added");
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('an unparseable settings.json is refused, not replaced', () => {
+  const broken = [
+    JSON.stringify(realSettings(), null, 2).replace(/\}\s*$/, '},}'),  // trailing comma
+    JSON.stringify(realSettings(), null, 2).slice(0, 80),              // truncated write
+    '[1,2]',                                                            // not an object
+    'null',
+  ];
+
+  for (const contents of broken) {
+    const { root, hooksPath, settingsPath } = seedTarget(contents);
+    try {
+      const before = fs.readFileSync(settingsPath, 'utf8');
+      const r = registerHooks(root, hooksPath);
+
+      assert.strictEqual(r.status, 'unreadable-settings', `should refuse: ${contents.slice(0, 20)}…`);
+      assert.strictEqual(r.added, 0, 'nothing reported as added');
+      assert.strictEqual(fs.readFileSync(settingsPath, 'utf8'), before, 'file must be byte-identical');
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
+test('an absent or empty settings.json is created normally', () => {
+  for (const contents of [null, '', '   \n']) {
+    const { root, hooksPath, settingsPath } = seedTarget(contents);
+    try {
+      const r = registerHooks(root, hooksPath);
+      assert.strictEqual(r.status, 'ok');
+      const after = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+      assert.ok(JSON.stringify(after.hooks).includes('ecc-hook'));
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
 });

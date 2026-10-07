@@ -36,12 +36,50 @@ const path = require('path');
 const { mergeHookEntries } = require('../lib/install/apply.js');
 const { replaceFilePreservingMode } = require('../lib/safe-fs.js');
 
+// ECC's OWN shipped hooks.json. Null on failure is right here: it is a file we
+// ship, a caller cannot have hand-edited it into existence, and the
+// 'invalid-hooks-config' status below is the correct response to it being wrong.
+// The user's settings.json is a different matter — see readSettings.
 function readJsonOrNull(file) {
   try {
     const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
   } catch {
     return null;
+  }
+}
+
+// Reading settings.json has THREE outcomes, and collapsing them destroys data.
+//
+// This used to be readJsonOrNull() returning null for every failure, with the
+// caller writing `|| {}`. A settings.json that merely failed to parse — one
+// trailing comma from a hand-edit — was therefore indistinguishable from one that
+// did not exist, and the merge wrote it back carrying only the hooks block.
+// Measured on a realistic file: 477 bytes in, 106 bytes out, losing
+// permissions.allow and .deny, env, model, statusLine, and the user's OWN hook
+// entries. Losing permissions silently re-prompts them for every tool; losing
+// hooks silently stops their quality gates.
+//
+// This is the same defect fixed in scripts/mcp/register-self.js for ~/.claude.json.
+// Note the write below was already hardened to preserve file mode — the write was
+// careful and the read was not, which is how it survived review.
+function readSettings(file) {
+  let raw;
+  try {
+    raw = fs.readFileSync(file, 'utf8');
+  } catch (err) {
+    if (err.code === 'ENOENT') return { state: 'absent', data: {} };
+    return { state: 'unreadable', reason: err.message };
+  }
+  if (raw.trim() === '') return { state: 'absent', data: {} };
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return { state: 'unreadable', reason: 'top-level value is not an object' };
+    }
+    return { state: 'present', data: parsed };
+  } catch (err) {
+    return { state: 'unreadable', reason: err.message };
   }
 }
 
@@ -67,7 +105,21 @@ function registerHooks(targetRoot, hooksJsonPath) {
   }
 
   const settingsPath = path.join(targetRoot, 'settings.json');
-  const settings = readJsonOrNull(settingsPath) || {};
+  const read = readSettings(settingsPath);
+  if (read.state === 'unreadable') {
+    // Refuse rather than merge. There is no safe way to write a file whose current
+    // contents cannot be reconstructed, and "best effort" here means discarding
+    // whatever did not parse.
+    return {
+      status: 'unreadable-settings',
+      reason: read.reason,
+      events: 0,
+      added: 0,
+      total: 0,
+      settingsPath,
+    };
+  }
+  const settings = read.data;
   const existing = settings.hooks && typeof settings.hooks === 'object' && !Array.isArray(settings.hooks)
     ? settings.hooks
     : {};

@@ -15,7 +15,8 @@ keywords:
   - AI toolkit token savings
 og_title: "RTK Input Token Savings — Kodelyth ECC"
 og_description: "Auto-install and wire RTK across every AI IDE. 60-90% input token reduction on shell commands. Live ledger in the dashboard."
-og_image: /social/hype-stats-hero.svg
+og_image: /docs/rtk.svg
+hero_alt: "A real ledger of 1,285 commands: 7,964,612 raw input tokens filtered to 2,858,501, saving 5,107,394 — a 64.1% average reduction."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/rtk/

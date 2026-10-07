@@ -14,7 +14,8 @@ keywords:
   - multi-agent AI
 og_title: "Intent Routing v2 — Kodelyth ECC"
 og_description: "8-dimension routing model — confidence tiers, session state, compound intent, terse mode, evolve integration."
-og_image: /social/hype-parallel-agents.svg
+og_image: /docs/intent-routing.svg
+hero_alt: "A plain-language sentence routed through ten priority tiers to one of 70 specialist agents, with the choice announced rather than made silently."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/intent-routing/

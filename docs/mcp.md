@@ -12,7 +12,8 @@ keywords:
   - AI universal adapter
 og_title: "MCP Server — Universal Adapter for AI Agents (Kodelyth ECC)"
 og_description: "ECC MCP server exposes 70 agents, 196 skills, 103 commands, 14 rules, BM25 memory to any MCP-compatible client — Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK."
-og_image: /social/hype-mcp-server.svg
+og_image: /docs/mcp.svg
+hero_alt: "The ECC MCP server exposing 16 tools over stdio JSON-RPC to any MCP client, covering 70 agents, 196 skills, 103 commands and 15 rules."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/mcp/

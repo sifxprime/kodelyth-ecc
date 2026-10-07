@@ -14,7 +14,8 @@ keywords:
   - short AI responses
 og_title: "Terse Mode — Output Token Savings (Kodelyth ECC)"
 og_description: "4-level dial that shrinks AI output by 40-70%, preserves code byte-exact. Skill + slash commands ship in every ECC install."
-og_image: /social/hype-compound-learning.svg
+og_image: /docs/terse-mode.svg
+hero_alt: "The same reply before and after compression: filler and restatement removed, every technical detail kept and code preserved byte-exact."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/terse-mode/

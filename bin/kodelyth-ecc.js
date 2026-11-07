@@ -1883,7 +1883,24 @@ function runPostInstall(status, args) {
         const marker = r.action === 'added' ? '✓ added' : r.action === 'updated' ? '✓ updated' : r.action === 'unchanged' ? '· unchanged' : `· ${r.action}`;
         process.stdout.write(`  ${marker}: ${r.file}\n`);
       }
-      process.stdout.write(`  · Restart Claude Code / Claude Desktop to pick up the server\n`);
+
+      // Also wire ECC's MCP server into the specific non-Claude IDE this install
+      // targeted, when that IDE uses a JSON MCP config we can safely merge
+      // (Cursor, Windsurf, Gemini CLI). This is what extends memory and the whole
+      // MCP tool surface beyond Claude Code — previously they were Claude-only.
+      const mcpTargetIdx = args.indexOf('--target');
+      const mcpRawTarget = mcpTargetIdx >= 0 && args[mcpTargetIdx + 1] ? args[mcpTargetIdx + 1] : 'claude-code';
+      if (!/^claude/.test(mcpRawTarget)) {
+        for (const r of reg.registerForTarget(mcpRawTarget, { cwd: process.cwd(), log: () => {} })) {
+          if (r.action === 'added' || r.action === 'updated') {
+            process.stdout.write(`  ✓ ${r.action}: ${r.file}\n`);
+          } else if (r.action === 'error') {
+            process.stdout.write(`  · skipped ${r.file}: ${r.error}\n`);
+          }
+          // 'unsupported' / 'unchanged' stay quiet — not every target has a JSON MCP config
+        }
+      }
+      process.stdout.write(`  · Restart your AI tool to pick up the server\n`);
     } catch (e) {
       process.stderr.write(`[mcp] self-register skipped: ${e.message}\n`);
     }

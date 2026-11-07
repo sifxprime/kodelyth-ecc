@@ -1,9 +1,16 @@
 // scripts/terse/ledger.js
-// Output-token savings ledger. Stores one JSONL row per terse-active turn.
-// Zero deps. Reads only. Writes append-only.
+// Output-token savings ledger. Stores one JSONL row per recorded terse turn.
+// Zero deps. Writes append-only.
+//
+// IMPORTANT — these rows are ESTIMATES, not measured savings. There is no
+// non-terse copy of the same reply to diff against, so `saved` is modeled:
+// actual output tokens times a per-level baseline multiplier (RAW_MULT below).
+// Every figure here is an estimate and each row is flagged `estimated: true`.
+// (The Terse *file* compressor in compress.js, by contrast, reports real,
+// measured before/after bytes.)
 //
 // Row shape:
-//   { ts, level, rawEstimate, actual, saved, projectHash?, source }
+//   { ts, level, rawEstimate, actual, saved, estimated, baseline, projectHash?, source }
 //
 // Path: ~/.kodelythecc/terse/ledger.jsonl (overridable via KODELYTH_TERSE_DIR)
 
@@ -31,8 +38,10 @@ function estimateTokens(text) {
   return Math.round(Buffer.byteLength(text, 'utf8') / 4);
 }
 
-// Baseline output multiplier per level.
-// Empirically: full ≈ 0.5x normal, ultra ≈ 0.35x, lite ≈ 0.75x.
+// Per-level baseline multiplier used to MODEL what the same reply would have
+// cost without terse (full ≈ 2x the terse size, ultra ≈ 2.85x, lite ≈ 1.33x).
+// These are assumptions, not measurements — every `saved` figure derived from
+// them is an estimate, which is why each row is flagged `estimated: true`.
 const RAW_MULT = { lite: 1.33, full: 2.0, ultra: 2.85, off: 1.0 };
 
 function appendTurn({ actualText, level = 'full', source = 'unknown', projectHash = null }) {
@@ -46,6 +55,8 @@ function appendTurn({ actualText, level = 'full', source = 'unknown', projectHas
     rawEstimate,
     actual,
     saved,
+    estimated: true,                 // modeled from RAW_MULT, not a measured A/B
+    baseline: RAW_MULT[level] || 1,
     source,
     ...(projectHash ? { projectHash } : {}),
   };

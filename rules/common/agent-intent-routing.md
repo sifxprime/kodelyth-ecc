@@ -60,6 +60,10 @@ Beyond the 10 priority tiers below, watch for these newer signals — they map t
 | "talk shorter" / "be brief" / "less verbose" / "caveman mode" | `/terse` (skill activation) |
 | "who calls X" / "where is X used" / "trace the call chain" / "impact analysis" | `codebase-memory-mcp` via `search_graph` / `trace_path` |
 | "index this project" / "build the graph" / "scan the codebase" | `codebase-memory-mcp` via `index_repository` |
+| "which tests does this change affect" / "what tests should I run" / "smart test selection" | `codebase-memory-mcp` via `detect_changes` with `scope: "tests"` (Smart CI) |
+| "find the bottleneck" / "hottest paths" / "most complex functions" / "refactor candidates" | `codebase-memory-mcp` via `query_graph` (complexity / hot-path metrics) |
+| "what docs explain X" / "where is X documented" / "link code to docs" | `codebase-memory-mcp` via `trace_path` (inbound `MENTIONS` edges) |
+| "record this decision" / "write an ADR" / "architecture decision record" | `codebase-memory-mcp` via `manage_adr` |
 | "remove ECC" / "uninstall kodelythecc" / "clean this up" | Suggest `kodelythecc uninstall --dry-run` |
 | "how much did I save" / "show my token savings" / "RTK stats" | `kodelythecc dashboard` OR `kodelythecc rtk gain` |
 | "install for another IDE" / "add to Cursor / Windsurf / Antigravity" | `kodelythecc --target <ide>` |

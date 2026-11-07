@@ -524,13 +524,16 @@ kodelythecc rtk gain --all             # raw rtk savings output
 kodelythecc rtk --help                 # focused help
 ```
 
-### Live proof (from this repo maintainer's Mac)
+### Example snapshot (one maintainer's Mac, one point in time)
+
+Not a guaranteed figure — RTK measures savings per command, and yours depend on
+which commands you run. Run `rtk gain` to see your own live numbers.
 
 ```
 total_commands:    1,285
 total_input:       7,964,612    (raw)
 total_output:      2,858,501    (after RTK filter)
-total_saved:       5,107,394    ← 64.1% average reduction
+total_saved:       5,107,394    ← 64.1% on this sample
 ```
 
 ---

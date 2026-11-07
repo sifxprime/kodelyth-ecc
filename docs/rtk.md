@@ -16,7 +16,7 @@ keywords:
 og_title: "RTK Input Token Savings — Kodelyth ECC"
 og_description: "Auto-install and wire RTK across every AI IDE. 60-90% input token reduction on shell commands. Live ledger in the dashboard."
 og_image: /docs/rtk.svg
-hero_alt: "A real ledger of 1,285 commands: 7,964,612 raw input tokens filtered to 2,858,501, saving 5,107,394 — a 64.1% average reduction."
+hero_alt: "An example ledger of 1,285 commands: 7,964,612 raw input tokens filtered to 2,858,501, saving 5,107,394 — 64.1% on this sample. Your own numbers come from rtk gain."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/rtk/
@@ -35,14 +35,19 @@ Written by the RTK team (Apache-2.0). ECC installs, configures, tracks, and repo
 
 Every time your AI tool runs `git status`, `ls`, `cargo test`, `docker ps`, `kubectl logs`, or any of 100+ common dev commands, it burns thousands of tokens on formatting noise, timestamps, ANSI codes, and duplicated lines. RTK strips that. What reaches the LLM is the meaningful signal — and only the meaningful signal.
 
-Live ledger from this project maintainer's Mac:
+Example snapshot — one maintainer's machine at one point in time, not a
+guaranteed figure. RTK measures this per command (raw bytes vs filtered bytes);
+your own live numbers come from `rtk gain`, which is what the dashboard reads.
 
 ```
 total_commands:    1,285
 total_input:       7,964,612    ← raw
 total_output:      2,858,501    ← after RTK filter
-total_saved:       5,107,394    ← 64.1% reduction, all real
+total_saved:       5,107,394    ← 64.1% on this sample
 ```
+
+> Run `rtk gain` to see *your* numbers. The figure above is an example, not a
+> promise — savings depend entirely on which commands you run.
 
 ## How it works
 

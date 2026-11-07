@@ -83,7 +83,7 @@ Example — ~70% shorter:
 
 - Slash command: `/terse [lite|full|ultra|off]` — sticks for the session
 - CLI: `kodelyth-ecc terse enable [--target claude-code|--all]` — installs the skill + command into your AI tool
-- Statusline (Claude Code): shows `[TERSE ⚡ 12.4k]` — lifetime output tokens saved
+- Dashboard (Claude Code): the **Token Savings** tab shows lifetime *estimated* output savings from the terse ledger — modeled, not measured (see the ledger note in `docs/terse-mode.md`)
 
 ## Honest numbers
 

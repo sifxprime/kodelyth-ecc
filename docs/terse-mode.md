@@ -158,9 +158,19 @@ const result = compressFile('/path/to/CLAUDE.md', {
 });
 ```
 
-## Runtime savings ledger
+## Runtime savings ledger (estimated)
 
-Every terse-active turn is recorded in `~/.kodelythecc/terse/ledger.jsonl`:
+The terse runtime ledger at `~/.kodelythecc/terse/ledger.jsonl` stores one row
+per recorded turn. These rows are **estimates, not measurements**: there is no
+non-terse copy of the same reply to diff against, so `saved` is modeled from the
+actual output tokens times a per-level baseline multiplier. Every row is flagged
+`"estimated": true` for that reason.
+
+> Automatic per-turn recording is not wired on the main path yet — it lands with
+> the measurement work in a later release, and until then this ledger is
+> populated only when a turn is explicitly recorded. For **measured** (not
+> estimated) savings today, use the Terse file compressor (`compressFile`),
+> which reports real before/after bytes.
 
 ```json
 {
@@ -169,6 +179,8 @@ Every terse-active turn is recorded in `~/.kodelythecc/terse/ledger.jsonl`:
   "rawEstimate": 250,
   "actual": 125,
   "saved": 125,
+  "estimated": true,
+  "baseline": 2.0,
   "source": "claude-code"
 }
 ```

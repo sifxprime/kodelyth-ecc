@@ -25,6 +25,67 @@ function claudeDesktopConfigPath() {
   return path.join(home, '.config', 'Claude', 'claude_desktop_config.json');
 }
 
+// MCP config paths for the non-Claude IDEs ECC can auto-wire. Every target below
+// uses the SAME `{ mcpServers: { <name>: { command, args, env } } }` shape as
+// Claude Code, so the hardened readConfig + registerInFile merge works for all of
+// them unchanged — only the file location differs. That is why memory and the
+// whole MCP tool surface, previously Claude-only, reach these IDEs out of the
+// box once this runs.
+//
+// Deliberately excluded (different format or fragile location — handled manually
+// for now, tracked as a follow-up):
+//   - Codex CLI      → ~/.codex/config.toml  (TOML, not JSON)
+//   - Cline / Roo    → VS Code globalStorage (editor-version-specific path)
+function mcpPathsForTarget(target, cwd = process.cwd()) {
+  const home = os.homedir();
+  switch (target) {
+    case 'claude-code':
+    case 'claude-home':
+      return [claudeCodeConfigPath()];
+    case 'cursor':
+    case 'cursor-project':
+      return [path.join(cwd, '.cursor', 'mcp.json')];
+    case 'windsurf':
+    case 'windsurf-home':
+    case 'windsurf-project':
+      return [path.join(home, '.codeium', 'windsurf', 'mcp_config.json')];
+    case 'gemini-cli':
+    case 'gemini-home':
+    case 'gemini-project':
+      return [path.join(home, '.gemini', 'settings.json')];
+    default:
+      return [];
+  }
+}
+
+// Returns the list of targets this module can auto-wire (for help text / docs).
+function supportedMcpTargets() {
+  return ['claude-code', 'cursor', 'windsurf', 'gemini-cli'];
+}
+
+// Register ECC's MCP server for one install target. Reuses the same merge that
+// protects ~/.claude.json: absent files are created, present files are merged
+// without clobbering other servers, and an unparseable file is refused, never
+// overwritten. Never throws — a bad config for one IDE must not fail an install.
+function registerForTarget(target, { cwd = process.cwd(), log = () => {}, dryRun = false } = {}) {
+  const paths = mcpPathsForTarget(target, cwd);
+  if (paths.length === 0) {
+    return [{ target, action: 'unsupported', reason: `no known JSON MCP config path for "${target}"` }];
+  }
+  const results = [];
+  for (const p of paths) {
+    try {
+      const r = registerInFile(p, { dryRun });
+      log(`  ${r.action}: ${r.file}`);
+      results.push({ target, ...r });
+    } catch (e) {
+      log(`  skipped ${p}: ${e.message}`);
+      results.push({ target, file: p, action: 'error', error: e.message });
+    }
+  }
+  return results;
+}
+
 // Reading this file has THREE outcomes, and collapsing them is destructive.
 //
 // readJson used to return null for every failure, and the caller did
@@ -145,9 +206,19 @@ function unregisterAll({ log = () => {} } = {}) {
 function statusAll() {
   const rows = [];
   for (const p of [claudeCodeConfigPath(), claudeDesktopConfigPath()]) {
-    const cfg = readJson(p);
-    const present = !!(cfg && cfg.mcpServers && cfg.mcpServers[SERVER_NAME]);
-    rows.push({ file: p, present, exists: !!cfg });
+    // Was `readJson(p)` — a function that no longer exists after the
+    // absent/present/unreadable refactor, so statusAll() threw
+    // "readJson is not defined" and took `kodelythecc doctor` and the `mcp`
+    // status command down with it. Use the real reader and its tri-state result.
+    const cfg = readConfig(p);
+    const data = (cfg && cfg.data) || {};
+    const present = !!(data.mcpServers && data.mcpServers[SERVER_NAME]);
+    rows.push({
+      file: p,
+      present,
+      exists: cfg.state !== 'absent',
+      readable: cfg.state !== 'unreadable',
+    });
   }
   return rows;
 }
@@ -157,6 +228,9 @@ module.exports = {
   serverEntry,
   claudeCodeConfigPath,
   claudeDesktopConfigPath,
+  mcpPathsForTarget,
+  supportedMcpTargets,
+  registerForTarget,
   registerAll,
   unregisterAll,
   statusAll,

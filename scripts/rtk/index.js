@@ -64,11 +64,51 @@ function detectInstalledTargets() {
   return targets;
 }
 
+// Guard against the `rtk` name collision. reachingforthejack/rtk (Rust Type Kit)
+// also ships a binary called `rtk`; wiring or measuring it as if it were Rust
+// Token Killer would be wrong and silent — ECC would patch hooks and read a
+// `gain` ledger that does not exist. Rust Token Killer is the only `rtk` with a
+// `gain` subcommand (the token-savings ledger ECC reads), so probing it
+// distinguishes the two with no side effects and without depending on exact
+// `--version` text. `rtk gain` is the documented signature command in RTK.md.
+//
+// The decision is a pure function of two probe results so it can be unit-tested
+// without spawning a binary:
+//   gainHelpOk — did `rtk gain --help` exit 0?
+//   helpText   — stdout of `rtk --help` (or '' if it failed)
+function looksLikeRealRtk({ gainHelpOk, helpText } = {}) {
+  if (gainHelpOk) return true;
+  const h = String(helpText || '');
+  // The token killer's help lists the `gain` command and calls itself an
+  // LLM-output proxy; Rust Type Kit's help does neither.
+  return /\bgain\b/.test(h) && /(LLM|token|proxy)/i.test(h);
+}
+
+function isRealRtk() {
+  let gainHelpOk = false;
+  try {
+    execFileSync('rtk', ['gain', '--help'], { stdio: 'ignore' });
+    gainHelpOk = true;
+  } catch { /* `gain` subcommand absent, or `rtk` not runnable */ }
+
+  let helpText = '';
+  if (!gainHelpOk) {
+    try {
+      helpText = execFileSync('rtk', ['--help'], {
+        encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'],
+      });
+    } catch { /* no help available */ }
+  }
+  return looksLikeRealRtk({ gainHelpOk, helpText });
+}
+
 function isInstalled() {
   try {
     execFileSync('rtk', ['--version'], { stdio: 'ignore' });
-    return true;
   } catch { return false; }
+  // A binary named `rtk` exists — confirm it is Rust Token Killer, not the Rust
+  // Type Kit collision, before any caller wires or measures it.
+  return isRealRtk();
 }
 
 function getVersion() {
@@ -214,6 +254,8 @@ module.exports = {
   normalizeTarget,
   detectInstalledTargets,
   isInstalled,
+  isRealRtk,
+  looksLikeRealRtk,
   getVersion,
   install,
   enableFor,

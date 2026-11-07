@@ -22,6 +22,7 @@ const {
   log
 } = require('../lib/utils');
 const { resolveProjectContext, writeSessionLease, resolveSessionId } = require('../lib/observer-sessions');
+const { summarizeStructuredInstincts } = require('../memory/instinct-inject');
 const { getPackageManager, getSelectionPrompt } = require('../lib/package-manager');
 const { listAliases } = require('../lib/session-aliases');
 const { detectProjectType } = require('../lib/project-detect');
@@ -378,6 +379,17 @@ async function main() {
   const instinctSummary = summarizeActiveInstincts(observerContext);
   if (instinctSummary) {
     additionalContextParts.push(instinctSummary);
+  }
+
+  // Also inject from the structured instinct store (scripts/memory/instincts.js).
+  // It was written on every correction but never read — this activates the
+  // dormant self-learning loop. Fully fail-safe: never breaks session start.
+  const structuredInstinctSummary = summarizeStructuredInstincts(
+    (observerContext && observerContext.projectRoot) || process.cwd(),
+    { log }
+  );
+  if (structuredInstinctSummary) {
+    additionalContextParts.push(structuredInstinctSummary);
   }
 
   // Check for recent session files (last 7 days)

@@ -22,6 +22,52 @@ function getVersion() {
   catch { return null; }
 }
 
+// The binary's `--version` string has proven unreliable: builds have reported an
+// old number (e.g. 0.8.1) while exposing much newer tools and the `--ui` (CBM
+// Lens) flag. So detect what the binary can actually DO from its own help text
+// rather than trusting the version. Pure parser (unit-tested) + a thin probe.
+const KNOWN_CAPABILITIES = {
+  lens:       /--ui\b/,                  // CBM Lens UI (v0.12+)
+  traces:     /\bingest_traces\b/,       // runtime-trace ingestion
+  cypher:     /\bquery_graph\b/,         // Cypher + complexity/hot-path metrics
+  smart_ci:   /\bdetect_changes\b/,      // Smart CI test selection
+  adr:        /\bmanage_adr\b/,          // ADR nodes
+  cross_repo: /cross[-_]repo/,           // cross-repo intelligence
+};
+
+function parseCapabilities(helpText) {
+  const h = String(helpText || '');
+  const caps = {};
+  for (const [name, re] of Object.entries(KNOWN_CAPABILITIES)) caps[name] = re.test(h);
+  return caps;
+}
+
+// When the binary exposes clearly-newer capabilities but reports an old version,
+// the version string is not trustworthy — say so rather than displaying a number
+// ECC would otherwise treat as fact. Returns a note string, or null.
+function versionNote(reportedVersion, caps) {
+  const hasNew   = !!(caps && (caps.lens || caps.traces || caps.cross_repo));
+  const looksOld = !!(reportedVersion && /\b0\.[0-8]\./.test(reportedVersion));
+  if (hasNew && looksOld) {
+    return `binary reports "${reportedVersion}" but exposes newer capabilities — the version string is unreliable; capability detection is authoritative. Run \`kodelythecc codebase install\` to refresh.`;
+  }
+  return null;
+}
+
+// Probe the binary's help (different builds print tools under `--help` or
+// `cli --help`) and parse once. Returns the detected capability map, or all-false
+// if the binary is absent.
+function capabilities() {
+  if (!isInstalled()) return parseCapabilities('');
+  let help = '';
+  for (const argv of [['--help'], ['cli', '--help']]) {
+    try {
+      help += '\n' + execFileSync(BIN, argv, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    } catch { /* try the next help surface */ }
+  }
+  return parseCapabilities(help);
+}
+
 function install({ log = () => {} } = {}) {
   if (isInstalled()) return { installed: false, skipped: true, reason: 'already installed', version: getVersion() };
   if (os.platform() === 'win32') {
@@ -95,7 +141,15 @@ function status() {
   const home = os.homedir();
   const c = path.join(home, '.cache', 'codebase-memory-mcp');
   if (fs.existsSync(c)) cacheDir = c;
-  return { installed: true, version, indexed_projects, cache_dir: cacheDir };
+  const caps = capabilities();
+  return {
+    installed: true,
+    version,
+    version_note: versionNote(version, caps),
+    capabilities: caps,
+    indexed_projects,
+    cache_dir: cacheDir,
+  };
 }
 
 // ── Structural query proxy (thin wrapper over `codebase-memory-mcp cli`) ────
@@ -140,4 +194,7 @@ function dashboardSnapshot() {
   return out;
 }
 
-module.exports = { isInstalled, getVersion, install, autoConfigureAgents, status, query, dashboardSnapshot };
+module.exports = {
+  isInstalled, getVersion, install, autoConfigureAgents, status, query, dashboardSnapshot,
+  capabilities, parseCapabilities, versionNote,
+};

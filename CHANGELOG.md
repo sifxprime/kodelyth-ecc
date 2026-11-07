@@ -2,6 +2,56 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.25.0 — Foundations: honest numbers, a memory that learns, MCP beyond Claude (November 2026)
+
+The first cut of the v3.0 "Foundations" track. Almost no new surface area — this
+release makes existing systems tell the truth and wires up machinery that was
+built but never connected. Every change ships with tests (48 test files, all
+passing).
+
+**Truth-in-measurement.** Three claims did not match the code, and an enterprise
+audit would catch all three:
+
+- The Terse runtime ledger claimed "every terse-active turn is recorded" — but
+  nothing wrote it, and its per-turn savings were modeled from a fixed multiplier,
+  not measured. Rows are now flagged `estimated: true`, the docs say plainly the
+  figure is an estimate (the Terse *file* compressor stays a real measurement),
+  and the unshipped statusline badge claim is gone.
+- The RTK "5,107,394 tokens / 64.1% — all real" headline was hand-authored copy,
+  not a computed number. It is now labelled an example snapshot that points at
+  `rtk gain` for your own live figures. RTK's `gain` measurement was, and stays,
+  real.
+- The codebase-graph binary's `--version` is unreliable — builds report an old
+  number while exposing much newer tools. ECC no longer trusts it: it detects
+  what the binary can actually do and flags the inconsistency instead of showing
+  a number as fact.
+
+**The memory that learns, now actually learns.** The structured instinct engine
+recorded every correction with confidence, decay, and outcome scoring — and
+nothing ever read it, so none of it influenced a session. Session start now
+injects the high-confidence, non-stale instincts for the current project. The
+dormant loop is closed.
+
+**RTK won't wire the wrong binary.** `reachingforthejack/rtk` (Rust Type Kit)
+ships a binary also called `rtk`; ECC used to treat any `rtk` on PATH as Rust
+Token Killer and would patch hooks into the wrong tool. It now verifies the
+signature (`rtk gain`) before wiring or measuring anything.
+
+**MCP — and therefore memory — reaches beyond Claude Code.** ECC auto-registered
+its MCP server for Claude only, so the whole tool surface, memory included, was
+effectively Claude-exclusive. It now also writes the MCP config for Cursor,
+Windsurf, and Gemini CLI (the IDEs that use the same JSON config shape), reusing
+the hardened merge that never clobbers your other servers. Codex (TOML) and
+Cline/Roo (editor storage) are the next step.
+
+**Fixes found along the way.** `statusAll()` in the MCP registrar called a
+function that no longer existed (`readJson`), so `kodelythecc doctor` and the
+`mcp` status command both threw "readJson is not defined". Fixed.
+
+**Routing.** The intent router learned the newer codebase-graph capabilities:
+smart test selection (`detect_changes scope:tests`), hot-path/complexity queries,
+code-to-docs links, and ADRs.
+
 ## v2.24.11 — every docs page gets its own diagram (October 2026)
 
 Documentation and site only. No code change.

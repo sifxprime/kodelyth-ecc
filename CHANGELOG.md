@@ -2,6 +2,37 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.30.0 — Terse reaches Roo Code, Aider, Kimi; the CLI stops lying about its version (November 2026)
+
+**Terse was silently skipped on three IDEs.** The helpers that tell the terse
+installer where each IDE keeps its skills and commands (`getTargetSkillsDir` /
+`getTargetCommandsDir`) returned `null` for `roocode`, `aider`, and `kimi`. The
+caller guards on null, so there was no crash — `/terse` and `/terse-compress`
+just never installed on those three, quietly. They now resolve to the same
+`.roo/`, `.aider-ecc/`, and `.kimi/` directories the main installer writes to.
+`cline` (rules-only, no command system) and `kiro` (whose whole catalog is served
+over the MCP server, not copied as files) still return null — on purpose, and now
+with a comment saying why. The mapping moved out of `bin/` into a shared,
+unit-tested `scripts/lib/target-paths.js`, so a future target can't be added to
+the installer and forgotten here without a test going red.
+
+**`kodelythecc --version` reported 2.24.1 on a 2.29.0 install.** The CLI read a
+`VERSION` file and preferred it over `package.json`; releases v2.25 through v2.29
+bumped `package.json` but never the `VERSION` file, so the two drifted and the
+file won. Both version readers (the `--version` flag and the `doctor` update
+check) now prefer `package.json` — which is canonical for an npm package and can
+never be stale on a published tarball — and fall back to `VERSION` only if that
+read fails. `VERSION` is synced to the real version here, and the release process
+keeps both in step.
+
+**Brand and catalog counts swept current.** The social and poster SVGs, the wiki,
+`AGENTS.md`, the bundles, the install banners, and the npm description still read
+70 agents / 103 commands / 11 platforms. Everything that renders a count now says
+**71 agents · 196 skills · 104 commands · 12 platforms · 14 install targets · 389
+MCP resources**, with Kiro in the platform list. The ecc.kodelyth.com docs, home,
+install, and getting-started pages were refreshed to match, and a new
+`/docs/super-agent` page documents the orchestrator shipped in v2.28.
+
 ## v2.29.0 — Publish fix: ajv was an undeclared dependency (November 2026)
 
 **What happened:** v2.26.0, v2.27.0, and v2.28.0 were tagged and released on GitHub,

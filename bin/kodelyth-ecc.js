@@ -21,6 +21,9 @@ const os            = require('os');
 
 const ROOT    = path.join(__dirname, '..');
 
+// Where each IDE target reads skills/commands from (used by `terse` install).
+const { getTargetSkillsDir, getTargetCommandsDir } = require(path.join(ROOT, 'scripts', 'lib', 'target-paths.js'));
+
 // Auto-migrate legacy ~/.kodelyth/ → ~/.kodelythecc/ on first run for existing users.
 // Idempotent; instant no-op if legacy dir is absent or migration marker exists.
 try { require(path.join(ROOT, 'scripts', 'migrate-legacy.js')).main(); } catch { /* best-effort */ }
@@ -754,10 +757,11 @@ if (args[0] === 'doctor') {
   let update;
   try {
     const { cachedCheck } = require(path.join(ROOT, 'scripts', 'cli', 'update-check.js'));
-    const vf = path.join(ROOT, 'VERSION');
-    const current = fs.existsSync(vf)
-      ? fs.readFileSync(vf, 'utf8').trim()
-      : require(path.join(ROOT, 'package.json')).version;
+    // package.json is the source of truth for an npm package; VERSION is only a
+    // fallback. (They drifted once and the CLI reported a stale version.)
+    let current;
+    try { current = require(path.join(ROOT, 'package.json')).version; }
+    catch { try { current = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf8').trim(); } catch { /* leave undefined */ } }
     update = cachedCheck(current) || undefined;
   } catch { /* never let a version hint break the health check */ }
 
@@ -967,43 +971,8 @@ if (args[0] === 'terse') {
   }
 }
 
-// Normalise alias → canonical target (matches scripts/rtk/index.js).
-function _canon(target) {
-  if (target === 'claude-code') return 'claude-home';
-  if (target === 'gemini-cli')  return 'gemini-home';
-  if (target === 'cursor')      return 'cursor-project';
-  return target;
-}
-function getTargetSkillsDir(target) {
-  const home = os.homedir();
-  switch (_canon(target)) {
-    case 'claude-home':      return path.join(home, '.claude', 'skills');
-    case 'cursor-project':   return path.join(home, '.cursor', 'skills');
-    case 'windsurf-home':
-    case 'windsurf-project': return path.join(home, '.codeium', 'windsurf', 'skills');
-    case 'antigravity':      return path.join(home, '.antigravity', 'skills');
-    case 'codex-home':       return path.join(home, '.codex', 'skills');
-    case 'gemini-home':      return path.join(home, '.gemini', 'skills');
-    case 'gemini-project':   return path.join(process.cwd(), '.gemini', 'skills');
-    case 'opencode':         return path.join(home, '.config', 'opencode', 'skills');
-    default: return null;
-  }
-}
-function getTargetCommandsDir(target) {
-  const home = os.homedir();
-  switch (_canon(target)) {
-    case 'claude-home':      return path.join(home, '.claude', 'commands');
-    case 'cursor-project':   return path.join(home, '.cursor', 'commands');
-    case 'windsurf-home':
-    case 'windsurf-project': return path.join(home, '.codeium', 'windsurf', 'commands');
-    case 'antigravity':      return path.join(home, '.antigravity', 'commands');
-    case 'codex-home':       return path.join(home, '.codex', 'commands');
-    case 'gemini-home':      return path.join(home, '.gemini', 'commands');
-    case 'gemini-project':   return path.join(process.cwd(), '.gemini', 'commands');
-    case 'opencode':         return path.join(home, '.config', 'opencode', 'commands');
-    default: return null;
-  }
-}
+// getTargetSkillsDir / getTargetCommandsDir are imported at the top of this file
+// from scripts/lib/target-paths.js (shared, unit-tested, mirrors install.sh).
 
 // ── Subcommand: route (cost-aware model tier recommendation) ──────────────────
 // Usage: npx kodelyth-ecc route "<task description>" [--files N] [--agent <name>] [--current <model-id>]
@@ -1863,10 +1832,10 @@ if (args.includes('--help') || args.includes('-h')) {
 
 // ── Version shortcut ──────────────────────────────────────────────────────────
 if (args.includes('--version') || args.includes('-v')) {
-  const versionFile = path.join(ROOT, 'VERSION');
-  const version     = fs.existsSync(versionFile)
-    ? fs.readFileSync(versionFile, 'utf8').trim()
-    : require(path.join(ROOT, 'package.json')).version;
+  // package.json is canonical for an npm package; VERSION is only a fallback.
+  let version;
+  try { version = require(path.join(ROOT, 'package.json')).version; }
+  catch { try { version = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf8').trim(); } catch { version = 'unknown'; } }
   console.log(`kodelyth-ecc v${version}`);
   process.exit(0);
 }

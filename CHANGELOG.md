@@ -2,6 +2,70 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.26.0 — Memory Core, first cut: identity, redaction, fused recall (November 2026)
+
+The first cut of the Memory Core track. It fixes the memory data model's biggest
+correctness and safety gaps on the existing store, without the risk of a full
+substrate swap. Everything ships with tests (51 test files, all passing).
+
+**Memory stops orphaning on clone/move.** The store keyed each project by
+`sha256(absolute path)`, so moving, cloning, or renaming a repo changed its path
+and filed all future memories under a new id — hiding everything captured before.
+Memory now keys by the **normalized git remote** (git-remote-first, path
+fallback), which is stable where the path is not. `git@github.com:o/r.git`,
+`https://github.com/o/r`, and `ssh://…/o/r` all resolve to one id. Backward
+compatible by **read-both**: recall also matches the legacy path id, so nothing
+captured under the old scheme is lost. New `scripts/memory/project-id.js`.
+
+**Secrets never reach the memory log.** A captured memory is stored, recalled,
+and injected into future sessions — so a leaked key in a `problem`/`approach`
+would persist and re-surface. Capture now runs a shared credential redactor
+(`scripts/lib/redact.js`) over everything it stores: AWS, GitHub, OpenAI/
+Anthropic, Stripe, Slack, Google, npm tokens, JWTs, and PEM private-key blocks,
+plus `--token=`/`Authorization:`/`password=`/`api_key=` forms. Every pattern is
+linear (no ReDoS). The bash-command logger now shares the same redactor, which
+also widened its coverage.
+
+**Recall ranks by more than keywords.** BM25 still decides relevance, but among
+similarly-relevant memories a **recent, proven** one now outranks an old or
+failed one (relevance × recency × outcome). A memory whose approach didn't stick
+(`resolved:false`) sinks; a confirmed one rises. Relevance still dominates — a
+much more relevant memory is never buried by a newer one.
+
+**`state.db` actually works now.** The optional SQLite layer (session store,
+status DB, skill-evolution tracker) required `sql.js` at module load, but it was
+never a declared dependency — so importing it threw "Cannot find module 'sql.js'"
+on every install, before any caller's try/catch could run. `sql.js` is now a real
+**optional** dependency, loaded lazily; a missing module becomes a clean, coded
+error (`ECC_SQLITE_UNAVAILABLE`) that callers degrade on, and `isSqliteAvailable()`
+is a non-throwing probe for `doctor`. The core (memory, RTK, Terse, graph) never
+needed it and still doesn't.
+
+**Opt-in on-device semantic recall.** An optional semantic tier, **off by
+default**, that keeps the promise: the default session stays pure BM25, zero
+dependency, zero network. Turn it on with `KODELYTH_MEMORY_EMBEDDINGS=on` and the
+optional `@xenova/transformers` dependency, and recall blends BM25 with local,
+on-device embedding similarity (hybrid rank fusion); embeddings live in a sidecar,
+so `memories.jsonl` and its index are byte-for-byte unchanged. With it off — or
+the dependency absent, or any failure — recall is exactly BM25. Inference runs
+locally; only the first-ever model load touches the network. Pluggable provider
+interface, so the fusion/gating logic is fully tested with a stub and the heavy
+dependency is never required.
+
+**Auto-capture that respects consent.** The Stop hook already auto-extracted
+memory candidates from each finished session into a review queue — but nothing
+could read or promote them, so the queue was a dead end (the `/memory
+review-pending` it pointed at did not exist). Now `kodelythecc memory
+list-pending` shows what a session proposed, `promote-pending <id|all>` stores the
+ones you confirm (capture redacts them on the way in), and `discard-pending`
+drops the rest. Candidates are collected automatically; storing them is one
+explicit command, so nothing enters the recall store silently — the memory
+protocol's "never capture without confirmation" holds. The next session surfaces
+the pending count so proposals are not forgotten.
+
+**On the substrate:** the full 5-store merge is moot by design — the core stays
+pure-JS/JSONL and SQLite is an optional add-on, not the substrate.
+
 ## v2.25.0 — Foundations: honest numbers, a memory that learns, MCP beyond Claude (November 2026)
 
 The first cut of the v3.0 "Foundations" track. Almost no new surface area — this

@@ -3,13 +3,46 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const initSqlJs = require('sql.js');
 
 const { applyMigrations, getAppliedMigrations } = require('./migrations');
 const { createQueryApi } = require('./queries');
 const { assertValidEntity, validateEntity } = require('./schema');
 
 const DEFAULT_STATE_STORE_RELATIVE_PATH = path.join('.claude', 'ecc', 'state.db');
+
+// sql.js is OPTIONAL. It powers the session store, the status DB, and the
+// skill-evolution tracker — not the core (memory, RTK, Terse, codebase graph),
+// which stay pure-JS and need nothing. It used to be required at module load, so
+// importing state-store threw "Cannot find module 'sql.js'" for every install
+// that did not have it (which, since it was never a declared dependency, was all
+// of them) — before any caller's try/catch could run. Load it lazily and turn a
+// missing module into a clean, catchable error instead of an import-time crash.
+function loadSqlJs() {
+  try {
+    return require('sql.js');
+  } catch (cause) {
+    const err = new Error(
+      'SQLite support is unavailable: the optional dependency "sql.js" is not installed. ' +
+      'Install it (npm i sql.js, or reinstall kodelyth-ecc) to enable the session store, ' +
+      'status DB, and skill-evolution tracker. Core memory, RTK, Terse, and the codebase ' +
+      'graph do not need it.'
+    );
+    err.code = 'ECC_SQLITE_UNAVAILABLE';
+    err.cause = cause;
+    throw err;
+  }
+}
+
+// Non-throwing probe for callers and `doctor`: is the optional SQLite layer
+// usable on this install?
+function isSqliteAvailable() {
+  try {
+    require.resolve('sql.js');
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function resolveStateStorePath(options = {}) {
   if (options.dbPath) {
@@ -163,6 +196,7 @@ async function openDatabase(SQL, dbPath) {
 
 async function createStateStore(options = {}) {
   const dbPath = resolveStateStorePath(options);
+  const initSqlJs = loadSqlJs();
   const SQL = await initSqlJs();
   const db = await openDatabase(SQL, dbPath);
   const appliedMigrations = applyMigrations(db);
@@ -188,4 +222,5 @@ module.exports = {
   DEFAULT_STATE_STORE_RELATIVE_PATH,
   createStateStore,
   resolveStateStorePath,
+  isSqliteAvailable,
 };

@@ -131,7 +131,7 @@ These fire multiple specialist agents simultaneously:
 - Agent format: Markdown with YAML frontmatter (name, description, tools, model)
 - Skill format: Markdown with clear sections (description, when to use, how it works)
 - Hook format: JSON with matcher conditions and command/notification hooks
-- No runtime deps in core — `@modelcontextprotocol/sdk` is an optionalDependency for MCP server only
+- No **required** runtime deps — the core (agents, skills, memory, RTK, Terse, graph) is pure-JS and runs on a default install with nothing installed. Three `optionalDependencies`: `@modelcontextprotocol/sdk` (MCP server), `sql.js` (optional SQLite for the session store / status DB / skill-evolution tracker), and `@xenova/transformers` (optional on-device memory embeddings, off by default). Each degrades cleanly to the pure-JS path when absent.
 
 ## Contributing
 

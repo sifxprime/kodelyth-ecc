@@ -4,6 +4,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { redact } = require('../lib/redact');
 
 const MAX_STDIN = 1024 * 1024;
 let raw = '';
@@ -20,17 +21,9 @@ const MODE_CONFIG = {
 };
 
 function sanitizeCommand(command) {
-  return String(command || '')
-    .replace(/\n/g, ' ')
-    .replace(/--token[= ][^ ]*/g, '--token=<REDACTED>')
-    .replace(/Authorization:[: ]*[^ ]*[: ]*[^ ]*/gi, 'Authorization:<REDACTED>')
-    .replace(/\bAKIA[A-Z0-9]{16}\b/g, '<REDACTED>')
-    .replace(/\bASIA[A-Z0-9]{16}\b/g, '<REDACTED>')
-    .replace(/password[= ][^ ]*/gi, 'password=<REDACTED>')
-    .replace(/\bghp_[A-Za-z0-9_]+\b/g, '<REDACTED>')
-    .replace(/\bgho_[A-Za-z0-9_]+\b/g, '<REDACTED>')
-    .replace(/\bghs_[A-Za-z0-9_]+\b/g, '<REDACTED>')
-    .replace(/\bgithub_pat_[A-Za-z0-9_]+\b/g, '<REDACTED>');
+  // Flatten to one log line, then run the shared credential redactor (which now
+  // covers more token formats than this hook's old inline list did).
+  return redact(String(command || '').replace(/\n/g, ' '));
 }
 
 function appendLine(filePath, line) {

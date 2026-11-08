@@ -19,6 +19,8 @@ const os   = require('os');
 const path = require('path');
 const crypto = require('crypto');
 const safeFs = require('../lib/safe-fs.js');
+const pid = require('./project-id.js');
+const { redact } = require('../lib/redact.js');
 
 // Auto-migrate legacy ~/.kodelyth/ → ~/.kodelythecc/ before we touch any path.
 try { require('../migrate-legacy').main(); } catch { /* best-effort */ }
@@ -27,11 +29,14 @@ const MEMORY_DIR = process.env.KODELYTH_MEMORY_DIR
   || path.join(os.homedir(), '.kodelythecc', 'memory');
 
 const PATHS = {
-  dir:       MEMORY_DIR,
-  log:       path.join(MEMORY_DIR, 'memories.jsonl'),
-  index:     path.join(MEMORY_DIR, 'index.json'),
-  patterns:  path.join(MEMORY_DIR, 'patterns.json'),
-  projects:  path.join(MEMORY_DIR, 'projects'),
+  dir:        MEMORY_DIR,
+  log:        path.join(MEMORY_DIR, 'memories.jsonl'),
+  index:      path.join(MEMORY_DIR, 'index.json'),
+  patterns:   path.join(MEMORY_DIR, 'patterns.json'),
+  projects:   path.join(MEMORY_DIR, 'projects'),
+  // Opt-in semantic layer only. Written when embeddings are enabled; absent and
+  // untouched on a default (BM25-only) install.
+  embeddings: path.join(MEMORY_DIR, 'embeddings.jsonl'),
 };
 
 // ── Stop words (English + common code noise) ─────────────────────────────────
@@ -208,6 +213,28 @@ function indexMemory(index, memory) {
  */
 const RELATIVE_SCORE_FLOOR = 0.25;
 
+// Rank fusion. BM25 decides RELEVANCE (and the floor below gates it); this only
+// reorders the survivors so that, among similarly-relevant memories, a recent and
+// proven one outranks an old or failed one. Pure function of one memory — the
+// BM25 `score`, the `captured_at` timestamp, and the `resolved` outcome — so it
+// is unit-tested directly.
+function fuseScore(m) {
+  const base = m.score || 0;
+  // Recency: up to +25% for a just-captured memory, decaying over ~90 days.
+  let recency = 1;
+  const t = Date.parse(m.captured_at || '');
+  if (!Number.isNaN(t)) {
+    const ageDays = Math.max(0, (Date.now() - t) / 86400000);
+    recency = 1 + 0.25 * Math.exp(-ageDays / 90);
+  }
+  // Outcome: an approach confirmed to work (resolved:true) is worth more; one
+  // that didn't stick (resolved:false) is worth less. Unknown stays neutral.
+  let outcome = 1;
+  if (m.resolved === true) outcome = 1.3;
+  else if (m.resolved === false) outcome = 0.6;
+  return base * recency * outcome;
+}
+
 function search(query, options = {}) {
   // minScore stays honoured when passed, so existing callers keep their exact
   // behaviour; only the default changes from an absolute floor to a relative one.
@@ -253,9 +280,15 @@ function search(query, options = {}) {
     .filter(Boolean);
 
   if (projectFilter) {
-    results = results.filter(m => m.project === projectFilter);
+    // projectFilter may be a single id or a list of ids (read-both: the current
+    // git-remote id plus the legacy path id). Match on membership either way.
+    const allowed = Array.isArray(projectFilter) ? new Set(projectFilter) : new Set([projectFilter]);
+    results = results.filter(m => allowed.has(m.project));
   }
 
+  // Re-rank the relevant survivors by the fused score (relevance × recency ×
+  // outcome), then trim. `score` (raw BM25) stays on each result for callers.
+  results.sort((a, b) => fuseScore(b) - fuseScore(a));
   return results.slice(0, limit);
 }
 
@@ -354,17 +387,23 @@ function capture({
   const memory = {
     id:          newMemoryId(),
     captured_at: new Date().toISOString(),
-    problem:     String(problem).slice(0, 500),
-    approach:    String(approach).slice(0, 2000),
+    // Redact credentials BEFORE storing. A memory is written to memories.jsonl,
+    // surfaced by recall, and injected into future sessions — so a leaked key in
+    // a captured problem/approach would otherwise persist and re-surface.
+    problem:     redact(String(problem)).slice(0, 500),
+    approach:    redact(String(approach)).slice(0, 2000),
     // The COUNT was capped but not the length of each tag, so a single
     // multi-megabyte tag was stored whole — bloating the log, the index, and
     // the memory block injected at session start. Bound both.
-    tags:        Array.from(new Set(tags.map(t => String(t).slice(0, 60)))).slice(0, 20),
-    project:     project ? projectHash(project) : null,
+    tags:        Array.from(new Set(tags.map(t => redact(String(t)).slice(0, 60)))).slice(0, 20),
+    // Git-remote-first id: the same repo keeps its memories across clone / move /
+    // rename, where the old sha256(path) scheme orphaned them. Legacy memories
+    // (path id) are still found via read-both in recallForProject().
+    project:     project ? pid.resolveProjectId(project) : null,
     project_path: project,
     language,
-    files:       files.slice(0, 20).map(f => String(f).slice(0, 500)),
-    gotchas:     gotchas.slice(0, 10).map(g => String(g).slice(0, 500)),
+    files:       files.slice(0, 20).map(f => redact(String(f)).slice(0, 500)),
+    gotchas:     gotchas.slice(0, 10).map(g => redact(String(g)).slice(0, 500)),
     source,
   };
   // Load the index BEFORE writing the row. If index.json is missing or invalid,
@@ -383,7 +422,9 @@ function recall(query, options = {}) {
 }
 
 function recallForProject(projectRoot, query, options = {}) {
-  const opts = { ...options, projectFilter: projectHash(projectRoot) };
+  // Read-both: match the current git-remote id AND the legacy path id, so
+  // memories captured under either scheme are found.
+  const opts = { ...options, projectFilter: pid.matchingProjectIds(projectRoot) };
   const results = search(query, opts);
   if (results.length >= (options.limit || 5)) return results;
   // Fall back to global memories if project-specific are sparse
@@ -525,6 +566,69 @@ function stats() {
   };
 }
 
+// ── Optional semantic layer (opt-in; a default install never touches this) ───
+// Embeddings live in a sidecar keyed by memory id, so memories.jsonl and its
+// BM25 index are byte-for-byte identical whether or not embeddings are enabled.
+
+function saveEmbedding(id, vec) {
+  if (!id || !Array.isArray(vec) || vec.length === 0) return false;
+  ensureDir(PATHS.dir);
+  fs.appendFileSync(PATHS.embeddings, JSON.stringify({ id, vec }) + '\n');
+  return true;
+}
+
+function loadEmbeddings(ids = null) {
+  if (!fs.existsSync(PATHS.embeddings)) return {};
+  const want = ids ? new Set(ids) : null;
+  const out = {};
+  for (const line of fs.readFileSync(PATHS.embeddings, 'utf8').split('\n')) {
+    if (!line) continue;
+    let row; try { row = JSON.parse(line); } catch { continue; }
+    if (!row || !row.id || !Array.isArray(row.vec)) continue;
+    if (want && !want.has(row.id)) continue;
+    out[row.id] = row.vec; // append-only; last write wins
+  }
+  return out;
+}
+
+// Capture a memory and, when embeddings are enabled AND a provider is available,
+// also store its embedding. Otherwise behaves exactly like the sync capture().
+async function captureWithEmbedding(args) {
+  const memory = capture(args);
+  try {
+    const provider = await require('./embeddings').getProvider();
+    if (provider) {
+      const vec = await provider.embed(`${memory.problem} ${memory.approach}`);
+      if (vec) saveEmbedding(memory.id, vec);
+    }
+  } catch { /* embeddings are best-effort — never fail a capture over them */ }
+  return memory;
+}
+
+// Hybrid recall: BM25 selects the relevant set (sync, as always), then — only
+// when embeddings are enabled and available — re-ranks that set by blending in
+// semantic similarity. With embeddings off/unavailable this returns exactly what
+// recall() returns.
+async function recallHybrid(query, options = {}) {
+  const limit = options.limit || 5;
+  // Pull a wider candidate pool so semantic similarity can promote a strong
+  // match that BM25 alone ranked just below the cut.
+  const base = search(query, { ...options, limit: limit * 4 });
+  if (base.length === 0) return base;
+  try {
+    const emb = require('./embeddings');
+    const provider = await emb.getProvider();
+    if (!provider) return base.slice(0, limit);
+    const queryVec = await provider.embed(query);
+    if (!queryVec) return base.slice(0, limit);
+    const vecById = loadEmbeddings(base.map(m => m.id));
+    const fused = emb.fuseHybrid(base, { queryVec, vecById, weight: options.semanticWeight });
+    return fused.map(({ _bm25norm, _semantic, _hybrid, ...m }) => m).slice(0, limit);
+  } catch {
+    return base.slice(0, limit); // any failure in the opt-in path degrades to BM25
+  }
+}
+
 module.exports = {
   PATHS,
   capture,
@@ -536,6 +640,12 @@ module.exports = {
   stats,
   tokenise,
   projectHash,
+  fuseScore,
+  // Opt-in semantic layer
+  saveEmbedding,
+  loadEmbeddings,
+  captureWithEmbedding,
+  recallHybrid,
   // Improvement C
   resolveMemory,
   findMemoriesForFile,

@@ -419,7 +419,33 @@ if (args[0] === 'memory') {
       w(`Top tags: ${s.topTags.slice(0, 8).map(t => t[0] + '(' + t[1] + ')').join(', ')}`);
       process.exit(0);
     }
-    process.stderr.write('unknown memory subcommand. try: capture | recall | list | stats\n');
+    // Auto-capture review queue: the Stop hook auto-queues candidates; these are
+    // the consent gate that turns them into stored memories.
+    if (sub === 'list-pending' || sub === 'review-pending') {
+      const pending = require(path.join(ROOT, 'scripts', 'memory', 'pending.js'));
+      const items = pending.listPending();
+      if (!items.length) { w('No memory candidates pending review.'); process.exit(0); }
+      w(`${items.length} candidate(s) pending review:`);
+      for (const c of items) w(`  [${c.id}] (score ${c.score ?? '-'})  ${(c.problem || '').slice(0, 70)}`);
+      w('Confirm: kodelythecc memory promote-pending <id|all>   ·   drop: kodelythecc memory discard-pending <id|all>');
+      process.exit(0);
+    }
+    if (sub === 'promote-pending') {
+      const pending = require(path.join(ROOT, 'scripts', 'memory', 'pending.js'));
+      const sel = rest.find(a => !a.startsWith('--')) || 'all';
+      const stored = pending.promotePending(sel);
+      if (!stored.length) { w('Nothing promoted (no matching pending candidate).'); process.exit(0); }
+      w(`✓ stored ${stored.length} memor${stored.length === 1 ? 'y' : 'ies'}:`);
+      for (const m of stored) w(`  ${m.id}  ${(m.problem || '').slice(0, 60)}`);
+      process.exit(0);
+    }
+    if (sub === 'discard-pending') {
+      const pending = require(path.join(ROOT, 'scripts', 'memory', 'pending.js'));
+      const sel = rest.find(a => !a.startsWith('--')) || 'all';
+      w(`Discarded ${pending.discardPending(sel)} pending candidate(s).`);
+      process.exit(0);
+    }
+    process.stderr.write('unknown memory subcommand. try: capture | recall | list | stats | list-pending | promote-pending | discard-pending\n');
     process.exit(2);
   } catch (e) { process.stderr.write(`[memory] ${e.message}\n`); process.exit(1); }
 }

@@ -70,7 +70,7 @@ function main() {
     // ── Improvement A: build contextual advisory from session activity ────────
     const parts = [];
     if (candidates.length > 0) {
-      parts.push(`${candidates.length} memory candidate(s) queued — run "/memory review-pending" to confirm`);
+      parts.push(`${candidates.length} memory candidate(s) queued — review with "kodelythecc memory list-pending", then "promote-pending <id|all>" to confirm`);
     }
     if (hadFileWrites) {
       parts.push('files written this session — run "/memory save" or "/learn-eval" to save what we learned');

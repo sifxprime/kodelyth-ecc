@@ -392,6 +392,19 @@ async function main() {
     additionalContextParts.push(structuredInstinctSummary);
   }
 
+  // Surface the auto-capture review queue so candidates the last session proposed
+  // are discoverable now, not just at the end of that session. Consent-first:
+  // this only points at the review command; nothing is stored without the user
+  // running promote-pending.
+  try {
+    const n = require('../memory/pending').countPending();
+    if (n > 0) {
+      additionalContextParts.push(
+        `${n} memory candidate(s) await review — list with "kodelythecc memory list-pending", confirm with "promote-pending <id|all>".`
+      );
+    }
+  } catch { /* never block session start */ }
+
   // Check for recent session files (last 7 days)
   const recentSessions = dedupeRecentSessions(sessionSearchDirs);
 

@@ -19,6 +19,7 @@ const path = require('path');
 const store   = require('./store');
 const { buildContextBlock } = require('./inject');
 const { extractCandidates } = require('./extract');
+const pending = require('./pending');
 
 function parseArgs(argv) {
   const args = argv.slice(2);
@@ -187,6 +188,40 @@ function main() {
     case 'rebuild-index': {
       const r = store.rebuildIndex();
       console.log(`Rebuilt index for ${r.count} memories.`);
+      return;
+    }
+
+    // ── Auto-capture review queue ────────────────────────────────────────────
+    // The Stop hook auto-extracts candidates from each session into the queue;
+    // these three commands are the consent gate that turns them into memories.
+    case 'list-pending':
+    case 'review-pending': {
+      const items = pending.listPending();
+      if (items.length === 0) { console.log('No memory candidates pending review.'); return; }
+      console.log(`${items.length} candidate(s) pending review:\n`);
+      items.forEach((c) => {
+        console.log(`[${c.id}] (score ${c.score ?? '-'})  ${c.problem}`);
+        console.log(`    tags:     ${(c.tags || []).join(', ') || '-'}`);
+        console.log(`    approach: ${String(c.approach).slice(0, 200)}`);
+        console.log('');
+      });
+      console.log('Confirm with: memory promote-pending <id|all>   ·   drop with: memory discard-pending <id|all>');
+      return;
+    }
+
+    case 'promote-pending': {
+      const sel = positional[0] || 'all';
+      const stored = pending.promotePending(sel === 'all' ? 'all' : sel);
+      if (stored.length === 0) { console.log('Nothing promoted (no matching pending candidate).'); return; }
+      console.log(`Stored ${stored.length} memor${stored.length === 1 ? 'y' : 'ies'}:`);
+      stored.forEach(m => console.log(`  ${m.id}  ${m.problem}`));
+      return;
+    }
+
+    case 'discard-pending': {
+      const sel = positional[0] || 'all';
+      const n = pending.discardPending(sel === 'all' ? 'all' : sel);
+      console.log(`Discarded ${n} pending candidate(s).`);
       return;
     }
 

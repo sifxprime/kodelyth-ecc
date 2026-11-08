@@ -26,7 +26,7 @@ category: guide
 
 # Getting Started
 
-Install Kodelyth ECC and get 71 specialist agents (including the Super Agent orchestrator), 196 skills, 104 slash commands, RTK input compression, Terse output compression, and the codebase graph — all wired into your AI coding tool in one command.
+Install Kodelyth ECC and get 71 specialist agents (including the Super Agent orchestrator), 196 skills, 104 slash commands, RTK input compression, Terse output compression, the codebase graph, a universal MCP server, and local Memory Core recall — all wired into your AI coding tool in one command.
 
 ## Prerequisites
 
@@ -127,6 +127,17 @@ Index this project
 → Terse mode activates. Every reply from this point is compressed.
 
 You never had to remember an agent name. That's [Intent Routing v2](./intent-routing.md).
+
+## Memory that follows the project
+
+ECC captures the solution that worked at the end of a session and recalls the
+relevant one on your next prompt — injected into context before the AI answers.
+**Memory Core** keys that store to your git remote, so it follows the project even
+if you move or re-clone the repo; it redacts secrets before they're ever written,
+and ranks by relevance, recency, and whether the fix actually worked. It lives
+locally at `~/.kodelythecc/memory/` — no cloud, no account, nothing leaves the
+machine. On the six MCP-wired IDEs it's reachable as the `recall_memory` /
+`capture_memory` tools; everywhere else it feeds the session automatically.
 
 ## Interactive menu
 

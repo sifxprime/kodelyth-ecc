@@ -25,17 +25,14 @@ function claudeDesktopConfigPath() {
   return path.join(home, '.config', 'Claude', 'claude_desktop_config.json');
 }
 
-// MCP config paths for the non-Claude IDEs ECC can auto-wire. Every target below
-// uses the SAME `{ mcpServers: { <name>: { command, args, env } } }` shape as
-// Claude Code, so the hardened readConfig + registerInFile merge works for all of
-// them unchanged — only the file location differs. That is why memory and the
-// whole MCP tool surface, previously Claude-only, reach these IDEs out of the
-// box once this runs.
+// MCP config paths for the non-Claude IDEs ECC can auto-wire via JSON. Every
+// target below uses the SAME `{ mcpServers: { <name>: {...} } }` shape as Claude
+// Code (Kiro included — it is MCP-native), so the hardened readConfig +
+// registerInFile merge works unchanged; only the file location differs. Codex is
+// TOML and handled separately (registerCodexToml).
 //
-// Deliberately excluded (different format or fragile location — handled manually
-// for now, tracked as a follow-up):
-//   - Codex CLI      → ~/.codex/config.toml  (TOML, not JSON)
-//   - Cline / Roo    → VS Code globalStorage (editor-version-specific path)
+// Still manual (fragile, editor-version-specific path): Cline / Roo Code store
+// MCP settings in VS Code globalStorage, so ECC does not guess that path.
 function mcpPathsForTarget(target, cwd = process.cwd()) {
   const home = os.homedir();
   switch (target) {
@@ -53,24 +50,68 @@ function mcpPathsForTarget(target, cwd = process.cwd()) {
     case 'gemini-home':
     case 'gemini-project':
       return [path.join(home, '.gemini', 'settings.json')];
+    case 'kiro':
+    case 'kiro-project':
+      return [path.join(cwd, '.kiro', 'settings', 'mcp.json')];
+    case 'kiro-home':
+      return [path.join(home, '.kiro', 'settings', 'mcp.json')];
     default:
       return [];
   }
 }
 
-// Returns the list of targets this module can auto-wire (for help text / docs).
-function supportedMcpTargets() {
-  return ['claude-code', 'cursor', 'windsurf', 'gemini-cli'];
+function codexConfigPath() {
+  return path.join(os.homedir(), '.codex', 'config.toml');
 }
 
-// Register ECC's MCP server for one install target. Reuses the same merge that
-// protects ~/.claude.json: absent files are created, present files are merged
-// without clobbering other servers, and an unparseable file is refused, never
-// overwritten. Never throws — a bad config for one IDE must not fail an install.
+// Codex CLI stores MCP servers in TOML as [mcp_servers.<name>] tables. Without
+// pulling in a TOML parser, add our table only when it is absent (idempotent),
+// and otherwise leave the file exactly as it is. Appending a table is
+// order-independent in TOML, so this never clobbers existing servers or settings.
+function registerCodexToml(file, { dryRun = false } = {}) {
+  let raw = '';
+  try {
+    raw = fs.readFileSync(file, 'utf8');
+  } catch (err) {
+    if (err.code !== 'ENOENT') {
+      return { file, action: 'error', error: `cannot read ${file}: ${err.message}` };
+    }
+  }
+  if (/\[mcp_servers\.(?:"?kodelyth-ecc"?)\]/.test(raw)) {
+    return { file, action: 'unchanged' };
+  }
+  const table = `\n[mcp_servers."${SERVER_NAME}"]\ncommand = "kodelythecc"\nargs = ["mcp"]\n`;
+  const next = raw.length && !raw.endsWith('\n') ? `${raw}\n${table}` : `${raw}${table}`;
+  if (!dryRun) {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    safeFs.replaceFilePreservingMode(file, next);
+  }
+  return { file, action: 'added' };
+}
+
+// Returns the list of targets this module can auto-wire (for help text / docs).
+function supportedMcpTargets() {
+  return ['claude-code', 'cursor', 'windsurf', 'gemini-cli', 'kiro', 'codex'];
+}
+
+// Register ECC's MCP server for one install target. JSON targets reuse the same
+// merge that protects ~/.claude.json (absent → created, present → merged without
+// clobbering, unparseable → refused); Codex uses the TOML writer above. Never
+// throws — a bad config for one IDE must not fail an install.
 function registerForTarget(target, { cwd = process.cwd(), log = () => {}, dryRun = false } = {}) {
+  if (target === 'codex' || target === 'codex-home') {
+    try {
+      const r = registerCodexToml(codexConfigPath(), { dryRun });
+      log(`  ${r.action}: ${r.file}`);
+      return [{ target, ...r }];
+    } catch (e) {
+      log(`  skipped codex: ${e.message}`);
+      return [{ target, file: codexConfigPath(), action: 'error', error: e.message }];
+    }
+  }
   const paths = mcpPathsForTarget(target, cwd);
   if (paths.length === 0) {
-    return [{ target, action: 'unsupported', reason: `no known JSON MCP config path for "${target}"` }];
+    return [{ target, action: 'unsupported', reason: `no known MCP config path for "${target}"` }];
   }
   const results = [];
   for (const p of paths) {
@@ -231,6 +272,8 @@ module.exports = {
   mcpPathsForTarget,
   supportedMcpTargets,
   registerForTarget,
+  registerCodexToml,
+  codexConfigPath,
   registerAll,
   unregisterAll,
   statusAll,

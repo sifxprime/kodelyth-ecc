@@ -359,9 +359,22 @@ case "$TARGET" in
     RULES_DEST="$DEST/rules"
     INSTALL_MODE="user"
     ;;
+  kiro|kiro-project)
+    # Kiro (AWS AI IDE). Rules become always-on steering docs; the full catalog
+    # (agents, skills, commands, memory) arrives via the MCP server the Node
+    # post-install wires into .kiro/settings/mcp.json. Kiro is MCP-native, so we
+    # do not dump 266 agent/skill files into steering — that is what MCP is for.
+    DEST="$(pwd)/.kiro"
+    AGENTS_DEST=""
+    SKILLS_DEST=""
+    COMMANDS_DEST=""
+    HOOKS_DEST=""
+    RULES_DEST="$DEST/steering"
+    INSTALL_MODE="project"
+    ;;
   *)
     echo -e "${RED}Unknown target: $TARGET${RESET}"
-    echo "Valid targets: claude-home (aka claude-code), antigravity, cursor-project, windsurf-project, windsurf-home, codex-home, opencode, cline, roocode, aider, kimi, gemini-project, gemini-home"
+    echo "Valid targets: claude-home (aka claude-code), antigravity, cursor-project, windsurf-project, windsurf-home, codex-home, opencode, cline, roocode, aider, kimi, gemini-project, gemini-home, kiro"
     exit 1
     ;;
 esac

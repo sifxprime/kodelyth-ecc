@@ -89,7 +89,8 @@ test('registerForTarget refuses an unparseable config instead of overwriting it'
 });
 
 test('registerForTarget reports unsupported targets without writing anything', () => {
-  const res = reg.registerForTarget('codex-home', { cwd: tmpProject() });
+  // opencode has no known MCP config path (Cline/Roo/opencode are still manual).
+  const res = reg.registerForTarget('opencode', { cwd: tmpProject() });
   assert.equal(res[0].action, 'unsupported');
 });
 
@@ -98,4 +99,63 @@ test('dryRun resolves the action but writes no file', () => {
   const res = reg.registerForTarget('cursor', { cwd, dryRun: true });
   assert.equal(res[0].action, 'added');
   assert.equal(fs.existsSync(path.join(cwd, '.cursor', 'mcp.json')), false);
+});
+
+// ── Kiro (JSON, MCP-native) ──────────────────────────────────────────────────
+
+test('Kiro resolves to .kiro/settings/mcp.json and merges like the other JSON IDEs', () => {
+  assert.equal(reg.mcpPathsForTarget('kiro', '/proj')[0], path.join('/proj', '.kiro', 'settings', 'mcp.json'));
+  assert.match(reg.mcpPathsForTarget('kiro-home')[0], /\.kiro[\/\\]settings[\/\\]mcp\.json$/);
+
+  const cwd = tmpProject();
+  const res = reg.registerForTarget('kiro', { cwd });
+  assert.equal(res[0].action, 'added');
+  const cfg = readJson(path.join(cwd, '.kiro', 'settings', 'mcp.json'));
+  assert.deepEqual(cfg.mcpServers['kodelyth-ecc'], { command: 'kodelythecc', args: ['mcp'], env: {} });
+});
+
+test('supportedMcpTargets now includes kiro and codex', () => {
+  const t = reg.supportedMcpTargets();
+  assert.ok(t.includes('kiro'));
+  assert.ok(t.includes('codex'));
+});
+
+// ── Codex (TOML, minimal non-clobbering append) ──────────────────────────────
+
+test('registerCodexToml creates config.toml with the ECC server table', () => {
+  const file = path.join(tmpProject(), 'config.toml');
+  const r = reg.registerCodexToml(file);
+  assert.equal(r.action, 'added');
+  const toml = fs.readFileSync(file, 'utf8');
+  assert.match(toml, /\[mcp_servers\."kodelyth-ecc"\]/);
+  assert.match(toml, /command = "kodelythecc"/);
+  assert.match(toml, /args = \["mcp"\]/);
+});
+
+test('registerCodexToml preserves an existing Codex config and other MCP servers', () => {
+  const file = path.join(tmpProject(), 'config.toml');
+  const existing = 'model = "o3"\n\n[mcp_servers.other]\ncommand = "foo"\nargs = ["bar"]\n';
+  fs.writeFileSync(file, existing);
+  reg.registerCodexToml(file);
+  const toml = fs.readFileSync(file, 'utf8');
+  assert.match(toml, /model = "o3"/, 'top-level settings survive');
+  assert.match(toml, /\[mcp_servers\.other\]/, 'the other server survives');
+  assert.match(toml, /\[mcp_servers\."kodelyth-ecc"\]/, 'ECC was appended');
+});
+
+test('registerCodexToml is idempotent', () => {
+  const file = path.join(tmpProject(), 'config.toml');
+  assert.equal(reg.registerCodexToml(file).action, 'added');
+  assert.equal(reg.registerCodexToml(file).action, 'unchanged');
+  // Only one ECC table, not two.
+  const count = (fs.readFileSync(file, 'utf8').match(/\[mcp_servers\."kodelyth-ecc"\]/g) || []).length;
+  assert.equal(count, 1);
+});
+
+test('registerForTarget routes codex to the TOML writer', () => {
+  // codexConfigPath is ~/.codex/config.toml; use dryRun so the test never writes
+  // to a real home file, and just assert it routed + resolved an action.
+  const res = reg.registerForTarget('codex-home', { dryRun: true });
+  assert.ok(['added', 'unchanged'].includes(res[0].action));
+  assert.match(res[0].file, /\.codex[\/\\]config\.toml$/);
 });

@@ -155,6 +155,17 @@ switch ($Target) {
         $HooksDest    = ""
         $RulesDest    = "$Dest\rules"
     }
+    "kiro" {
+        # Kiro (AWS AI IDE): rules become always-on steering; the full catalog
+        # arrives via the MCP server the Node post-install wires into
+        # .kiro\settings\mcp.json. MCP-native, so no file dump into steering.
+        $Dest         = "$(Get-Location)\.kiro"
+        $AgentsDest   = ""
+        $SkillsDest   = ""
+        $CommandsDest = ""
+        $HooksDest    = ""
+        $RulesDest    = "$Dest\steering"
+    }
     "cline" {
         $Dest         = "$(Get-Location)\.clinerules"
         $AgentsDest   = ""
@@ -205,7 +216,7 @@ switch ($Target) {
     }
     default {
         Write-Host "Unknown target: $Target" -ForegroundColor Red
-        Write-Host "Valid targets: claude-home, windsurf-project, windsurf-home, antigravity, cursor-project, codex-home, opencode, cline, roocode, aider, kimi, gemini-project, gemini-home"
+        Write-Host "Valid targets: claude-home, windsurf-project, windsurf-home, antigravity, cursor-project, codex-home, opencode, cline, roocode, aider, kimi, gemini-project, gemini-home, kiro"
         exit 1
     }
 }

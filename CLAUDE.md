@@ -12,7 +12,7 @@ Guidance for Claude Code when working with this repository.
 - **44 hook entries** across 8 events — quality gates, memory inject + capture, correction encoding, prompt-injection guard, token-budget enforcer
 - **15 rules** — always-on coding standards + semantic intent routing + memory protocol + self-improvement
 
-Works with Claude Code, Windsurf, Cursor, Codex CLI, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, and Gemini CLI — **11 platforms** (13 install targets).
+Works with Claude Code, Windsurf, Cursor, Codex CLI, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI, and Kiro — **12 platforms** (14 install targets). MCP (and therefore memory) auto-wires for Claude Code, Cursor, Windsurf, Gemini CLI, Codex, and Kiro.
 
 ## Architecture
 

@@ -2,6 +2,36 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.27.0 — Platform reach: Codex + Kiro get MCP & memory; Kiro is the 12th platform (November 2026)
+
+MCP — and therefore the whole tool surface plus **memory** — now auto-wires for
+**six** IDEs out of the box. Two releases ago it was Claude Code only.
+
+**Codex CLI gets MCP (TOML).** Codex stores MCP servers in `~/.codex/config.toml`,
+not JSON. A minimal, non-clobbering writer adds the `[mcp_servers."kodelyth-ecc"]`
+table only when it is absent and otherwise leaves the file exactly as it is
+(appending a table is order-independent in TOML, so other servers and settings
+survive). Wired into the Codex post-install.
+
+**Kiro is a first-class target now — the 12th platform.** `kodelythecc --target
+kiro` installs the rules as always-on **steering** docs (`.kiro/steering/`) and
+wires ECC's MCP server into `.kiro/settings/mcp.json`. Kiro is MCP-native, so the
+full catalog — 70 agents, 196 skills, memory — arrives over MCP on demand rather
+than as a 266-file dump into steering. Added to `install.sh`, `install.ps1`, and
+the interactive menu.
+
+**MCP auto-wiring now covers:** Claude Code, Cursor, Windsurf, Gemini CLI, Codex,
+and Kiro. The merge is the same hardened one that protects `~/.claude.json` —
+absent files created, present files merged without clobbering, unparseable files
+refused.
+
+**Honest limits (not papered over):** RTK upstream has no agent for Kiro or
+Aider, so those don't get RTK filtering (and ECC doesn't pretend they do).
+Cline / Roo Code MCP stays manual — their settings live in VS Code globalStorage
+at an editor-version-specific path ECC won't guess. The `terse enable` secondary
+flow still has project-vs-home path quirks for some IDEs (the main install copies
+Terse correctly); tracked as a follow-up.
+
 ## v2.26.0 — Memory Core, first cut: identity, redaction, fused recall (November 2026)
 
 The first cut of the Memory Core track. It fixes the memory data model's biggest

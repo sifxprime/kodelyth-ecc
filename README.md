@@ -32,7 +32,7 @@ npx kodelyth-ecc
 ```
 
 Works on **macOS, Linux and Windows** with Claude Code, Windsurf, Cursor, Codex CLI,
-Google Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi and Gemini CLI.
+Google Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI and Kiro.
 
 ---
 
@@ -99,7 +99,7 @@ Most "AI agent kits" are folders of markdown files you have to remember the name
 | **8 parallel commands** | Fire 3-8 agents simultaneously, aggregate results | Rare |
 | **Compound memory** | BM25 local recall + auto-inject + project lessons | Cloud-only or absent |
 | **44 hook entries** | Quality gates, secret scan, project-DNA detection | Often missing |
-| **11 IDE platforms** | Claude Code, Windsurf, Cursor, Codex, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI (13 install targets) | 1-2 platforms typical |
+| **12 IDE platforms** | Claude Code, Windsurf, Cursor, Codex, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI, Kiro (14 install targets) | 1-2 platforms typical |
 | **Zero telemetry** | Everything stays on your disk; verifiable | Many kits phone home |
 
 ### Quick Comparison vs Other Kits

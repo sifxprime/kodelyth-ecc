@@ -144,7 +144,7 @@ async function pickIdeAndInstall(ROOT) {
   const targets = [
     'claude-code', 'cursor-project', 'windsurf-home', 'windsurf-project',
     'antigravity', 'codex-home', 'opencode', 'cline', 'roocode',
-    'gemini-home', 'gemini-project', 'kimi', 'aider',
+    'gemini-home', 'gemini-project', 'kimi', 'aider', 'kiro',
   ];
   const chosen = await pick('Pick an IDE to install for', targets);
   if (chosen == null) return main();

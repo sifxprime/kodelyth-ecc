@@ -2,6 +2,47 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.28.0 — Super Agent (beta): the autonomous orchestrator (November 2026)
+
+The driver the memory/orchestration audit found missing. ECC had the primitives —
+the `blueprint` DAG decomposer, the tmux+worktree swarm, the GAN evaluation loop,
+the Arena state machine — but nothing chained them, the swarm never merged its
+worker branches, and no run could resume. This adds the chain.
+
+**An Arena-style deterministic state machine.** `scripts/super-agent/`:
+
+- `dag.js` — the plan as a dependency graph: which steps are runnable now, is it
+  complete, is it stalled, is it a valid DAG (cycle/dep/self-dep checks).
+- `state.js` — resumable runs persisted after every step, plus the **budget
+  governor** (`--token-cap` / `--step-cap`) that bounds a whole run, not just one
+  session.
+- `orchestrator.js` — a **pure** `nextAction(run)` that decides the next move, and
+  `submit*` recorders that advance the phase. Because the decision function is
+  pure, the entire control plane is tested (20 tests) **without spawning an
+  agent**: decompose → dispatch (in dependency order, parallel where independent)
+  → integrate → verify → done.
+- `integrate.js` — the missing branch-merge piece: `mergeOrder` (dependency-first)
+  and `detectConflicts` via `git merge-tree --write-tree`, which finds conflicts
+  with **no working-tree side effects**.
+- `cli.js` + `kodelythecc super-agent …` — the drivable surface (start / next /
+  plan / step / integrate / verify / status / list / resume).
+
+**It cannot lie about its own state.** A step that didn't succeed is recorded
+`failed`, and a failed dependency stalls the run instead of building on it.
+Integration conflicts stop for a human. `verify --passed` requires real green
+tests. The budget cap halts the run rather than being worked around.
+
+**How it runs.** The state machine is tokenless; the driving LLM performs each
+action it names (blueprint to decompose, the swarm to dispatch, the GAN loop to
+evaluate, git to integrate) and reports back. New `super-agent` agent +
+`/super-agent` command + routing teach it the loop.
+
+*Beta:* the control plane, CLI, and branch integration are tested and working; the
+LLM-driven execution of each action is delegated (exercised by the agent persona,
+not CI). This is the 71st agent / 104th command — a count sweep across the
+hardcoded docs and brand assets is a tracked follow-up; the catalog and site
+derive their counts automatically.
+
 ## v2.27.0 — Platform reach: Codex + Kiro get MCP & memory; Kiro is the 12th platform (November 2026)
 
 MCP — and therefore the whole tool surface plus **memory** — now auto-wires for

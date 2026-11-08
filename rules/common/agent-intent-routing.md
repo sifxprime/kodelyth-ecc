@@ -66,7 +66,8 @@ Beyond the 10 priority tiers below, watch for these newer signals — they map t
 | "record this decision" / "write an ADR" / "architecture decision record" | `codebase-memory-mcp` via `manage_adr` |
 | "remove ECC" / "uninstall kodelythecc" / "clean this up" | Suggest `kodelythecc uninstall --dry-run` |
 | "how much did I save" / "show my token savings" / "RTK stats" | `kodelythecc dashboard` OR `kodelythecc rtk gain` |
-| "install for another IDE" / "add to Cursor / Windsurf / Antigravity" | `kodelythecc --target <ide>` |
+| "install for another IDE" / "add to Cursor / Windsurf / Antigravity / Kiro" | `kodelythecc --target <ide>` |
+| "orchestrate this" / "build the whole X end-to-end" / "autonomously build" / "break this big goal into steps and build it" / "run it until it's done" | `super-agent` (the autonomous orchestrator) — decompose → dispatch (parallel) → integrate → verify, resumable + budget-governed. Not for a single edit. |
 
 ### 5. Compound intent → parallel agents
 

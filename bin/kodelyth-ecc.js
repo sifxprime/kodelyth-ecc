@@ -450,6 +450,18 @@ if (args[0] === 'memory') {
   } catch (e) { process.stderr.write(`[memory] ${e.message}\n`); process.exit(1); }
 }
 
+// ── Subcommand: super-agent (autonomous orchestrator driver) ─────────────────
+// Arena-style state machine: it does not run agents, it tells the driving LLM
+// what to do next. start → plan → step… → integrate → verify → done, resumable.
+//   kodelythecc super-agent start --goal "<objective>" [--token-cap N] [--step-cap N]
+//   kodelythecc super-agent next|status|list <id> ; plan/step/integrate/verify to advance
+if (args[0] === 'super-agent' || args[0] === 'superagent') {
+  try {
+    require(path.join(ROOT, 'scripts', 'super-agent', 'cli.js')).main(args.slice(1));
+    process.exit(0);
+  } catch (e) { process.stderr.write(`[super-agent] ${e.message}\n`); process.exit(1); }
+}
+
 // ── Subcommand: god / evil / arena (the adversarial arena) ──────────────────
 // Usage:
 //   kodelythecc god  --task "<task>" [--json]        plan a GOD-mode build

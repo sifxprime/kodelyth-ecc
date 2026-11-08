@@ -25,7 +25,7 @@ AI:    → Routing to debug-detective (your error + frustration matches the bug-
 ```
 
 You never typed `use debug-detective`. You did not have to — ECC read the intent,
-picked the specialist out of 70, and told you which one it chose and why.
+picked the specialist out of 71, and told you which one it chose and why.
 
 ```bash
 npx kodelyth-ecc
@@ -50,7 +50,7 @@ Google Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI and Kiro.
 ![Antigravity](https://img.shields.io/badge/Antigravity-Ready-00ADD8)
 ![Cursor](https://img.shields.io/badge/Cursor-Ready-3b82f6)
 ![Codex](https://img.shields.io/badge/Codex-Ready-10b981)
-![Agents](https://img.shields.io/badge/Agents-70-brightgreen)
+![Agents](https://img.shields.io/badge/Agents-71-brightgreen)
 ![Devil Mode](https://img.shields.io/badge/Devil%20Mode-new-red)
 ![Skills](https://img.shields.io/badge/Skills-196-brightgreen)
 ![Memory](https://img.shields.io/badge/Local%20Memory-on-blueviolet)
@@ -65,7 +65,7 @@ Google Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI and Kiro.
 
 </div>
 
-**Kodelyth ECC** is a production-grade AI coding toolkit — **70 specialist agents (incl. an 8-agent devil-mode adversarial crew), 196 skills, 103 commands**, a god-tier **semantic intent-routing system**, local self-learning memory, MCP server, swarm orchestrator, and an observability dashboard — all local, zero telemetry.
+**Kodelyth ECC** is a production-grade AI coding toolkit — **71 specialist agents (incl. an 8-agent devil-mode adversarial crew), 196 skills, 104 commands**, a god-tier **semantic intent-routing system**, local self-learning memory, MCP server, swarm orchestrator, and an observability dashboard — all local, zero telemetry.
 
 Now bundled with:
 
@@ -93,9 +93,9 @@ Most "AI agent kits" are folders of markdown files you have to remember the name
 | Layer | What it does | Other kits |
 |---|---|---|
 | **Intent routing** | Plain-language → right specialist via 10-tier priority rules | Mostly missing — you memorize names |
-| **70 agents** | Specialists with playbooks, severity calibration, real commands | Often persona-only ("you are a senior engineer...") |
+| **71 agents** | Specialists with playbooks, severity calibration, real commands | Often persona-only ("you are a senior engineer...") |
 | **196 skills** | Domain knowledge files agents read on demand | Rarely separated from agents |
-| **103 commands** | Slash workflows (`/tdd`, `/arena`, `/devil-mode`, `/team-review`) | Limited or none |
+| **104 commands** | Slash workflows (`/tdd`, `/arena`, `/devil-mode`, `/team-review`) | Limited or none |
 | **8 parallel commands** | Fire 3-8 agents simultaneously, aggregate results | Rare |
 | **Compound memory** | BM25 local recall + auto-inject + project lessons | Cloud-only or absent |
 | **44 hook entries** | Quality gates, secret scan, project-DNA detection | Often missing |
@@ -106,9 +106,9 @@ Most "AI agent kits" are folders of markdown files you have to remember the name
 
 | Feature | **Kodelyth ECC** | `agency-agents` | `awesome-claude-agents` | Generic prompt libs |
 |---|---|---|---|---|
-| Specialist agents | **70** | ~30 | ~20 | Varies |
+| Specialist agents | **71** | ~30 | ~20 | Varies |
 | Skills as separate layer | ✓ 196 | ✗ | ✗ | ✗ |
-| Slash commands | ✓ 103 | Some | Some | ✗ |
+| Slash commands | ✓ 104 | Some | Some | ✗ |
 | **Parallel multi-agent commands** | ✓ 8 (incl. `/devil-mode`) | ✗ | ✗ | ✗ |
 | **Intent routing (plain language → agent)** | ✓ 10-tier rule | ✗ | ✗ | ✗ |
 | **Local BM25 self-learning memory** | ✓ | ✗ | ✗ | ✗ |
@@ -140,7 +140,7 @@ kodelythecc --target claude-code --codebase-graph
 That's it. This single flow:
 
 1. Installs both binaries (`kodelyth-ecc` and short-form `kodelythecc`) to your PATH
-2. Copies 70 agents + 196 skills + 103 commands + 44 hook entries + 15 rules into your AI tool's config dir
+2. Copies 71 agents + 196 skills + 104 commands + 44 hook entries + 15 rules into your AI tool's config dir
 3. Auto-installs **RTK** binary and wires its PreToolUse hook (input compression starts on next AI restart)
 4. Installs **Terse mode** skill + `/terse` and `/terse-compress` slash commands (dormant — user types `/terse` to activate)
 5. Auto-installs **codebase-memory-mcp** and registers its MCP entries in your AI tool (with `--codebase-graph`)
@@ -227,8 +227,8 @@ PowerShell 5.1 that ships with the OS. The installer tries `pwsh` first and fall
 back automatically, and it passes `-ExecutionPolicy Bypass` for its own process
 only, so you do not need to change your machine's execution policy.
 
-**Everything installs automatically**, same as macOS and Linux: the 70 agents,
-196 skills, 103 commands, 15 rules, all 44 hook entries registered into
+**Everything installs automatically**, same as macOS and Linux: the 71 agents,
+196 skills, 104 commands, 15 rules, all 44 hook entries registered into
 `settings.json`, the ECC MCP server (16 tools), Terse mode, **RTK**, and the
 **codebase graph**.
 
@@ -284,7 +284,7 @@ npx kodelyth-ecc --bundle red-team        # Security engineer — devil-mode + a
 npx kodelyth-ecc --bundle enterprise      # Compliance / audit team — SBOM, license, supply chain
 ```
 
-Each bundle installs the full ECC toolkit (all 70 agents, 196 skills, 103 commands, 44 hook entries), adds a `BUNDLE.md` cheat sheet, and biases the AI toward audience-fit workflows on every session.
+Each bundle installs the full ECC toolkit (all 71 agents, 196 skills, 104 commands, 44 hook entries), adds a `BUNDLE.md` cheat sheet, and biases the AI toward audience-fit workflows on every session.
 
 Combine with any target:
 
@@ -481,7 +481,7 @@ What's inside:
 | **Overview** | Agent count, memory stats, session count, recent activity |
 | **Memory** | Browse, search, and manage your local BM25 memory store |
 | **Evolve** | Self-improving memory — review AI-proposed refinements |
-| **Catalog** | Full searchable index of all 70 agents, 196 skills, 103 commands |
+| **Catalog** | Full searchable index of all 71 agents, 196 skills, 104 commands |
 | **Sessions** | **Live IDE activity** (Claude Code, Windsurf, Windsurf-Next, Cursor, Antigravity) + orchestration/swarm sessions |
 
 Real-time:
@@ -769,7 +769,7 @@ Month 3:    You try another tool
 |---|---|---|---|
 | **Project Lessons** | `tasks/lessons.md` | Per-project | Hard rules from your corrections. Injected at session start as mandatory context. |
 | **Global Memory** | `~/.kodelyth/memory/` | Cross-project | BM25 fuzzy recall of past solutions. Auto-fires on every prompt you type. |
-| **Intent Routing** | 70 agents | Always-on | Routes your message to the right specialist from the first word. No names needed. |
+| **Intent Routing** | 71 agents | Always-on | Routes your message to the right specialist from the first word. No names needed. |
 
 ### How it works under the hood
 
@@ -806,7 +806,7 @@ Project: **my-app**
 
 | Component | Count | Description |
 |---|---|---|
-| Agents | **70** | Specialist subagents — reviewers, planners, debuggers, architects, devil-mode adversarial crew, incident-commander, load-tester, memory, image-architect |
+| Agents | **71** | Specialist subagents — reviewers, planners, debuggers, architects, the super-agent orchestrator, devil-mode adversarial crew, incident-commander, load-tester, memory, image-architect |
 | Skills | **194** | Domain knowledge — patterns, testing, security, DevOps, intent routing, memory |
 | Commands | **97** | Slash command workflows (`/tdd`, `/plan`, `/memory`, `/devil-mode`, `/doctor`, `/update`, etc.) |
 | Parallel commands | **8** | `/devil-mode`, `/team-review`, `/security-audit`, `/debug-blitz`, `/refactor-sprint`, `/pre-release`, `/onboard`, `/project-launch` |
@@ -819,11 +819,11 @@ Project: **my-app**
 ## Agent Arsenal
 
 <div align="center">
-<img src="social/section-agents.svg" alt="70 specialist agents — one for every situation" width="900"/>
+<img src="social/section-agents.svg" alt="71 specialist agents — one for every situation" width="900"/>
 </div>
 
 <div align="center">
-<img src="social/readme-agents.svg" alt="70 specialist agents — agent grid preview" width="900"/>
+<img src="social/readme-agents.svg" alt="71 specialist agents — agent grid preview" width="900"/>
 </div>
 
 ### Kodelyth Exclusives — The 16 Agents That Make ECC
@@ -954,7 +954,7 @@ The intent router will route you to the right one. The AI announces who's taking
 
 | Source | Destination | What it does |
 |---|---|---|
-| `agents/` | `~/.claude/agents/` | All 70 subagents available globally |
+| `agents/` | `~/.claude/agents/` | All 71 subagents available globally |
 | `skills/` | `~/.claude/skills/` | All 196 skills loadable via commands |
 | `hooks/hooks.json` | `~/.claude/hooks/` | Automated quality gates |
 | `rules/` | `~/.claude/rules/` | Always-on standards + intent routing |

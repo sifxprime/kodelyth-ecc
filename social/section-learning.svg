@@ -48,7 +48,7 @@
   <text x="514" y="124" font-size="9" fill="#6e7681" font-weight="600">3 MEMORY LAYERS</text>
   <text x="514" y="139" font-size="9" fill="#a78bfa">Layer 1 · Project Lessons  ·  tasks/lessons.md · per-project rules</text>
   <text x="514" y="152" font-size="9" fill="#60a5fa">Layer 2 · Global BM25  ·  ~/.kodelyth/memory/ · cross-project recall</text>
-  <text x="514" y="165" font-size="9" fill="#34d399">Layer 3 · Intent Routing  ·  70 specialists · auto-routed every session</text>
+  <text x="514" y="165" font-size="9" fill="#34d399">Layer 3 · Intent Routing  ·  71 specialists · auto-routed every session</text>
 
   <!-- Ghost Depth Mark — brand stamp (scale 0.26×) -->
   <g transform="translate(810, 28) scale(0.26)" opacity="0.14">

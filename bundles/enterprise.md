@@ -137,7 +137,7 @@ Recommended hooks to enable for SOC 2 / ISO 27001 readiness:
 
 ## What This Bundle Surfaces First
 
-You still have all 70 agents — but routing is biased toward:
+You still have all 71 agents — but routing is biased toward:
 
 1. **Auditability** — every recommendation comes with rationale
 2. **Documentation** — every change has a doc impact note

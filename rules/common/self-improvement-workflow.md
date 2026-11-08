@@ -124,7 +124,7 @@ ECC uses three compounding memory layers — together they make Claude increasin
 - Example: "Last time you had a CORS issue in Express, you added this middleware..."
 
 ### Layer 3 — Intent Routing (`rules/common/agent-intent-routing.md`)
-- Always-on. 70 specialists. Zero setup.
+- Always-on. 71 specialists. Zero setup.
 - Routes your message to the right expert from the first word
 - No agent names needed — just describe the problem
 

@@ -43,7 +43,7 @@
   <!-- Headline -->
   <text x="56" y="126" font-size="52" font-weight="900" letter-spacing="-2" fill="#ffffff">One server.</text>
   <text x="56" y="184" font-size="52" font-weight="900" letter-spacing="-2" fill="url(#purple)">Every AI framework.</text>
-  <text x="56" y="222" font-size="16" fill="#8b949e">16 tools · 6 prompts · 377 resources. Runs locally. Bridges any MCP client.</text>
+  <text x="56" y="222" font-size="16" fill="#8b949e">16 tools · 6 prompts · 389 resources. Runs locally. Bridges any MCP client.</text>
 
   <rect x="56" y="244" width="460" height="1" fill="url(#accentFade)"/>
 
@@ -66,7 +66,7 @@
   <text x="100" y="422" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#a78bfa">swarm_run, cost_route, session_analyze</text>
   <text x="100" y="440" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#484f58">+ 10 more tools</text>
   <text x="80" y="464" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#10b981">[INFO] Resources:</text>
-  <text x="100" y="484" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#38bdf8">377 resources (agents + skills + commands)</text>
+  <text x="100" y="484" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#38bdf8">389 resources (agents + skills + commands)</text>
   <text x="80" y="508" font-size="12" font-family="'Consolas', 'SF Mono', monospace" fill="#10b981" font-weight="600">[READY] Server ready. Connect your MCP client.</text>
 
   <!-- Right panel — connection diagram -->

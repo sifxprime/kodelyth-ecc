@@ -13,7 +13,7 @@ who actually builds systems every day would — specific, direct, data-backed.
 
 ## Voice rules
 - One idea per tweet. No preamble. Start with the point.
-- Use exact numbers: 70 agents, 194 skills, 97 commands, 22+ hooks, 11 platforms, 373 tests
+- Use exact numbers: 71 agents, 196 skills, 104 commands, 22+ hooks, 12 platforms, 373 tests
 - "npx kodelyth-ecc" — always lowercase
 - No emojis used decoratively. ⚡ or → sparingly if it aids scannability.
 - Never: "game-changer", "exciting", "huge", "🚀🔥💡", rhetorical questions without substance
@@ -21,7 +21,7 @@ who actually builds systems every day would — specific, direct, data-backed.
 - Always end posts that introduce ECC with: github.com/sifxprime/kodelyth-ecc
 
 ## Tone examples
-GOOD: "70 specialist agents. 194 skills. 97 commands. Zero cloud. Zero telemetry.
+GOOD: "71 specialist agents. 196 skills. 104 commands. Zero cloud. Zero telemetry.
 One install: npx kodelyth-ecc
 github.com/sifxprime/kodelyth-ecc"
 
@@ -60,11 +60,11 @@ const ECC_FEATURES = [
     name:    'Semantic Routing',
     desc:    'Paste a stack trace → routes to debug-detective. Paste code → routes to code-reviewer. No agent names needed.',
     cmd:     null,
-    detail:  '14 always-on rules. 10 priority tiers. 70 specialists available.',
+    detail:  '14 always-on rules. 10 priority tiers. 71 specialists available.',
   },
   {
     name:    'MCP Server',
-    desc:    '16 tools, 6 prompts, 377 resources. Works with Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK.',
+    desc:    '16 tools, 6 prompts, 389 resources. Works with Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK.',
     cmd:     'npx kodelyth-ecc mcp',
     detail:  'Stdio JSON-RPC. Zero telemetry. Zero cloud.',
   },
@@ -81,10 +81,10 @@ const ECC_FEATURES = [
     detail:  'Routes automatically when you paste a stack trace.',
   },
   {
-    name:    '11 platforms',
+    name:    '12 platforms',
     desc:    'Claude Code, Windsurf, Cursor, Codex CLI, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI.',
     cmd:     'npx kodelyth-ecc',
-    detail:  '13 install targets. Same agents, same skills, same hooks.',
+    detail:  '14 install targets. Same agents, same skills, same hooks.',
   },
   {
     name:    'Zero cost',

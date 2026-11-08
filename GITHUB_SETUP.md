@@ -51,7 +51,7 @@ rsvg-convert -w 1280 -h 640 \
 3. Set **Description** to exactly:
 
 ```
-70 agents · 194 skills · 97 commands · MCP server · devil mode · 11 platforms · zero telemetry
+71 agents · 196 skills · 104 commands · MCP server · devil mode · 12 platforms · zero telemetry
 ```
 
 4. Set **Website** to:
@@ -218,7 +218,7 @@ Create a new Discussion in **Announcements**:
 ```markdown
 Welcome!
 
-**Kodelyth ECC** gives your AI coding assistant 70 specialist agents, 194 skills, 97 commands, and self-learning memory. One install, 11 platforms.
+**Kodelyth ECC** gives your AI coding assistant 71 specialist agents, 196 skills, 104 commands, and self-learning memory. One install, 12 platforms.
 
 ## Quick links
 - [Installation Guide](https://github.com/sifxprime/kodelyth-ecc/wiki/Installation-Guide)
@@ -540,7 +540,7 @@ EOF
 Run through this after every major release:
 
 - [ ] Social preview PNG uploaded to GitHub Settings
-- [ ] About description updated (`70 agents · 194 skills · ...`)
+- [ ] About description updated (`71 agents · 196 skills · ...`)
 - [ ] Topics set (20 max)
 - [ ] Wiki pages pushed via `git push` to wiki repo
 - [ ] Discussions enabled + welcome post pinned

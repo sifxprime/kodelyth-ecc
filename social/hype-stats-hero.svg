@@ -51,12 +51,12 @@
   <!-- Main headline -->
   <text x="80" y="128" font-size="58" font-weight="900" letter-spacing="-2.5" fill="#ffffff">Kodelyth ECC</text>
   <text x="80" y="182" font-size="22" font-weight="400" fill="url(#accent)">The AI coding toolkit that learns how you work.</text>
-  <text x="80" y="218" font-size="15" fill="#6e7681">70 agents · 11 platforms · Semantic routing · Compound learning · Zero cloud.</text>
+  <text x="80" y="218" font-size="15" fill="#6e7681">71 agents · 12 platforms · Semantic routing · Compound learning · Zero cloud.</text>
 
   <line x1="80" y1="242" x2="1120" y2="242" stroke="#21262d" stroke-width="1"/>
 
   <!-- Big stats row -->
-  <!-- 70 agents (center) -->
+  <!-- 71 agents (center) -->
   <text x="600" y="310" font-size="80" font-weight="900" fill="#ffffff" text-anchor="middle">70</text>
   <text x="600" y="334" font-size="11" fill="#484f58" text-anchor="middle" letter-spacing="3">SPECIALIST AGENTS</text>
 
@@ -68,7 +68,7 @@
   <text x="255" y="304" font-size="46" font-weight="900" fill="#ffffff" text-anchor="middle">196</text>
   <text x="255" y="328" font-size="11" fill="#484f58" text-anchor="middle" letter-spacing="2.5">SKILLS</text>
 
-  <!-- 103 commands (right) -->
+  <!-- 104 commands (right) -->
   <text x="945" y="304" font-size="46" font-weight="900" fill="#ffffff" text-anchor="middle">103</text>
   <text x="945" y="328" font-size="11" fill="#484f58" text-anchor="middle" letter-spacing="2.5">COMMANDS</text>
 
@@ -106,7 +106,7 @@
   <rect x="872" y="378" width="248" height="118" rx="10" fill="#0f0c1e" stroke="#a78bfa" stroke-opacity="0.4" stroke-width="1"/>
   <rect x="872" y="378" width="4" height="118" rx="2" fill="url(#accent)"/>
   <text x="892" y="402" font-size="10" font-weight="700" fill="#a78bfa" letter-spacing="1">MCP + ROUTING</text>
-  <text x="892" y="422" font-size="12" fill="#e6edf3">16 tools · 377 resources.</text>
+  <text x="892" y="422" font-size="12" fill="#e6edf3">16 tools · 389 resources.</text>
   <text x="892" y="440" font-size="12" fill="#e6edf3">Semantic intent routing.</text>
   <text x="892" y="462" font-size="11" fill="#484f58">Claude Desktop · LangGraph</text>
   <text x="892" y="478" font-size="11" fill="#484f58">AutoGen · CrewAI · OpenAI SDK</text>
@@ -117,8 +117,8 @@
   <text x="162" y="555" font-size="11" fill="#484f58" text-anchor="middle">MIT · local files only</text>
 
   <rect x="260" y="516" width="164" height="48" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
-  <text x="342" y="537" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">11 Platforms</text>
-  <text x="342" y="555" font-size="11" fill="#484f58" text-anchor="middle">13 install targets</text>
+  <text x="342" y="537" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">12 Platforms</text>
+  <text x="342" y="555" font-size="11" fill="#484f58" text-anchor="middle">14 install targets</text>
 
   <rect x="440" y="516" width="164" height="48" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
   <text x="522" y="537" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">388 Tests</text>

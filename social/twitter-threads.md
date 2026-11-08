@@ -97,8 +97,8 @@ Kodelyth ECC is free. MIT. No account.
 
 npx kodelyth-ecc
 
-70 agents. 194 skills. 97 commands. 8 adversarial.
-11 platforms. 0 cloud.
+71 agents. 196 skills. 104 commands. 8 adversarial.
+12 platforms. 0 cloud.
 
 github.com/sifxprime/kodelyth-ecc
 
@@ -163,7 +163,7 @@ No cloud. No embeddings. Pure local.
 **Tweet 5/8**
 Layer 3: Semantic Intent Routing
 
-70 specialist agents route from intent, not keywords.
+71 specialist agents route from intent, not keywords.
 
 Paste a stack trace → debug-detective
 Paste code → code-reviewer
@@ -201,8 +201,8 @@ Kodelyth ECC. Free. MIT. No account.
 
 npx kodelyth-ecc
 
-70 agents. 11 platforms. Compound learning.
-194 skills. 97 commands. 0 cloud.
+71 agents. 12 platforms. Compound learning.
+196 skills. 104 commands. 0 cloud.
 
 github.com/sifxprime/kodelyth-ecc
 
@@ -312,8 +312,8 @@ Kodelyth ECC. Free. MIT. No account.
 
 npx kodelyth-ecc
 
-70 agents. 8 parallel commands. 194 skills.
-11 platforms. Compound learning. 0 cloud.
+71 agents. 8 parallel commands. 196 skills.
+12 platforms. Compound learning. 0 cloud.
 
 github.com/sifxprime/kodelyth-ecc
 
@@ -333,7 +333,7 @@ Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK.
 
 Every framework wants its own integration layer.
 
-Kodelyth ECC ships an MCP server with 16 tools, 6 prompts, and 377 resources.
+Kodelyth ECC ships an MCP server with 16 tools, 6 prompts, and 389 resources.
 
 One server. Any client.
 
@@ -355,9 +355,9 @@ Connect it to any framework that speaks Model Context Protocol.
 **Tweet 3/8**
 The 16 tools cover the full ECC surface:
 
-agent_invoke — call any of the 70 specialist agents
+agent_invoke — call any of the 71 specialist agents
 memory_search — BM25 recall from your local memory store
-skill_load — load any of 194 skills into context
+skill_load — load any of 196 skills into context
 swarm_run — spawn parallel agents in git worktrees
 cost_route — get model-tier recommendation for a task
 session_analyze — analyze session transcripts
@@ -367,7 +367,7 @@ session_analyze — analyze session transcripts
 ---
 
 **Tweet 4/8**
-377 resources means every agent, skill, and command is directly addressable as an MCP resource.
+389 resources means every agent, skill, and command is directly addressable as an MCP resource.
 
 Your LangGraph workflow can reference kodelyth://agents/debug-detective and get the full agent spec.
 
@@ -403,7 +403,7 @@ The dashboard (npx kodelyth-ecc dashboard) complements the MCP server:
 
 5 tabs: Overview · Memory · Evolve · Catalog · Sessions
 
-Browse all 70 agents and 194 skills in a browser UI.
+Browse all 71 agents and 196 skills in a browser UI.
 View and manage your memory store.
 See session transcripts and token usage.
 
@@ -418,8 +418,8 @@ npx kodelyth-ecc
 npx kodelyth-ecc mcp
 npx kodelyth-ecc dashboard
 
-70 agents. 16 MCP tools. 377 resources.
-11 platforms. 0 cloud.
+71 agents. 16 MCP tools. 389 resources.
+12 platforms. 0 cloud.
 
 github.com/sifxprime/kodelyth-ecc
 
@@ -448,12 +448,12 @@ You describe your problem in plain words. The AI announces which specialist take
 **Tweet 2/8**
 The numbers:
 
-70 specialist agents (including 8 adversarial)
-194 skills
+71 specialist agents (including 8 adversarial)
+196 skills
 97 slash commands (8 parallel multi-agent)
 22+ automation hooks
 14 always-on rules
-11 platforms, 13 install targets
+12 platforms, 14 install targets
 373 passing tests
 
 One install. npx kodelyth-ecc
@@ -476,9 +476,9 @@ You never type an agent name unless you want to.
 ---
 
 **Tweet 4/8**
-The 11 platforms:
+The 12 platforms:
 
-Claude Code (full: 70 agents, 194 skills, 97 commands, 22+ hooks)
+Claude Code (full: 71 agents, 196 skills, 104 commands, 22+ hooks)
 Windsurf · Cursor · Codex CLI · Cline · Roo Code
 Aider · Kimi · Gemini CLI · Antigravity · OpenCode
 
@@ -516,7 +516,7 @@ Entirely local. Zero cloud.
 **Tweet 7/8**
 What you get at install:
 
-~/.claude/agents/ — 70 specialist agent files
+~/.claude/agents/ — 71 specialist agent files
 ~/.claude/commands/ — 97 slash commands
 ~/.claude/skills/ — 194 skill files
 ~/.claude/hooks/ — 22+ automation hooks
@@ -565,7 +565,7 @@ Sequentially: code quality → security → performance → API contracts. 60 mi
 
 /team-review fires all 4 specialists simultaneously. 15 minutes. Same depth.
 
-70 agents. 8 parallel commands. Free forever.
+71 agents. 8 parallel commands. Free forever.
 
 npx kodelyth-ecc
 
@@ -589,11 +589,11 @@ npx kodelyth-ecc — free, local, no cloud.
 ---
 
 **Hook 4 — Stats**
-70 specialist agents.
-194 skills.
+71 specialist agents.
+196 skills.
 97 slash commands.
 22+ automation hooks.
-11 platforms.
+12 platforms.
 373 passing tests.
 0 cloud.
 
@@ -610,7 +610,7 @@ github.com/sifxprime/kodelyth-ecc
 **Hook 5 — MCP**
 npx kodelyth-ecc mcp
 
-That starts an MCP server with 16 tools, 6 system prompts, and 377 resources.
+That starts an MCP server with 16 tools, 6 system prompts, and 389 resources.
 
 Connect Claude Desktop. LangGraph. AutoGen. CrewAI. OpenAI Agents SDK.
 

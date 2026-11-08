@@ -6,7 +6,7 @@
 
 **What is Kodelyth ECC?**
 
-An AI coding toolkit (v1.8.0) that installs into 11 AI coding platforms (13 install targets). It adds 70 specialist agents (including 8 adversarial devil-mode agents), 194 skills, 97 slash commands, 20+ automation hooks, and a compound learning system. Zero cloud, zero telemetry, all local.
+An AI coding toolkit (v1.8.0) that installs into 12 AI coding platforms (14 install targets). It adds 71 specialist agents (including 8 adversarial devil-mode agents), 196 skills, 97 slash commands, 20+ automation hooks, and a compound learning system. Zero cloud, zero telemetry, all local.
 
 **Is it free?**
 
@@ -28,7 +28,7 @@ Node.js 18 or higher.
 
 **What platforms does ECC support?**
 
-11 platforms (13 install targets): Claude Code, Windsurf (project/home), Cursor, Google Antigravity, Codex CLI, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI (project/home). Feature depth varies — see the platform support table in the README for what each platform gets.
+12 platforms (14 install targets): Claude Code, Windsurf (project/home), Cursor, Google Antigravity, Codex CLI, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI (project/home). Feature depth varies — see the platform support table in the README for what each platform gets.
 
 ---
 
@@ -75,7 +75,7 @@ Three layers that make Claude increasingly match your style:
 
 1. **Project Lessons** — corrections you give Claude are encoded as hard rules in `tasks/lessons.md` and applied every session
 2. **Global Memory** — past solutions recalled cross-project, auto-evolving
-3. **Semantic Routing** — 70 specialists routing from intent
+3. **Semantic Routing** — 71 specialists routing from intent
 
 **How do lessons get written?**
 
@@ -139,7 +139,7 @@ Opens automatically at `http://localhost:5173` (or your configured port).
 - **Overview** — Agent counts, installed components, config status
 - **Memory** — View, search, tag, and delete stored memories
 - **Evolve** — Analyze memory for patterns, surface high-impact solutions
-- **Catalog** — Browse all 70 agents and 194 skills with descriptions
+- **Catalog** — Browse all 71 agents and 196 skills with descriptions
 - **Sessions** — Replay session transcripts, see token usage, review lessons captured
 
 ---
@@ -254,7 +254,7 @@ Verifies SBOM, manifest, and signatures. Reports any tampering or missing artifa
 
 No. Semantic intent routing detects what you need from how you describe the problem. You never need to type `use debug-detective` — just describe the bug.
 
-**What are the 70 agents?**
+**What are the 71 agents?**
 
 62 standard specialist agents (reviewers, debuggers, architects, etc.) + 8 adversarial devil-mode agents (injection hunter, supply chain auditor, secret hunter, etc.).
 

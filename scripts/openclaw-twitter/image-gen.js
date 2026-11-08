@@ -160,8 +160,8 @@ function templateStats() {
   <text x="178" y="445" font-size="11" fill="#484f58" text-anchor="middle">MIT · local files only</text>
 
   <rect x="293" y="410" width="195" height="44" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
-  <text x="391" y="428" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">11 Platforms</text>
-  <text x="391" y="445" font-size="11" fill="#484f58" text-anchor="middle">13 install targets</text>
+  <text x="391" y="428" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">12 Platforms</text>
+  <text x="391" y="445" font-size="11" fill="#484f58" text-anchor="middle">14 install targets</text>
 
   <rect x="506" y="410" width="195" height="44" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1"/>
   <text x="604" y="428" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="700">373 Tests</text>

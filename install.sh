@@ -47,7 +47,7 @@ echo -e "${RED}${BOLD}  ║   DANGER LEVEL: GOD TIER    ·    NOT FOR JUNIOR DEV
 echo -e "${RED}${BOLD}  ╚══════════════════════════════════════════════════════════════╝${RESET}"
 echo ""
 echo -e "${BOLD}  Kodelyth ECC — The most dangerous AI coding toolkit on the planet${RESET}"
-echo -e "${CYAN}  70 specialist agents (8 devil-mode)  ·  196 skills  ·  103 commands  ·  44 hooks  ·  intent routing  ·  compound memory${RESET}"
+echo -e "${CYAN}  71 specialist agents (8 devil-mode)  ·  196 skills  ·  104 commands  ·  44 hooks  ·  intent routing  ·  compound memory${RESET}"
 echo -e "${CYAN}  Any language  ·  Any framework  ·  Any scale  ·  300B-level quality${RESET}"
 echo ""
 echo -e "  github.com/sifxprime/kodelyth-ecc"
@@ -666,7 +666,7 @@ AIDER_EOF
       cat > "$GEMINI_FILE" <<'GEMINI_EOF'
 # Kodelyth ECC — Gemini CLI context
 
-This project uses Kodelyth ECC — 70 specialist agents, 196 skills, 103 commands, intent routing, and self-learning memory.
+This project uses Kodelyth ECC — 71 specialist agents, 196 skills, 104 commands, intent routing, and self-learning memory.
 
 The full toolkit is installed under this directory:
 
@@ -791,7 +791,7 @@ case "$TARGET" in
     echo -e "${BOLD}  Cline (VS Code) — what to do now:${RESET}"
     echo ""
     echo "  Open the project in VS Code with Cline installed."
-    echo "  Cline auto-loads .clinerules/ — all 70 agents, rules, and commands as markdown context."
+    echo "  Cline auto-loads .clinerules/ — all 71 agents, rules, and commands as markdown context."
     echo "    Ask: 'use debug-detective'  /  'review my code'  /  'devil mode the codebase'"
     ;;
   roocode)

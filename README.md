@@ -126,7 +126,7 @@ Most "AI agent kits" are folders of markdown files you have to remember the name
 ## Install
 
 <div align="center">
-<img src="social/section-install.svg" alt="Install — One command, 11 platforms, any OS" width="900"/>
+<img src="social/section-install.svg" alt="Install — One command, 12 platforms, any OS" width="900"/>
 </div>
 
 ### The lazy install (one command, everything wired up)
@@ -327,7 +327,7 @@ What it exposes (all local, zero telemetry):
 
 - **16 tools** — `route_intent`, `recall_memory`, `capture_memory`, `list_agents`, `get_skill`, `audit_skill_match`, …
 - **6 prompts** — full intent routing rule, agents/skills/commands overviews, handoff chains, devil-mode
-- **365 resources** — every agent, skill, command, rule, and bundle addressable via `kodelyth://...` URIs
+- **389 resources** — every agent, skill, command, rule, and bundle addressable via `kodelyth://...` URIs
 
 Drop into Claude Desktop in 30 seconds:
 
@@ -1081,7 +1081,7 @@ v1.7.3 highlights:
 
 v1.7.0 highlights:
 
-- **MCP Server** — 16 tools, 6 prompts, 377 resources; stdio JSON-RPC; zero telemetry; works with Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK
+- **MCP Server** — 16 tools, 6 prompts, 389 resources; stdio JSON-RPC; zero telemetry; works with Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK
 - **Dashboard hardening** — DNS rebinding protection, shell injection fix (`execFileSync`), CSP on all responses, SSE client cap (max 10), TOCTOU fixes
 - **Devil Mode** — 8 adversarial agents, `--pre-public` / `--pre-launch` / `--all` flags, real bash-grep patterns and remediation playbooks
 - **336 tests** passing across 25 test files (now 373 at v1.8.0)

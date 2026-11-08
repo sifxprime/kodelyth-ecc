@@ -63,7 +63,7 @@
   <text x="330" y="480"
         font-family="'Segoe UI', system-ui, -apple-system, sans-serif"
         font-size="18" font-weight="400"
-        fill="#ffffff" opacity="0.50">Works on 11 platforms. Free and open-source.</text>
+        fill="#ffffff" opacity="0.50">Works on 12 platforms. Free and open-source.</text>
 
   <!-- Stats row -->
   <text x="330" y="546"

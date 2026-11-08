@@ -47,7 +47,7 @@
   <text x="605" y="149" font-size="9.5" fill="#34d399" text-anchor="middle">'use debug-detective'"</text>
 
   <!-- Right label -->
-  <text x="868" y="96" font-size="10" fill="#6e7681" text-anchor="end">70 agents  ·  10 tiers  ·  50+ patterns</text>
+  <text x="868" y="96" font-size="10" fill="#6e7681" text-anchor="end">71 agents  ·  10 tiers  ·  50+ patterns</text>
 
   <!-- Ghost Depth Mark — brand stamp (scale 0.23×) -->
   <g transform="translate(810, 28) scale(0.23)" opacity="0.14">

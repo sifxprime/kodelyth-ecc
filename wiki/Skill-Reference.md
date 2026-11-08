@@ -1,6 +1,6 @@
 # Skill Reference
 
-Skills are domain knowledge and workflow definitions loaded into your session with a slash command. 194 skills total.
+Skills are domain knowledge and workflow definitions loaded into your session with a slash command. 196 skills total.
 
 Skills provide deep, actionable guidance — patterns, checklists, code templates, anti-patterns — that agents draw on when they are active. Rules define *what* to do; skills define *how* to do it.
 
@@ -40,7 +40,7 @@ Type the skill name with a `/` prefix. Skills load instantly and activate for th
 |---|---|---|
 | Memory Protocol | `/memory` | BM25 recall workflow, capture triggers, review-pending flow |
 | Memory Evolve | `/memory-evolve` | Self-improving memory analysis, pattern extraction (v1.7.0) |
-| Lessons | `/lessons` | Load/save/manage `tasks/lessons.md` on all 11 platforms |
+| Lessons | `/lessons` | Load/save/manage `tasks/lessons.md` on all 12 platforms |
 | Configure ECC | `/configure-ecc` | Customize agents, hooks, and rules for your project |
 | Quickstart | `/kodelyth-quickstart` | 5-minute tour of the entire toolkit |
 
@@ -276,14 +276,14 @@ AI:   → Loading /smart-debug (debugging workflow signal)
 - **8 specialized skills** — ClickHouse, SEO, video, research
 - **8 devil-mode security skills** — red-team, penetration testing (v1.7.0)
 
-**Total: 194 skills**
+**Total: 196 skills**
 
 ---
 
 ## Installing All Skills
 
 ```bash
-# Download and cache all 194 skills locally
+# Download and cache all 196 skills locally
 npx kodelyth-ecc --profile full
 ```
 

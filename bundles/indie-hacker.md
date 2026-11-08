@@ -84,7 +84,7 @@ If you have `/model-route` available, lean on it.
 
 ## What This Bundle Skips by Default
 
-You still have access to all 70 agents — these just aren't surfaced first:
+You still have access to all 71 agents — these just aren't surfaced first:
 
 - Heavy enterprise agents (`compliance-checker` patterns, `architect-of-architects`)
 - Most language-specific reviewers if you're TypeScript/Python only — they're there if you need them

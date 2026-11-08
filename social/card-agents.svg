@@ -14,7 +14,7 @@
   <rect width="700" height="420" fill="none" stroke="#21262d" stroke-width="1" rx="12"/>
 
   <!-- Header -->
-  <text x="28" y="42" font-size="16" font-weight="800" fill="#ffffff">70 Agents — The Complete Roster</text>
+  <text x="28" y="42" font-size="16" font-weight="800" fill="#ffffff">71 Agents — The Complete Roster</text>
   <rect x="28" y="54" width="644" height="1" fill="#21262d"/>
 
   <!-- Row 1 -->

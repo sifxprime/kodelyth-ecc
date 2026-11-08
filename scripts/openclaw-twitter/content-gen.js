@@ -36,11 +36,11 @@ Max 260 characters. Must be specific enough to be immediately useful.`;
     return `Write a punchy stats tweet for Kodelyth ECC.
 
 Numbers to use (pick 3-5 of these):
-- 70 specialist agents
-- 194 skills
-- 97 commands
+- 71 specialist agents
+- 196 skills
+- 104 commands
 - 22+ automation hooks
-- 11 platforms (13 install targets)
+- 12 platforms (14 install targets)
 - 373 tests, all passing
 - Zero cloud. Zero telemetry. MIT.
 - One install: npx kodelyth-ecc
@@ -69,7 +69,7 @@ Max 280 characters total.`;
       'Most AI coding setups forget everything between sessions. ECC writes corrections to tasks/lessons.md and loads them automatically next session.',
       'Sequential code review (quality → security → performance) takes 60 minutes. /team-review fires all 4 agents simultaneously. 15 minutes.',
       'Starting a new project with one AI assistant means one perspective. /project-launch fires architect + pair-programmer + security-reviewer + tdd-guide + ux-reviewer. 10 minutes.',
-      'Most AI tools route every message to the same general model. ECC\'s routing rules map intent to 70 specialist agents automatically — no agent name needed.',
+      'Most AI tools route every message to the same general model. ECC\'s routing rules map intent to 71 specialist agents automatically — no agent name needed.',
     ];
     const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
     return `Write a tweet based on this contrast:

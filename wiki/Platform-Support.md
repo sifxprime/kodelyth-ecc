@@ -1,6 +1,6 @@
 # Platform Support
 
-Kodelyth ECC installs on 11 AI coding platforms via 13 install targets. Feature depth varies — hooks use Claude Code's native settings format and have no equivalent elsewhere; Cursor's agent system is incompatible with ECC's markdown agent format.
+Kodelyth ECC installs on 12 AI coding platforms via 14 install targets. Feature depth varies — hooks use Claude Code's native settings format and have no equivalent elsewhere; Cursor's agent system is incompatible with ECC's markdown agent format.
 
 ---
 
@@ -8,9 +8,9 @@ Kodelyth ECC installs on 11 AI coding platforms via 13 install targets. Feature 
 
 | Feature | Claude Code | Roo Code | Codex CLI | Aider | Kimi | Windsurf | Antigravity | Gemini CLI | Cursor | Cline | OpenCode |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| 70 Agents | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓* | — |
-| 194 Skills | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | partial | ✓ | ✓ | — | — |
-| 97 Commands | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ | — | — | ✓* | — |
+| 71 Agents | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓* | — |
+| 196 Skills | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | partial | ✓ | ✓ | — | — |
+| 104 Commands | ✓ | ✓ | ✓ | ✓ | ✓ | — | ✓ | — | — | ✓* | — |
 | 22+ Hooks | ✓ | — | — | — | — | — | — | — | — | — | — |
 | Rules | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Auto lessons | ✓ | — | — | — | — | — | — | — | — | — | — |
@@ -36,8 +36,8 @@ npx kodelyth-ecc
 **File layout:**
 ```
 ~/.claude/
-├── agents/          → 70 specialist agents
-├── skills/          → 194 skills
+├── agents/          → 71 specialist agents
+├── skills/          → 196 skills
 ├── commands/        → 97 slash commands
 ├── rules/           → always-on coding standards + routing
 └── hooks/           → hooks.json (wired into settings.json)
@@ -185,8 +185,8 @@ npx kodelyth-ecc --target antigravity
 **File layout:**
 ```
 .agent/
-├── skills/          → 70 agents (mapped to Antigravity's skills system)
-├── workflows/       → 97 commands (mapped to Antigravity's workflows)
+├── skills/          → 71 agents (mapped to Antigravity's skills system)
+├── workflows/       → 104 commands (mapped to Antigravity's workflows)
 └── rules/           → rules + 4 featured ECC skills as context
 ```
 

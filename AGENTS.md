@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file is read by AI agents (Cascade, Cursor, Codex, etc.) on every session. It tells them how to work in this repo and how to use the 70 specialist agents and 194 skills shipped with Kodelyth ECC.
+This file is read by AI agents (Cascade, Cursor, Codex, etc.) on every session. It tells them how to work in this repo and how to use the 71 specialist agents and 196 skills shipped with Kodelyth ECC.
 
 ---
 

@@ -29,7 +29,7 @@
   <line x1="28" y1="172" x2="572" y2="172" stroke="#21262d" stroke-width="1"/>
 
   <!-- Feature list -->
-  <text x="28" y="196" font-size="12" fill="#e6edf3">→  70 specialist agents, auto-routed by intent</text>
+  <text x="28" y="196" font-size="12" fill="#e6edf3">→  71 specialist agents, auto-routed by intent</text>
   <text x="28" y="216" font-size="12" fill="#e6edf3">→  Compound learning — corrections encoded permanently</text>
   <text x="28" y="236" font-size="12" fill="#e6edf3">→  Parallel commands — 5 agents, 10 min</text>
   <text x="28" y="256" font-size="12" fill="#e6edf3">→  AI image gen — Gemini / DALL-E / SVG fallback</text>

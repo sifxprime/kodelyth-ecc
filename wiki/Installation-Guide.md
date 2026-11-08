@@ -19,7 +19,7 @@ This detects your project type, installs the right component set, and wires ever
 
 ---
 
-## Targets (11 platforms, 13 install targets)
+## Targets (12 platforms, 14 install targets)
 
 Install into a specific AI tool:
 

@@ -18,7 +18,7 @@
   <rect x="0" y="0" width="900" height="3" fill="url(#accent)" rx="2"/>
 
   <!-- Header -->
-  <text x="28" y="40" font-size="20" font-weight="800" fill="#ffffff" letter-spacing="-0.5">70 Specialist Agents</text>
+  <text x="28" y="40" font-size="20" font-weight="800" fill="#ffffff" letter-spacing="-0.5">71 Specialist Agents</text>
   <text x="28" y="60" font-size="12" fill="#6e7681">Pick the right expert for every problem. Intent routing selects automatically.</text>
 
   <!-- Row 1 -->

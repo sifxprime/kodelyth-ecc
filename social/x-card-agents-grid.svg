@@ -19,7 +19,7 @@
   <circle cx="100" cy="100" r="200" fill="#a78bfa" opacity="0.03"/>
 
   <!-- Header -->
-  <text x="80" y="72" font-size="48" font-weight="900" letter-spacing="-2" fill="#ffffff">70 agents. One install.</text>
+  <text x="80" y="72" font-size="48" font-weight="900" letter-spacing="-2" fill="#ffffff">71 agents. One install.</text>
   <text x="80" y="110" font-size="18" fill="#6e7681">Semantic routing picks the right one — you never need to know their names.</text>
 
   <!-- Left column — agent cards -->

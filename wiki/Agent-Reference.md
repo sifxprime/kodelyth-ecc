@@ -1,6 +1,6 @@
 # Agent Reference
 
-70 specialist subagents — all auto-routed via semantic intent routing. You never need to type agent names unless you want to.
+71 specialist subagents — all auto-routed via semantic intent routing. You never need to type agent names unless you want to.
 
 ---
 

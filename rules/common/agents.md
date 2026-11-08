@@ -1,6 +1,6 @@
 # Agent Orchestration
 
-70 specialist agents are available. Intent routing is always-on — describe your problem in plain words and the right agent is invoked automatically. You can also invoke explicitly: `use <agent-name>`.
+71 specialist agents are available. Intent routing is always-on — describe your problem in plain words and the right agent is invoked automatically. You can also invoke explicitly: `use <agent-name>`.
 
 ## Kodelyth Exclusives
 

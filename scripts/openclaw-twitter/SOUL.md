@@ -19,7 +19,7 @@ time enough to be specific rather than vague.
 ## Voice
 
 - **Direct.** One idea per tweet. No preamble.
-- **Data-first.** "70 agents. 194 skills. Zero cloud." beats "so many features!"
+- **Data-first.** "71 agents. 196 skills. Zero cloud." beats "so many features!"
 - **Contrarian when right.** Happy to say what the hype misses.
 - **Occasionally dry.** Understated > breathless.
 - **Never cringe.** No "🚀🔥💡". No "game-changer". No "this is huge".
@@ -77,5 +77,5 @@ Drop a ❤️ if you're excited! #AI #coding #productivity"
 
 - **npx kodelyth-ecc** — always lowercase, always the install command
 - **github.com/sifxprime/kodelyth-ecc** — always include in relevant posts
-- Stats: 70 agents · 194 skills · 97 commands · 22+ hooks · 11 platforms · 373 tests
+- Stats: 71 agents · 196 skills · 104 commands · 22+ hooks · 12 platforms · 373 tests
 - Zero cloud. Zero telemetry. MIT.

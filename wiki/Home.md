@@ -158,13 +158,13 @@ Month 3:    You try another tool. It uses pnpm. You praise the consistency.
 |---|---|---|
 | Project Lessons | `tasks/lessons.md` | Per-project hard rules from your corrections |
 | Global Memory | `~/.kodelyth/memory/` | Cross-project BM25 recall of past solutions |
-| Semantic Routing | 70 agents | Routes every message to the right specialist |
+| Semantic Routing | 71 agents | Routes every message to the right specialist |
 
 ---
 
-## Platform Support (11 platforms, 13 install targets)
+## Platform Support (12 platforms, 14 install targets)
 
-Kodelyth ECC installs on 11 AI coding platforms. Feature depth varies — hooks are a Claude Code native format with no equivalent on other platforms, and Cursor's agent system uses a different format:
+Kodelyth ECC installs on 12 AI coding platforms. Feature depth varies — hooks are a Claude Code native format with no equivalent on other platforms, and Cursor's agent system uses a different format:
 
 | Platform | Agents | Skills | Commands | Hooks | Rules |
 |---|---|---|---|---|---|
@@ -185,10 +185,10 @@ Kodelyth ECC installs on 11 AI coding platforms. Feature depth varies — hooks 
 ## Wiki Pages
 
 - [Installation Guide](Installation-Guide) — all install methods, targets, profiles, bundles, OS support
-- [Agent Reference](Agent-Reference) — all 70 agents including 8 adversarial devil-mode agents
-- [Skill Reference](Skill-Reference) — all 194 skills including MCP, swarm, dashboard, and safety hooks
+- [Agent Reference](Agent-Reference) — all 71 agents including 8 adversarial devil-mode agents
+- [Skill Reference](Skill-Reference) — all 196 skills including MCP, swarm, dashboard, and safety hooks
 - [Hook Reference](Hook-Reference) — all 22+ hooks and how they work
-- [Platform Support](Platform-Support) — per-platform capabilities for 11 platforms
+- [Platform Support](Platform-Support) — per-platform capabilities for 12 platforms
 - [FAQ](FAQ) — memory, MCP server, dashboard, devil-mode, swarm, SLSA/SBOM, privacy, troubleshooting
 
 ---
@@ -199,8 +199,8 @@ Kodelyth ECC installs on 11 AI coding platforms. Feature depth varies — hooks 
 |---|---|
 | **v1.8.0** | Real-time IDE-aware dashboard (Claude Code + Windsurf + Windsurf-Next + Cursor + Antigravity), cross-IDE memory protocol via MCP tools, `KODELYTH_EXTRA_IDE_WATCH` env var, 3 s SSE realtime, 373 tests |
 | **v1.7.3** | Social hype pack (5 X/Twitter SVGs + 5 thread scripts), full SVG version sync, GitHub issue templates, repo polish |
-| **v1.7.0** | Adversarial devil-mode (8 agents), MCP server, local dashboard, swarm orchestrator, cost-aware routing, self-evolving memory, SLSA L3 + SBOM, 11 platforms, 194 skills |
-| **v1.6.0** | 8 adversarial devil-mode agents, power bundles, 6 new IDE platform targets, 97 commands |
+| **v1.7.0** | Adversarial devil-mode (8 agents), MCP server, local dashboard, swarm orchestrator, cost-aware routing, self-evolving memory, SLSA L3 + SBOM, 12 platforms, 196 skills |
+| **v1.6.0** | 8 adversarial devil-mode agents, power bundles, 6 new IDE platform targets, 104 commands |
 | **v1.5.3** | Semantic intent routing — intent not keywords, code/trace paste detection, 62 agents, 188 skills |
 | **v1.5.2** | Parallel agents, `image-architect`, `/project-launch`, `/team-review`, `/lessons` |
 | **v1.5.1** | Compound learning — `capture-correction.js`, `read-lessons.js`, self-improvement workflow |

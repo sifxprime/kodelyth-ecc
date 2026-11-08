@@ -44,8 +44,8 @@
   <text x="102" y="250" font-size="64" font-weight="900" letter-spacing="-2.5" fill="url(#accent)">with every session.</text>
 
   <!-- Sub-headline -->
-  <text x="102" y="305" font-size="20" font-weight="400" fill="#9ca3af">70 specialist AI agents that learn how you work.</text>
-  <text x="102" y="332" font-size="20" font-weight="400" fill="#9ca3af">Runs on 11 platforms. Completely free.</text>
+  <text x="102" y="305" font-size="20" font-weight="400" fill="#9ca3af">71 specialist AI agents that learn how you work.</text>
+  <text x="102" y="332" font-size="20" font-weight="400" fill="#9ca3af">Runs on 12 platforms. Completely free.</text>
 
   <!-- Divider -->
   <line x1="102" y1="365" x2="680" y2="365" stroke="#ffffff" stroke-width="1" opacity="0.10"/>

@@ -16,8 +16,8 @@ hero_alt: "Repeated memory hits and routing misses becoming PR-ready skill upgra
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/evolve/
-last_updated: 2026-07-04
-version: 2.4.1
+last_updated: 2026-11-08
+version: 2.29.0
 category: feature
 ---
 # Self-evolving memory

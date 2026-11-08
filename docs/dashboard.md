@@ -16,8 +16,8 @@ hero_alt: "The localhost-only dashboard: eight tiles — Memory, RTK savings, Te
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/dashboard/
-last_updated: 2026-07-04
-version: 2.4.1
+last_updated: 2026-11-08
+version: 2.29.0
 category: feature
 ---
 # Local observability dashboard
@@ -30,7 +30,7 @@ category: feature
 
 ECC produces a lot of local state by default:
 
-- BM25 memory captures (`~/.kodelyth/memory/`)
+- BM25 memory captures (`~/.kodelythecc/memory/`)
 - Self-evolving memory signals + proposals (`~/.kodelyth/evolve/`)
 - Token-budget hook state (`~/.kodelyth/token-budget/`)
 - Swarm/orchestration session dirs (`.orchestration/<session>/`)

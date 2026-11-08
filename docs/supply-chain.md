@@ -16,8 +16,8 @@ hero_alt: "Three artifacts — a CycloneDX 1.5 SBOM, a sha256 content manifest, 
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/supply-chain/
-last_updated: 2026-07-04
-version: 2.4.1
+last_updated: 2026-11-08
+version: 2.29.0
 category: feature
 ---
 # Supply chain — SBOM, manifest, SLSA provenance
@@ -72,7 +72,7 @@ Generates a sha256 content manifest of every shipped asset.
 {
   "schema": "kodelyth.content-manifest/v1",
   "package": "kodelyth-ecc",
-  "pkg_version": "1.7.0",
+  "pkg_version": "2.29.0",
   "generated_at": "2026-05-10T17:00:00Z",
   "file_count": 730,
   "digest": "20813125…",
@@ -141,7 +141,7 @@ A successful run looks like:
 
 ```
 Kodelyth ECC supply-chain verify
-  package:           kodelyth-ecc@1.7.0
+  package:           kodelyth-ecc@2.29.0
   manifest digest:   20813125baad127bb578e4cbad6b72e2c4721d71cd236b6c039e7c155cd322ef
   files in manifest: 730
     ✓ ok:       730

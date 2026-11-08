@@ -19,8 +19,8 @@ hero_alt: "A complete removal: 777 shipped files, the RTK hook, codebase-mcp con
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/uninstall/
-last_updated: 2026-07-04
-version: 2.4.1
+last_updated: 2026-11-08
+version: 2.29.0
 category: guide
 ---
 
@@ -159,7 +159,7 @@ Sample output on this maintainer's Mac:
 
 ```
 Removing ECC-installed files from ~/.claude/ …
-  [dry-run] would remove 70 agents files from /Users/you/.claude/agents
+  [dry-run] would remove 71 agents files from /Users/you/.claude/agents
   [dry-run] would remove 301 skills files from /Users/you/.claude/skills
   [dry-run] would remove 99 commands files from /Users/you/.claude/commands
   [dry-run] would remove 12 hooks files from /Users/you/.claude/hooks

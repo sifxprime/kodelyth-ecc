@@ -1,6 +1,6 @@
 ---
 title: "MCP Server — Universal Adapter for AI Agents (Kodelyth ECC)"
-description: "ECC MCP server exposes 70 agents, 196 skills, 103 commands, 14 rules, BM25 memory to any MCP-compatible client — Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK."
+description: "ECC MCP server exposes 71 agents, 196 skills, 104 commands, 15 rules, BM25 memory to any MCP-compatible client — Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK."
 keywords:
   - MCP server
   - Model Context Protocol
@@ -11,19 +11,19 @@ keywords:
   - OpenAI Agents SDK
   - AI universal adapter
 og_title: "MCP Server — Universal Adapter for AI Agents (Kodelyth ECC)"
-og_description: "ECC MCP server exposes 70 agents, 196 skills, 103 commands, 14 rules, BM25 memory to any MCP-compatible client — Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK."
+og_description: "ECC MCP server exposes 71 agents, 196 skills, 104 commands, 15 rules, BM25 memory to any MCP-compatible client — Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK."
 og_image: /docs/mcp.svg
-hero_alt: "The ECC MCP server exposing 16 tools over stdio JSON-RPC to any MCP client, covering 70 agents, 196 skills, 103 commands and 15 rules."
+hero_alt: "The ECC MCP server exposing 16 tools over stdio JSON-RPC to any MCP client, covering 71 agents, 196 skills, 104 commands and 15 rules."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/mcp/
-last_updated: 2026-07-04
-version: 2.4.1
+last_updated: 2026-11-08
+version: 2.29.0
 category: feature
 ---
 # Kodelyth ECC — MCP Server
 
-The Kodelyth ECC MCP (Model Context Protocol) server is the **universal adapter** that lets any MCP-compatible client consume the full ECC stack: 70 agents, 196 skills, 103 commands, 14 rules, 3 power bundles, and the local BM25 self-learning memory.
+The Kodelyth ECC MCP (Model Context Protocol) server is the **universal adapter** that lets any MCP-compatible client consume the full ECC stack: 71 agents, 196 skills, 104 commands, 15 rules, 3 power bundles, and the local BM25 self-learning memory.
 
 If you've ever wished LangGraph, AutoGen, CrewAI, OpenAI Agents SDK, Claude Desktop, or any other agent framework could speak ECC natively — this is that bridge.
 
@@ -48,10 +48,23 @@ The server speaks JSON-RPC over **stdio**. It stays alive until stdin closes.
 You'll see one stderr banner on boot, e.g.:
 
 ```
-[kodelyth-mcp] ready · 1.7.0 · 16 tools · 6 prompts · 365 resources
+[kodelyth-mcp] ready · 2.29.0 · 16 tools · 6 prompts · 389 resources
 ```
 
 ### 2. Wire it into your MCP client
+
+#### Auto-wire with `--target` (recommended)
+
+You usually don't paste any config at all. Installing ECC into an IDE registers this server (and the local memory) for you:
+
+```bash
+npm i -g kodelyth-ecc
+kodelythecc --target cursor
+```
+
+The post-install always registers the server in Claude Code (`~/.claude.json`) and Claude Desktop, and then wires it into the targeted IDE when it's one of the six ECC can merge safely: **`claude-code`, `cursor`, `windsurf`, `gemini-cli`, `codex`, and `kiro`**. Five write the standard `{ mcpServers: { … } }` JSON; Codex gets a `[mcp_servers."kodelyth-ecc"]` TOML table instead. The merge is atomic and refuses to clobber a config it can't parse. Opt out with `--no-mcp-register`.
+
+**Cline and Roo Code** keep their MCP settings inside VS Code's `globalStorage`, a version-specific path ECC won't guess — on those two, paste the entry below by hand.
 
 #### Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS)
 
@@ -108,13 +121,13 @@ Prompts let clients summon canonical ECC context blocks by name, no tool call ne
 | Name | Returns |
 |---|---|
 | `routing-rule` | The full ECC intent routing rule (10-tier priority system). |
-| `agents-overview` | Compact list of all 70 agents with one-line descriptions. |
+| `agents-overview` | Compact list of all 71 agents with one-line descriptions. |
 | `skills-overview` | Compact list of all 196 skills. |
-| `commands-overview` | Compact list of all 103 slash commands. |
+| `commands-overview` | Compact list of all 104 slash commands. |
 | `handoff-chains` | The `agent-handoff` skill body — standard multi-agent chains for new feature, bug fix, refactor, incident, etc. |
 | `devil-mode` | The `/devil-mode` parallel command — fires the adversarial red-team crew. |
 
-### Resources (365)
+### Resources (389)
 
 Every agent, skill, command, rule, and bundle is also addressable as an MCP resource:
 
@@ -142,7 +155,7 @@ All resources are `text/markdown`. Use `resources/list` to discover, `resources/
 { "jsonrpc": "2.0", "id": 1, "result": {
   "protocolVersion": "2024-11-05",
   "capabilities": { "tools": {}, "resources": {}, "prompts": {} },
-  "serverInfo": { "name": "kodelyth-ecc", "version": "1.7.0" } } }
+  "serverInfo": { "name": "kodelyth-ecc", "version": "2.29.0" } } }
 
 // → client
 { "jsonrpc": "2.0", "id": 2, "method": "tools/call",
@@ -173,7 +186,7 @@ All resources are `text/markdown`. Use `resources/list` to discover, `resources/
 
 ## Privacy & safety
 
-- The server only reads files under this package and the local memory directory (default `~/.kodelyth/memory/`, override via `KODELYTH_MEMORY_DIR`).
+- The server only reads files under this package and the local memory directory (default `~/.kodelythecc/memory/`, override via `KODELYTH_MEMORY_DIR`).
 - It writes only when the client invokes `capture_memory`.
 - No network calls. No analytics. No phone-home.
 - The server never executes arbitrary commands or code. Tools that surface code (`get_agent`, etc.) return markdown documentation, not executable instructions.
@@ -190,11 +203,11 @@ All resources are `text/markdown`. Use `resources/list` to discover, `resources/
 
 ---
 
-## Roadmap interactions
+## Related
 
-- **Phase 2.5 — MCP client mode** will add the inverse: ECC agents consuming external MCP servers (Stripe, GitHub, Postgres, Brave, etc.) — making ECC the MCP **hub**, not just a node.
-- **Phase 2.3 — local dashboard** will visualize live MCP traffic so you can see which tools/prompts/resources clients hit, in real time.
-- **Phase 2.10 — prompt-injection guardrail** will sit in front of MCP responses to scrub jailbreak patterns before they reach client models.
+- **[External MCP Servers](./mcp-clients.md)** — the inverse direction: ECC consuming external MCP servers (Stripe, GitHub, Postgres, Brave, etc.), making ECC the MCP **hub**, not just a node. Shipped.
+- **[Dashboard](./dashboard.md)** — localhost observability across Memory, RTK, Terse, Codebase, Evolve, Catalog, and Sessions. Shipped.
+- **[Six IDEs, one MCP server](/blog/mcp-memory-six-ides)** — the auto-wiring story, which config file each IDE gets, and why the merge refuses to clobber.
 
 ---
 

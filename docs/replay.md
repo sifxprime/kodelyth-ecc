@@ -16,8 +16,8 @@ hero_alt: "Exporting a live session to a portable bundle.json, then replaying it
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/replay/
-last_updated: 2026-07-04
-version: 2.4.1
+last_updated: 2026-11-08
+version: 2.29.0
 category: feature
 ---
 # Kodelyth ECC — Session Replay
@@ -112,7 +112,7 @@ Stable schema `kodelyth.session-bundle/v1`. Single JSON file:
   "schema":      "kodelyth.session-bundle/v1",
   "session":     "swarm-2026-05-10-4a",
   "exported_at": "2026-05-10T17:30:00Z",
-  "exported_by": "kodelyth-ecc@1.7.0",
+  "exported_by": "kodelyth-ecc@2.29.0",
   "meta": {
     "task":     "audit oauth flow",
     "agents":   ["security-reviewer", "code-reviewer", "pair-programmer", "tdd-guide"],

@@ -1,6 +1,6 @@
 ---
 title: "Kodelyth ECC Documentation — AI Coding Toolkit for Claude Code, Cursor, Windsurf, and More"
-description: "Complete documentation for Kodelyth ECC — 70 specialist agents, 196 skills, 103 commands, RTK input compression, Terse mode, codebase graph, MCP server. Zero telemetry, 100% local."
+description: "Complete documentation for Kodelyth ECC — 71 specialist agents, 196 skills, 104 commands, the Super Agent orchestrator, RTK input compression, Terse mode, codebase graph, MCP server. Zero telemetry, 100% local."
 keywords:
   - kodelyth ecc
   - AI coding toolkit
@@ -22,23 +22,23 @@ keywords:
   - local AI toolkit
   - zero telemetry AI
 og_title: "Kodelyth ECC — Production AI Coding Toolkit Documentation"
-og_description: "70 agents, 196 skills, 103 commands, MCP server, RTK + Terse token savings, codebase graph — all local, zero telemetry. Docs, guides, and API reference."
+og_description: "71 agents, 196 skills, 104 commands, the Super Agent orchestrator, MCP server, RTK + Terse token savings, codebase graph — all local, zero telemetry. Docs, guides, and API reference."
 og_image: /social/og-image.svg
 og_type: website
 twitter_card: summary_large_image
 twitter_title: "Kodelyth ECC — AI Coding Toolkit Docs"
-twitter_description: "70 agents, 196 skills, MCP, RTK + Terse token savings — all local. Complete docs."
+twitter_description: "71 agents, 196 skills, 104 commands, Super Agent, MCP, RTK + Terse token savings — all local. Complete docs."
 canonical: /docs/
-last_updated: 2026-07-04
-version: 2.4.1
+last_updated: 2026-11-08
+version: 2.29.0
 category: hub
 ---
 
 # Kodelyth ECC Documentation
 
-The complete reference for **Kodelyth Elite Code Crew (ECC)** — a production-grade AI coding toolkit that ships as agents, skills, commands, hooks, and rules across 11 AI coding platforms. Everything runs locally. Zero telemetry.
+The complete reference for **Kodelyth Elite Code Crew (ECC)** — a production-grade AI coding toolkit that ships as agents, skills, commands, hooks, and rules across 12 AI coding platforms. Everything runs locally. Zero telemetry.
 
-**Version**: `2.4.1` · **npm**: [`kodelyth-ecc`](https://www.npmjs.com/package/kodelyth-ecc) · **GitHub**: [`sifxprime/kodelyth-ecc`](https://github.com/sifxprime/kodelyth-ecc)
+**Version**: `2.29.0` · **npm**: [`kodelyth-ecc`](https://www.npmjs.com/package/kodelyth-ecc) · **GitHub**: [`sifxprime/kodelyth-ecc`](https://github.com/sifxprime/kodelyth-ecc)
 
 ---
 
@@ -60,7 +60,7 @@ Two independent compression layers stack for **55-65% total token reduction** on
 ## Structural intelligence
 
 - **[Codebase Graph](./codebase-graph.md)** — AST-parsed knowledge graph across 158 languages via `codebase-memory-mcp`. 99% fewer tokens on "who calls X" questions vs file-by-file grep
-- **[MCP Server](./mcp.md)** — universal adapter exposing 70 agents + 196 skills + 103 commands + 14 rules to Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK, and any MCP client
+- **[MCP Server](./mcp.md)** — universal adapter exposing 71 agents + 196 skills + 104 commands + 15 rules + local memory; auto-wires into Claude Code, Cursor, Windsurf, Gemini CLI, Codex, and Kiro, and speaks to Claude Desktop, LangGraph, AutoGen, CrewAI, OpenAI Agents SDK, and any MCP client
 - **[External MCP Servers](./mcp-clients.md)** — register Stripe, GitHub, Postgres, Redis MCPs into the ECC surface
 
 ## Local, self-learning memory
@@ -71,6 +71,7 @@ Two independent compression layers stack for **55-65% total token reduction** on
 
 ## Advanced
 
+- **[Super Agent](./super-agent.md)** — the autonomous orchestrator: decompose a large objective into a dependency DAG, dispatch independent steps in parallel on their own branches, conflict-check and integrate, then verify. A deterministic, resumable, budget-governed state machine
 - **[Swarm](./swarm.md)** — parallel agent execution in isolated git worktrees + tmux
 - **[Replay](./replay.md)** — deterministic session replay from a portable bundle
 - **[Supply Chain](./supply-chain.md)** — SBOM, manifest, verify
@@ -96,8 +97,9 @@ Two independent compression layers stack for **55-65% total token reduction** on
 | Aider | ✓ | ✓ | ✓ | — | ✓ |
 | Kimi | ✓ | ✓ | ✓ | — | ✓ |
 | Gemini CLI | ✓ | ✓ | ✓ | — | ✓ |
+| Kiro | ✓ | ✓ | ✓ | — | ✓ |
 
-11 platforms, 13 install targets (some platforms have both user-level and project-level targets).
+12 platforms, 14 install targets (some platforms have both user-level and project-level targets). ECC's MCP server and local memory auto-wire into Claude Code, Cursor, Windsurf, Gemini CLI, Codex, and Kiro; the rest register MCP with a one-line manual paste.
 
 ## Design principles
 

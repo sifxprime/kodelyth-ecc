@@ -5,8 +5,8 @@ keywords: ["ECC sitemap", "Kodelyth documentation index", "docs directory"]
 og_title: "Kodelyth ECC — Documentation Sitemap"
 og_description: "All docs, all guides, all references — indexed."
 canonical: /docs/sitemap/
-last_updated: 2026-07-04
-version: 2.4.1
+last_updated: 2026-11-08
+version: 2.29.0
 category: meta
 ---
 
@@ -35,6 +35,7 @@ Every page in the Kodelyth ECC documentation, grouped by category. Newest docs f
 - **[Dashboard](./dashboard.md)** — Localhost observability, real data only
 - **[The Arena](./arena.md)** — GOD vs EVIL adversarial loop until the attacker gives up
 - **[Evolve](./evolve.md)** — Self-evolving memory pipeline
+- **[Super Agent](./super-agent.md)** — Autonomous orchestrator: decompose, dispatch, integrate, verify
 - **[Swarm](./swarm.md)** — Parallel agents in git worktrees + tmux
 - **[Replay](./replay.md)** — Deterministic session replay from portable bundles
 - **[Supply Chain](./supply-chain.md)** — SBOM, manifest, SLSA L3 verification
@@ -55,7 +56,7 @@ Every doc has YAML frontmatter with:
 
 ## Version
 
-All docs in this tree are current as of **v2.4.1** (2026-07-04).
+All docs in this tree are current as of **v2.29.0** (2026-11-08).
 
 ## Related
 

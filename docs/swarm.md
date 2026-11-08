@@ -16,8 +16,8 @@ hero_alt: "One task fanning out to N specialist agents, each in its own isolated
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/swarm/
-last_updated: 2026-07-04
-version: 2.4.1
+last_updated: 2026-11-08
+version: 2.29.0
 category: feature
 ---
 # Kodelyth ECC — Swarm Orchestrator

@@ -19,8 +19,8 @@ hero_alt: "The same reply before and after compression: filler and restatement r
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/terse-mode/
-last_updated: 2026-07-04
-version: 2.4.1
+last_updated: 2026-11-08
+version: 2.29.0
 category: feature
 ---
 

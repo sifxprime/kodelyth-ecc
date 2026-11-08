@@ -19,8 +19,8 @@ hero_alt: "Typing kodelythecc alone opening an arrow-key menu: update check, das
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/interactive-cli/
-last_updated: 2026-07-04
-version: 2.4.1
+last_updated: 2026-11-08
+version: 2.29.0
 category: feature
 ---
 
@@ -29,7 +29,7 @@ category: feature
 Type `kodelythecc` alone in a real terminal → an arrow-key menu opens.
 
 ```
-⚙ Kodelyth ECC  v2.4.1  ·  Elite Code Crew   up to date
+⚙ Kodelyth ECC  v2.29.0  ·  Elite Code Crew   up to date
 
  ▸ Open Dashboard                     localhost — RTK, Terse, Codebase, Memory
    Install ECC for another IDE        13-target picker
@@ -89,7 +89,7 @@ Boots `kodelythecc dashboard` inline (foreground, port 5747, browser opens). See
 
 ### Install ECC for another IDE
 
-Nested picker for 13 install targets:
+Nested picker for 14 install targets:
 
 - `claude-code`
 - `cursor-project`
@@ -177,7 +177,7 @@ The update checker is separately available:
 
 ```javascript
 const { check } = require('kodelyth-ecc/scripts/cli/update-check.js');
-const r = await check({ current: '2.4.1' });
+const r = await check({ current: '2.29.0' });
 // → { current, latest, updateAvailable, cached }
 ```
 

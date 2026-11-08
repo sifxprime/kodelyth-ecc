@@ -1,6 +1,6 @@
 ---
 title: "Getting Started with Kodelyth ECC — Install AI Agents in Claude Code, Cursor, Windsurf"
-description: "Install Kodelyth ECC in one command. 70 AI agents, RTK token savings, Terse mode, and codebase graph auto-wire into Claude Code, Cursor, Windsurf, Codex, Antigravity, and more."
+description: "Install Kodelyth ECC in one command. 71 AI agents, the Super Agent orchestrator, RTK token savings, Terse mode, and codebase graph auto-wire into Claude Code, Cursor, Windsurf, Codex, Antigravity, Kiro, and more."
 keywords:
   - install kodelyth ecc
   - Claude Code setup
@@ -13,25 +13,25 @@ keywords:
   - npx kodelyth-ecc
   - Claude Code MCP setup
 og_title: "Getting Started — Kodelyth ECC"
-og_description: "One-command install for 70 AI agents + token savings + codebase graph across 11 AI coding IDEs."
+og_description: "One-command install for 71 AI agents + the Super Agent orchestrator + token savings + codebase graph across 12 AI coding IDEs."
 og_image: /docs/getting-started.svg
-hero_alt: "One install command wiring 70 agents, RTK savings, Terse mode and the codebase graph into Claude Code, Cursor, Windsurf, Codex and 11 platforms."
+hero_alt: "One install command wiring 71 agents, RTK savings, Terse mode and the codebase graph into Claude Code, Cursor, Windsurf, Codex, Kiro and 12 platforms."
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/getting-started/
-last_updated: 2026-07-04
-version: 2.4.1
+last_updated: 2026-11-08
+version: 2.29.0
 category: guide
 ---
 
 # Getting Started
 
-Install Kodelyth ECC and get 70 specialist agents, 196 skills, 103 slash commands, RTK input compression, Terse output compression, and the codebase graph — all wired into your AI coding tool in one command.
+Install Kodelyth ECC and get 71 specialist agents (including the Super Agent orchestrator), 196 skills, 104 slash commands, RTK input compression, Terse output compression, and the codebase graph — all wired into your AI coding tool in one command.
 
 ## Prerequisites
 
 - **Node.js 18+** (check with `node --version`)
-- **A supported AI coding tool** — Claude Code, Cursor, Windsurf, Codex, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, or Gemini CLI
+- **A supported AI coding tool** — Claude Code, Cursor, Windsurf, Codex, Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI, or Kiro
 
 macOS, Linux, and Windows are all supported.
 
@@ -49,11 +49,11 @@ Restart your AI coding tool. Done.
 That single flow ran:
 
 1. Installed both binaries (`kodelyth-ecc` and short-form `kodelythecc`) to your PATH
-2. Copied 70 agents + 196 skills + 103 commands + 22 hooks + 14 rules into `~/.claude/`
+2. Copied 71 agents + 196 skills + 104 commands + 44 hook entries + 15 rules into `~/.claude/`
 3. Auto-installed **RTK** binary (via Homebrew on macOS, curl on Linux) and wired its PreToolUse hook
 4. Copied the **Terse mode** skill + `/terse` and `/terse-compress` slash commands (dormant — activate with `/terse`)
 5. Auto-installed **codebase-memory-mcp** and registered its MCP entries in every detected AI-coding agent
-6. Registered **ECC's own MCP server** in Claude Code (`~/.claude.json`) and Claude Desktop (`claude_desktop_config.json`)
+6. Registered **ECC's own MCP server** (and local memory) in Claude Code (`~/.claude.json`) and Claude Desktop — and, when your `--target` is Cursor, Windsurf, Gemini CLI, Codex, or Kiro, auto-wired it there too
 7. Ran legacy-memory migration if you had `~/.kodelyth/` from an older install → `~/.kodelythecc/`
 
 ### Install for other IDEs
@@ -69,9 +69,10 @@ kodelythecc --target roocode             # Roo Code
 kodelythecc --target aider               # Aider
 kodelythecc --target kimi                # Kimi
 kodelythecc --target gemini-home         # Gemini CLI (user-level)
+kodelythecc --target kiro                # Kiro (AWS) — project-level
 ```
 
-Add `--codebase-graph` to any of these to also install the codebase graph MCP.
+Add `--codebase-graph` to any of these to also install the codebase graph MCP. Targeting Cursor, Windsurf, Gemini CLI, Codex, or Kiro also auto-wires ECC's MCP server and local memory into that IDE.
 
 ## Verify the install
 
@@ -116,6 +117,11 @@ Index this project
 → codebase-memory-mcp builds an AST graph of your repo.
 
 ```
+/super-agent build a rate-limited login API with tests
+```
+→ the autonomous orchestrator decomposes the objective into a dependency DAG, runs independent steps in parallel on their own branches, conflict-checks and integrates, then verifies — resumable and budget-capped. See [Super Agent](./super-agent.md).
+
+```
 /terse full
 ```
 → Terse mode activates. Every reply from this point is compressed.
@@ -127,7 +133,7 @@ You never had to remember an agent name. That's [Intent Routing v2](./intent-rou
 Type `kodelythecc` alone in a real terminal:
 
 ```
-⚙ Kodelyth ECC  v2.4.1  ·  Elite Code Crew   up to date
+⚙ Kodelyth ECC  v2.29.0  ·  Elite Code Crew   up to date
 
  ▸ Open Dashboard
    Install ECC for another IDE
@@ -197,11 +203,11 @@ Full subcommand list:
 └── dashboard-daemon.pid           # If dashboard is backgrounded
 
 ~/.claude/                          # Claude Code config directory
-├── agents/                        # 70 ECC agent files
-├── skills/                        # 194 ECC skill files
-├── commands/                      # 97 ECC slash commands
-├── hooks/                         # 22+ ECC hook scripts
-├── rules/                         # 14 always-on rule files
+├── agents/                        # 71 ECC agent files
+├── skills/                        # 196 ECC skill files
+├── commands/                      # 104 ECC slash commands
+├── hooks/                         # 9 ECC hook scripts (44 entries across 8 events)
+├── rules/                         # 15 always-on rule files
 └── settings.json                  # ECC hooks + mcpServers entries
 
 ~/.claude.json                      # User-level MCP server registry (ECC + codebase-mcp)

@@ -16,8 +16,8 @@ hero_alt: "Registering external MCP servers — Stripe, GitHub, Postgres, Redis,
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/mcp-clients/
-last_updated: 2026-07-04
-version: 2.4.1
+last_updated: 2026-11-08
+version: 2.29.0
 category: feature
 ---
 # Kodelyth ECC — MCP Client Mode

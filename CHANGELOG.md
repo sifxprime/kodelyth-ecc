@@ -2,6 +2,29 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.29.0 — Publish fix: ajv was an undeclared dependency (November 2026)
+
+**What happened:** v2.26.0, v2.27.0, and v2.28.0 were tagged and released on GitHub,
+but their npm publishes all **failed** — so npm stayed at v2.25.0. The pre-publish
+test step crashed with `Cannot find module 'ajv'`: `scripts/lib/state-store/
+schema.js` required `ajv` at module load, but `ajv` was never a declared
+dependency. It was present on the maintainer's machine (transitively) so local
+tests passed, and absent in CI's clean install so the publish test failed. The
+new `state-store` test (added in v2.26.0) imports state-store at the top level,
+which is what surfaced it — the same undeclared-dependency bug class as sql.js.
+
+**The fix:** `ajv` is now loaded lazily inside `getAjv()` (not at import), with a
+clean `ECC_AJV_UNAVAILABLE` error if absent, and it is declared as an **optional**
+dependency alongside `sql.js` so it travels with the SQLite state-store it
+validates. Importing state-store no longer requires ajv; the module degrades the
+same way it does without sql.js.
+
+**This release rolls up everything from v2.26.0–v2.28.0** (Memory Core, Platform
+reach, Super Agent) — all of which is already on `main` — and is the first of
+them to actually reach npm. Because npm versions and GitHub tags are immutable,
+those three versions could not be re-published under their own numbers; v2.29.0
+carries their code to npm.
+
 ## v2.28.0 — Super Agent (beta): the autonomous orchestrator (November 2026)
 
 The driver the memory/orchestration audit found missing. ECC had the primitives —

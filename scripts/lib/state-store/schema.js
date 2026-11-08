@@ -2,7 +2,11 @@
 
 const fs = require('fs');
 const path = require('path');
-const Ajv = require('ajv');
+// `ajv` is loaded lazily inside getAjv(), NOT at module top. It is an OPTIONAL
+// dependency (it validates the optional SQLite state-store's entities), and
+// requiring it here eagerly made importing state-store throw "Cannot find module
+// 'ajv'" on any install without it — which is every default install, and which
+// broke the pre-publish test step in CI. Same bug class as the sql.js one.
 
 const SCHEMA_PATH = path.join(__dirname, '..', '..', '..', 'schemas', 'state-store.schema.json');
 
@@ -31,6 +35,19 @@ function readSchema() {
 function getAjv() {
   if (cachedAjv) {
     return cachedAjv;
+  }
+
+  let Ajv;
+  try {
+    Ajv = require('ajv');
+  } catch (cause) {
+    const err = new Error(
+      'state-store schema validation needs the optional dependency "ajv", which is not installed. ' +
+      'Install it (or reinstall kodelyth-ecc) to enable session-store / status-DB validation.'
+    );
+    err.code = 'ECC_AJV_UNAVAILABLE';
+    err.cause = cause;
+    throw err;
   }
 
   cachedAjv = new Ajv({

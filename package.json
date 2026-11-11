@@ -63,7 +63,19 @@
     "prompt-engineering",
     "ai-assistant",
     "code-review",
-    "windows"
+    "windows",
+    "super-agent",
+    "autonomous-agent",
+    "autonomous-orchestrator",
+    "memory-core",
+    "mcp-auto-wire",
+    "agentic-coding",
+    "kiro",
+    "ai-code-review",
+    "claude-code-toolkit",
+    "mcp-server",
+    "token-savings",
+    "rust-token-killer"
   ],
   "bin": {
     "kodelyth-ecc": "bin/kodelyth-ecc.js",
@@ -111,5 +123,9 @@
     "!**/tests/",
     "!**/*.log",
     "!**/.DS_Store"
-  ]
+  ],
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/sifxprime"
+  }
 }

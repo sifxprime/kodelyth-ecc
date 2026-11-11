@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="400" height="120"
+     font-family="'Space Grotesk','Inter',system-ui,-apple-system,sans-serif">
+
+  <!-- Myolyth Mark — Ascent (orange on light, ghost 0.30) -->
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#EA580C">
+    <!-- ghost — trailing below -->
+    <polyline points="56,83 73,57 90,83"
+              stroke-width="4" stroke-opacity="0.30"/>
+    <!-- solid — apex driving up -->
+    <polyline points="50,74 73,37 96,74"
+              stroke-width="12"/>
+  </g>
+
+  <!-- Wordmark — vertically centered on mark axis (y=60) -->
+  <text x="126" y="73"
+        font-size="36" font-weight="700" fill="#0f172a"
+        letter-spacing="3">MYOLYTH</text>
+
+</svg>

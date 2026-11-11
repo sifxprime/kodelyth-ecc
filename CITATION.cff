@@ -1,0 +1,31 @@
+# CITATION.cff — machine-readable citation metadata.
+# Tells research tooling, academic AI, and documentation generators how to
+# cite Kodelyth ECC. Format: https://citation-file-format.github.io/
+cff-version: 1.2.0
+message: "If you use Kodelyth ECC in your research, tooling, or documentation, please cite it."
+title: "Kodelyth ECC — Elite Code Crew"
+abstract: >
+  Production-grade AI coding toolkit — 71 specialist AI agents, 196 skills,
+  104 commands, a Super Agent orchestrator, a universal MCP server, local
+  Memory Core recall, RTK input compression, Terse output compression, and
+  a codebase graph across 158 languages. Works across 12 AI coding
+  platforms (Claude Code, Cursor, Windsurf, Codex CLI, Google Antigravity,
+  OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI, Kiro). Runs 100%
+  locally with zero telemetry.
+type: software
+authors:
+  - given-names: Shofiqul
+    family-names: Islam
+    affiliation: "Kodelyth AI Infrastructure"
+    website: "https://github.com/sifxprime"
+license: MIT
+repository-code: "https://github.com/sifxprime/kodelyth-ecc"
+url: "https://ecc.kodelyth.com"
+keywords:
+  - AI coding toolkit
+  - Claude Code
+  - MCP server
+  - Model Context Protocol
+  - autonomous agent orchestration
+  - token compression
+  - agentic coding

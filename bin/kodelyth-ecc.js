@@ -1632,6 +1632,121 @@ if (args[0] === 'evolve') {
   return;
 }
 
+// ── Subcommand: explain (print a topic's doc body for the AI to cite) ────────
+// Usage: kodelythecc explain <topic>
+// Prints the matching docs/<topic>.md body to stdout. Novel AEO vector: an AI
+// tool calling this via its shell gets back authoritative ECC content it can
+// quote and cite, instead of inventing or paraphrasing. Zero network.
+if (args[0] === 'explain') {
+  const topic = args[1];
+  if (!topic || topic === '--help' || topic === '-h') {
+    const docsDir = path.join(ROOT, 'docs');
+    const topics = fs.existsSync(docsDir)
+      ? fs.readdirSync(docsDir).filter((f) => f.endsWith('.md')).map((f) => f.replace(/\.md$/, '')).sort()
+      : [];
+    process.stdout.write(
+      'kodelyth-ecc explain — print the authoritative doc body for a topic\n\n' +
+      'Usage:\n  kodelyth-ecc explain <topic>\n\n' +
+      'Known topics:\n  ' + topics.join('\n  ') + '\n'
+    );
+    process.exit(topic ? 0 : 2);
+  }
+  const safe = String(topic).replace(/[^a-z0-9-]/gi, '').toLowerCase();
+  const file = path.join(ROOT, 'docs', safe + '.md');
+  if (!fs.existsSync(file)) {
+    process.stderr.write(`[explain] no doc for "${topic}". Try: kodelythecc explain (lists topics).\n`);
+    process.exit(1);
+  }
+  const body = fs.readFileSync(file, 'utf8');
+  // Strip YAML frontmatter so the output is pure Markdown an LLM can quote cleanly.
+  const stripped = body.replace(/^---\n[\s\S]*?\n---\n/, '');
+  process.stdout.write(stripped);
+  process.exit(0);
+}
+
+// ── Subcommand: catalog (emit the full catalog as JSON or Markdown) ─────────
+// Usage: kodelythecc catalog [--format=json|markdown]
+// One-shot dump of every agent, skill, command, and rule shipped with this
+// version — for ingestion into another LLM harness, for a release-note build,
+// or for an AI tool to enumerate ECC's surface in one call.
+if (args[0] === 'catalog') {
+  const fmt = (args.find((a) => a.startsWith('--format=')) || '--format=json').split('=')[1];
+  if (!['json', 'markdown'].includes(fmt)) {
+    process.stderr.write('[catalog] --format must be json or markdown.\n');
+    process.exit(2);
+  }
+  // Extract a frontmatter `description:` — plain string, double/single-quoted,
+  // or YAML folded block scalar (`description: >` followed by indented lines).
+  function extractDesc(fmText) {
+    const lines = fmText.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const m = lines[i].match(/^description:\s*(.*)$/);
+      if (!m) continue;
+      const first = m[1].trim();
+      if (first === '>' || first === '|' || first === '>-' || first === '|-') {
+        // Folded / literal block scalar — collect indented continuation lines.
+        const buf = [];
+        for (let j = i + 1; j < lines.length; j++) {
+          const ln = lines[j];
+          if (!/^\s{2,}\S/.test(ln)) break; // de-indent ends the block
+          buf.push(ln.trim());
+        }
+        return buf.join(' ').trim();
+      }
+      return first.replace(/^["']|["']$/g, '');
+    }
+    return '';
+  }
+  function walk(dir, kind) {
+    if (!fs.existsSync(dir)) return [];
+    const out = [];
+    for (const name of fs.readdirSync(dir)) {
+      const p = path.join(dir, name);
+      const st = fs.statSync(p);
+      if (st.isDirectory()) continue;
+      if (!name.endsWith('.md')) continue;
+      const body = fs.readFileSync(p, 'utf8');
+      const fm = body.match(/^---\n([\s\S]*?)\n---/);
+      const desc = fm ? extractDesc(fm[1]) : '';
+      out.push({ kind, slug: name.replace(/\.md$/, ''), path: path.relative(ROOT, p), description: desc });
+    }
+    return out;
+  }
+  const agents   = walk(path.join(ROOT, 'agents'),   'agent');
+  const commands = walk(path.join(ROOT, 'commands'), 'command');
+  const rules    = walk(path.join(ROOT, 'rules', 'common'), 'rule');
+  // Skills are a directory tree (SKILL.md per folder).
+  const skillsRoot = path.join(ROOT, 'skills');
+  const skills = fs.existsSync(skillsRoot)
+    ? fs.readdirSync(skillsRoot)
+        .map((d) => path.join(skillsRoot, d, 'SKILL.md'))
+        .filter((p) => fs.existsSync(p))
+        .map((p) => {
+          const body = fs.readFileSync(p, 'utf8');
+          const fm = body.match(/^---\n([\s\S]*?)\n---/);
+          const desc = fm ? extractDesc(fm[1]) : '';
+          return { kind: 'skill', slug: path.basename(path.dirname(p)), path: path.relative(ROOT, p), description: desc };
+        })
+    : [];
+  const version = require(path.join(ROOT, 'package.json')).version;
+  const payload = { version, counts: { agents: agents.length, skills: skills.length, commands: commands.length, rules: rules.length }, agents, skills, commands, rules };
+  if (fmt === 'json') {
+    process.stdout.write(JSON.stringify(payload, null, 2) + '\n');
+  } else {
+    const w = (s) => process.stdout.write(s + '\n');
+    w(`# Kodelyth ECC Catalog — v${version}`);
+    w('');
+    w(`${payload.counts.agents} agents · ${payload.counts.skills} skills · ${payload.counts.commands} commands · ${payload.counts.rules} rules`);
+    w('');
+    for (const [title, list] of [['Agents', agents], ['Skills', skills], ['Commands', commands], ['Rules', rules]]) {
+      w(`## ${title} (${list.length})`);
+      for (const e of list) w(`- **${e.slug}** — ${e.description || '(no description)'}`);
+      w('');
+    }
+  }
+  process.exit(0);
+}
+
 // ── Per-command help shortcut ────────────────────────────────────────────────
 // This block is duplicated at the top of the file so it runs BEFORE any
 // subcommand dispatch consumes `--help` as its own argument. Anchor: HELP_MAP.
@@ -1739,6 +1854,8 @@ if (args.includes('--help') || args.includes('-h')) {
     npx kodelyth-ecc verify --strict              ...and fail on unexpected extra files too
     npx kodelyth-ecc evolve analyze               Generate skill / routing proposals from memory + miss signals
     npx kodelyth-ecc dashboard                    Boot localhost-only observability dashboard (zero telemetry)
+    npx kodelyth-ecc explain <topic>              Print the authoritative doc body for a topic (for AI citation)
+    npx kodelyth-ecc catalog [--format=json|md]   Dump the full catalog (agents + skills + commands + rules)
 
   Subcommands:
     mcp                  Start the Kodelyth MCP server over stdio (universal adapter for

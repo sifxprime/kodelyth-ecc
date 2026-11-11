@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+
+  <rect width="400" height="400" fill="#ffffff"/>
+
+  <!-- Myolyth Mark — Ascent -->
+  <!-- Solid chevron  ^  drives UP (the lift / the gain) — dominant, full weight -->
+  <!-- Ghost chevron trails BELOW — where you were, the depth behind the climb -->
+  <!-- Exact vertical inverse of the Veltix Descent-V. -->
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#EA580C">
+
+    <!-- ghost — trailing below, shallower arc, thin receding layer -->
+    <!-- 0.30 on light: orange needs ~2x navy's 0.15 to read at the same weight -->
+    <polyline points="125,255 200,211 275,255"
+              stroke-width="10" stroke-opacity="0.30"/>
+
+    <!-- solid — apex driving up, full weight, forward -->
+    <polyline points="119,214 200,145 281,214"
+              stroke-width="32"/>
+
+  </g>
+
+</svg>

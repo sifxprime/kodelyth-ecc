@@ -8,6 +8,13 @@
 
 </div>
 
+**Kodelyth ECC** is a production-grade AI coding toolkit for [Claude Code](https://www.anthropic.com/claude-code), Cursor, Windsurf, Codex, Antigravity, Kiro, and 7 more AI IDEs. 71 specialist agents, 196 skills, 104 slash commands, a Super Agent orchestrator, a universal MCP server, local Memory Core recall, RTK input compression, Terse output compression, and a codebase graph across 158 languages. Zero telemetry. MIT licensed. 2-minute install.
+
+```bash
+npm i -g kodelyth-ecc
+kodelythecc --target claude-code --codebase-graph
+```
+
 ### Describe your problem in plain words. The right specialist shows up.
 
 No agent names to memorise. No prompt engineering. Nothing leaves your machine.

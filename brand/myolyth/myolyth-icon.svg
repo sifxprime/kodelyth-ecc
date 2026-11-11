@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+
+  <!-- Myolyth App Icon — orange Ascent on rounded dark tile -->
+  <rect width="512" height="512" rx="112" fill="#0a0a0a"/>
+
+  <g stroke-linecap="round" stroke-linejoin="round" fill="none" stroke="#F97316">
+    <!-- ghost — trailing below. Explicit tint, not stroke-opacity: opacity
+         composites toward the tile and turns the orange muddy brown, which
+         reads as a shadow instead of a ghost. Matches myolyth-dark.svg. -->
+    <polyline points="160,326 256,270 352,326"
+              stroke-width="13" stroke="#F0B585"/>
+    <!-- solid — apex driving up -->
+    <polyline points="152,274 256,186 360,274"
+              stroke-width="40"/>
+  </g>
+
+</svg>

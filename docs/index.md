@@ -1,5 +1,6 @@
 ---
 title: "Kodelyth ECC Documentation — AI Coding Toolkit for Claude Code, Cursor, Windsurf, and More"
+author: Kodelyth
 description: "Complete documentation for Kodelyth ECC — 71 specialist agents, 196 skills, 104 commands, the Super Agent orchestrator, RTK input compression, Terse mode, codebase graph, MCP server. Zero telemetry, 100% local."
 keywords:
   - kodelyth ecc

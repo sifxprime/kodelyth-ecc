@@ -1,5 +1,6 @@
 ---
 title: "Documentation Sitemap — Kodelyth ECC"
+author: Kodelyth
 description: "Complete sitemap for Kodelyth ECC documentation. Every page, every guide, every reference."
 keywords: ["ECC sitemap", "Kodelyth documentation index", "docs directory"]
 og_title: "Kodelyth ECC — Documentation Sitemap"

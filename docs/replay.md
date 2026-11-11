@@ -1,5 +1,6 @@
 ---
 title: "Session Replay — Deterministic AI Session Bundles (Kodelyth ECC)"
+author: Kodelyth
 description: "Export any Kodelyth ECC coordination session as a portable bundle. Deterministic replay with variations. Perfect for reproducing bugs and A/B testing agent workflows."
 keywords:
   - AI session replay

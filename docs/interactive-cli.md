@@ -1,5 +1,6 @@
 ---
 title: "Interactive CLI — Arrow-Key Menu, Update Check, Background Daemon"
+author: Kodelyth
 description: "Type kodelythecc alone in a terminal for an arrow-key menu with live update check, dashboard, IDE installer, and background daemon. Zero-dep raw-mode CLI in Kodelyth ECC."
 keywords:
   - kodelythecc CLI

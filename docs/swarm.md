@@ -1,5 +1,6 @@
 ---
 title: "Swarm Orchestrator — Parallel AI Agents in Git Worktrees"
+author: Kodelyth
 description: "Run N specialist AI agents simultaneously in isolated git worktrees + tmux sessions. Auto-picks agents from task signals. Maximum parallelism for Kodelyth ECC."
 keywords:
   - agent swarm

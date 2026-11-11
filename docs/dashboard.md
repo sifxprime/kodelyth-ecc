@@ -1,5 +1,6 @@
 ---
 title: "Local Observability Dashboard — Kodelyth ECC"
+author: Kodelyth
 description: "Localhost-only observability dashboard for Kodelyth ECC — Memory (BM25), RTK savings, Terse mode, Codebase graph, Arena, Evolve, Catalog, Sessions. Zero telemetry, zero external deps."
 keywords:
   - ECC dashboard

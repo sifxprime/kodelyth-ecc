@@ -1,5 +1,6 @@
 ---
 title: "Super Agent — the Autonomous Orchestrator (Kodelyth ECC)"
+author: Kodelyth
 description: "Drive one large objective to a verified result through ECC's Super Agent: a deterministic, resumable, budget-governed state machine that decomposes into a dependency DAG, dispatches independent steps in parallel on their own branches, conflict-checks and integrates, then verifies. Nothing faked."
 keywords:
   - autonomous agent orchestrator
@@ -17,9 +18,20 @@ hero_alt: "One objective flowing through a state machine: decompose into a depen
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/super-agent/
-last_updated: 2026-11-08
-version: 2.29.0
+last_updated: 2026-11-10
+version: 2.30.0
 category: feature
+faq:
+  - q: "What is the Super Agent in Kodelyth ECC?"
+    a: "An autonomous orchestrator that drives one large objective to a verified result. It decomposes the goal into a dependency DAG, dispatches independent steps in parallel on their own branches, integrates with conflict checks, then verifies — all through a deterministic, resumable, budget-governed state machine."
+  - q: "When should I use the Super Agent vs a specialist agent?"
+    a: "Use the Super Agent for a feature or change too large for one pass that splits into dependent steps. Use a specialist directly (debug-detective, code-reviewer, etc.) for single edits or one-file changes. For independent parallel work with no dependencies, use /swarm instead — it is lighter."
+  - q: "How does the Super Agent avoid faking step results?"
+    a: "Every step is recorded with an honest status. A step that did not succeed is marked failed, and a failed step whose result others depend on stalls the run instead of letting the machine build on a broken foundation. The verification gate requires actual passing tests with evidence; it is not a self-report."
+  - q: "What happens if the Super Agent hits its budget cap?"
+    a: "The machine halts and reports the reason. The step or token cap is a hard stop, not a suggestion — it is not bypassed. You can resume later with `kodelythecc super-agent next <runId>`; the run persists after every step."
+  - q: "Can a Super Agent run resume after a crash?"
+    a: "Yes. Runs are persisted after every step. Use `kodelythecc super-agent list` to find the runId, then `kodelythecc super-agent next <runId>` to continue from exactly where it stopped."
 ---
 
 # Super Agent — the autonomous orchestrator

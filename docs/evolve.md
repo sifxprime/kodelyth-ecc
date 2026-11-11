@@ -1,5 +1,6 @@
 ---
 title: "Self-Evolving Memory — Compound Learning in Kodelyth ECC"
+author: Kodelyth
 description: "Turn repeated memory hits and routing misses into PR-ready skill upgrades and rule additions. Never auto-applies — produces drafts you review."
 keywords:
   - self-evolving memory

@@ -1,5 +1,6 @@
 ---
 title: "The Arena — GOD vs EVIL Adversarial Loop in Kodelyth ECC"
+author: Kodelyth
 description: "Two agent crews fight over your code until the attacker gives up. GOD builds and hardens, EVIL attacks and proves, verified findings return to GOD. Scored, budget-capped, and it remembers what it learned."
 keywords:
   - adversarial AI agents

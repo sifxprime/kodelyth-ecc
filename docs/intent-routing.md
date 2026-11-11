@@ -1,5 +1,6 @@
 ---
 title: "Intent Routing v2 — Plain-Language to Specialist Agent in Claude Code"
+author: Kodelyth
 description: "How Kodelyth ECC routes plain-language messages to 70 specialist AI agents automatically. 8 confidence dimensions, session-state awareness, terse-mode integration, evolve pipeline."
 keywords:
   - AI agent routing

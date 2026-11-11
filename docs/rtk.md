@@ -1,5 +1,6 @@
 ---
 title: "RTK Integration — 60-90% Input Token Savings for Claude Code and Every AI IDE"
+author: Kodelyth
 description: "How Kodelyth ECC wires RTK (Rust Token Killer) into Claude Code, Cursor, Windsurf, and every supported AI IDE for 60-90% shell-command input token savings — automatically."
 keywords:
   - RTK

@@ -1,5 +1,6 @@
 ---
 title: "Getting Started with Kodelyth ECC — Install AI Agents in Claude Code, Cursor, Windsurf"
+author: Kodelyth
 description: "Install Kodelyth ECC in one command. 71 AI agents, the Super Agent orchestrator, RTK token savings, Terse mode, and codebase graph auto-wire into Claude Code, Cursor, Windsurf, Codex, Antigravity, Kiro, and more."
 keywords:
   - install kodelyth ecc
@@ -19,9 +20,33 @@ hero_alt: "One install command wiring 71 agents, RTK savings, Terse mode and the
 og_type: article
 twitter_card: summary_large_image
 canonical: /docs/getting-started/
-last_updated: 2026-11-08
-version: 2.29.0
+last_updated: 2026-11-10
+version: 2.30.0
 category: guide
+howto:
+  name: "Install Kodelyth ECC and wire it into your AI coding tool"
+  description: "Install 71 AI agents, the Super Agent orchestrator, token savings, and a universal MCP server into Claude Code (or any of 11 other AI IDEs) in one command."
+  totalTime: PT2M
+  steps:
+    - name: "Install the CLI"
+      text: "Run `npm i -g kodelyth-ecc`. Requires Node.js 18 or newer. This puts two identical binaries on your PATH — `kodelyth-ecc` and the shorter `kodelythecc`."
+    - name: "Wire it into your AI tool"
+      text: "Run `kodelythecc --target claude-code --codebase-graph`. This copies 71 agents, 196 skills, and 104 commands into ~/.claude/, installs RTK, drops in Terse mode, wires the codebase graph, and auto-registers the MCP server. Restart your AI tool."
+    - name: "Verify the install"
+      text: "Run `kodelythecc doctor`. All green means ECC is live. You can also check `kodelythecc rtk status`, `kodelythecc terse status`, and `kodelythecc codebase status` individually."
+    - name: "Invoke your first agent"
+      text: "Type a plain-language question into your AI tool — e.g. 'I've been stuck on this bug for hours'. Intent routing picks the right specialist (debug-detective here) automatically; you never type agent names unless you want to."
+faq:
+  - q: "What's the minimum Node.js version for Kodelyth ECC?"
+    a: "Node.js 18 or newer. Check with `node --version`."
+  - q: "Does Kodelyth ECC send any data to the cloud?"
+    a: "No. Everything runs locally. Memory, routing, RTK compression, Terse compression, the codebase graph, and the MCP server all run on your machine. Zero telemetry."
+  - q: "Which AI coding tools does it support?"
+    a: "12 platforms with 14 install targets: Claude Code, Cursor, Windsurf, Codex CLI, Google Antigravity, OpenCode, Cline, Roo Code, Aider, Kimi, Gemini CLI, and Kiro. Use `kodelythecc --target <name>` to install for a specific one."
+  - q: "How do I uninstall Kodelyth ECC?"
+    a: "Run `kodelythecc uninstall --dry-run` to see what will be removed, then `kodelythecc uninstall --yes` to remove everything. Use `--keep-memory` to preserve your local memory store."
+  - q: "Does ECC auto-wire the MCP server into my IDE?"
+    a: "Yes, for six IDEs: Claude Code, Cursor, Windsurf, Gemini CLI, Codex, and Kiro. The post-install step writes the MCP server entry into each IDE's config file. Cline and Roo Code need a one-line manual paste because their config lives in VS Code's fragile globalStorage path."
 ---
 
 # Getting Started

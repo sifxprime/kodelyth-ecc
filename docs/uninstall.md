@@ -1,5 +1,6 @@
 ---
 title: "Uninstall Kodelyth ECC — Full Cleanup for macOS, Linux, Windows"
+author: Kodelyth
 description: "Complete Kodelyth ECC removal — 777 shipped files, RTK hook, codebase-mcp configs, ECC MCP entries, and ~/.kodelythecc/ memory. Interactive menu or CLI, dry-run supported."
 keywords:
   - uninstall kodelyth ecc

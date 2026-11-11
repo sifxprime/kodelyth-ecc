@@ -1,5 +1,6 @@
 ---
 title: "Codebase Graph — AST Code Intelligence Across 158 Languages"
+author: Kodelyth
 description: "Kodelyth ECC wires DeusData codebase-memory-mcp for AST-parsed knowledge graph across 158 languages. Structural queries at 99% fewer tokens than file-by-file grep."
 keywords:
   - codebase graph

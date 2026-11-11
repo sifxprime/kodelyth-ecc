@@ -1,5 +1,6 @@
 ---
 title: "Supply Chain Verification — SBOM, Manifest, SLSA L3 Provenance"
+author: Kodelyth
 description: "CycloneDX 1.5 SBOM, sha256 content manifest, SLSA L3 provenance verification for Kodelyth ECC. Verify your installed toolkit hasn't been tampered with."
 keywords:
   - SBOM

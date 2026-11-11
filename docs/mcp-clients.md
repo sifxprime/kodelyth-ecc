@@ -1,5 +1,6 @@
 ---
 title: "External MCP Servers — Register Stripe, GitHub, Postgres, Redis"
+author: Kodelyth
 description: "Register external MCP servers with Kodelyth ECC. Auto-detect tools + prompts + resources from Stripe, GitHub, Postgres, Redis, Slack, and any MCP-compatible service."
 keywords:
   - external MCP server

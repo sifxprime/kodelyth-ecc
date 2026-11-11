@@ -1,5 +1,6 @@
 ---
 title: "Terse Mode — 40-70% Output Token Savings for AI Coding Assistants"
+author: Kodelyth
 description: "Compress AI reply length by 40-70% without losing information. 4-level dial, byte-preserves code and commands. Kodelyth ECC's answer to output token cost inspired by Caveman."
 keywords:
   - Terse mode

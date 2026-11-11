@@ -1,6 +1,6 @@
 {
   "name": "kodelyth-ecc",
-  "version": "2.31.1",
+  "version": "2.31.2",
   "description": "Production-grade AI coding toolkit — 71 agents (incl. devil-mode adversarial crew), 196 skills, 104 commands, parallel multi-agent commands, semantic intent routing, self-learning memory, and a built-in MCP server (16 tools / 6 prompts / 389 resources) that bridges to Claude Desktop, LangGraph, AutoGen, CrewAI, and OpenAI Agents SDK. Works on macOS, Linux and Windows with Claude Code, Windsurf, Cursor, Codex, Antigravity, OpenCode, Cline, RooCode, Aider, Kimi, Gemini CLI, and Kiro.",
   "author": "Kodelyth <github.com/sifxprime>",
   "license": "MIT",
@@ -120,6 +120,8 @@
     "skills/",
     "tasks/",
     "wiki/",
+    "brand/ecc-lockup-light.svg",
+    "brand/ecc-lockup-dark.svg",
     "!scripts/openclaw-twitter/",
     "!**/tests/",
     "!**/*.log",

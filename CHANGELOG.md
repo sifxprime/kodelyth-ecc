@@ -2,6 +2,28 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.31.2 — brand/ assets in the published tarball (November 2026)
+
+Another tiny packaging fix in the same category as v2.31.1's CITATION.cff bug.
+The dashboard' lockup images (ecc-lockup-light.svg, ecc-lockup-dark.svg) live
+in `brand/` and were missing from `package.json` `files[]` — so a fresh
+`npm install -g kodelyth-ecc` left the installed package without a `brand/`
+directory, and the dashboard's `/brand/*` route returned 404. The lockup
+rendered as a broken-image icon with alt text instead of the actual SVG.
+
+Side effect: `ecc_version` would also appear to be missing from `/api/overview`
+in users who had a dashboard process running from before the upgrade — Node's
+require() cache held the old `data.js`. That resolves on a dashboard restart
+even without a new release.
+
+Added `brand/` to `files[]`. All SVGs re-stamped v2.31.2.
+
+Caught by the same release-prep post-install smoke-test that caught the
+pipe-truncation bug in v2.31.0 and the CITATION.cff bug in v2.31.1: install a
+fresh global tarball and poke every HTTP route the dashboard exposes.
+
+No code changes. 30 tests still pass.
+
 ## v2.31.1 — CITATION.cff in the published tarball (November 2026)
 
 Tiny packaging fix. The CITATION.cff file added in v2.30.x was committed to

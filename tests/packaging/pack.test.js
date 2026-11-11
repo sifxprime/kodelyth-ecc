@@ -309,3 +309,67 @@ test('every file referenced via path.join(ROOT, …) is in the published tarball
     `v2.31.2 (brand/ecc-lockup-*.svg) release bugs before they shipped.\n`
   );
 });
+
+/**
+ * Catches the v2.31.1 class of bug: a conventional root-level metadata file
+ * exists in the repo and is consumed by external tooling (GitHub, Zenodo,
+ * build systems) — but isn't in the published tarball, so `npm pack` + extract
+ * omits it. The user who pulls the package from npm finds the file "missing"
+ * and reports it as a bug.
+ *
+ * v2.31.1 was CITATION.cff: present in the repo, cited by GitHub's own "Cite
+ * this repository" widget, but missing from package.json files[], so researchers
+ * who pulled the tarball found no citation metadata.
+ *
+ * Unlike the previous test (which scans code for `path.join(ROOT, …)` paths),
+ * this one works from a KNOWN-CONVENTIONS list — the small set of root-level
+ * filenames external tools look for by community convention.
+ */
+const EXTERNAL_TOOL_CONVENTIONS = [
+  // Academic / research
+  'CITATION.cff',       // GitHub cite button + Zenodo + most reference managers
+  // Governance + community (GitHub surfaces these as "community standards")
+  'CODE_OF_CONDUCT.md',
+  'CONTRIBUTING.md',
+  'SECURITY.md',
+  'SUPPORT.md',
+  'GOVERNANCE.md',
+  'MAINTAINERS.md',
+  // Attribution + licensing adjuncts
+  'AUTHORS',
+  'AUTHORS.md',
+  'NOTICE',             // Apache-2.0 convention
+  'THIRD-PARTY.md',
+  'ACKNOWLEDGMENTS.md',
+];
+
+// npm auto-includes these even when they're not in files[]. We don't need to
+// verify them — the registry will ship them regardless.
+const NPM_AUTO_INCLUDED = new Set(['package.json', 'README.md', 'README', 'LICENSE', 'LICENCE']);
+
+test('conventional external-tool files present in the repo are also in the tarball', NPM_MISSING, () => {
+  const manifest = pack();
+  if (!manifest) return; // npm not spawnable; honest skip
+  const tarballPaths = new Set(manifest.files.map((f) => f.path));
+
+  const violations = [];
+  for (const name of EXTERNAL_TOOL_CONVENTIONS) {
+    const absPath = path.join(ROOT, name);
+    if (!fs.existsSync(absPath)) continue;         // not in repo → nothing to ship
+    if (NPM_AUTO_INCLUDED.has(name)) continue;     // npm will include anyway
+    if (tarballPaths.has(name)) continue;          // already shipped
+    violations.push(name);
+  }
+
+  assert.deepStrictEqual(
+    violations,
+    [],
+    `Conventional external-tool file(s) exist in the repo but are MISSING from the\n` +
+    `published tarball. External tooling (GitHub community-standards widget, Zenodo,\n` +
+    `reference managers, etc.) will treat them as absent on the npm distribution:\n\n` +
+    violations.map((v) => `  • ${v}`).join('\n') +
+    `\n\nAdd each to package.json files[] alongside the other root-level metadata.\n` +
+    `This is the check that would have caught the v2.31.1 (CITATION.cff) bug\n` +
+    `before it shipped.\n`
+  );
+});

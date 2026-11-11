@@ -340,6 +340,17 @@ function handleRequest(req, res) {
 
     if (p.startsWith('/api/')) return notFound(res);
 
+    // ── brand assets — serve the ECC lockup SVGs used by the header. ─────
+    // Scoped to /brand/ecc-*.svg so we never expose arbitrary repo files.
+    if (p.startsWith('/brand/')) {
+      const brandDir = path.join(__dirname, '..', '..', 'brand');
+      const brandPath = resolveStatic(p.replace(/^\/brand/, ''), brandDir);
+      if (brandPath && /\.(svg|png|ico)$/i.test(brandPath)) {
+        return serveStaticFile(res, brandPath);
+      }
+      return notFound(res);
+    }
+
     // ── static fallback ───────────────────────────────────────────────────
     const filePath = resolveStatic(p);
     if (!filePath) return notFound(res);

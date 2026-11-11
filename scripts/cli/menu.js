@@ -55,36 +55,19 @@ async function buildOptions({ ROOT }) {
     });
   }
   opts.push({
+    group: 'OBSERVE',
     label: 'Open Dashboard',
     hint:  'localhost observability — RTK, Terse, Codebase, Memory (all real data)',
     run:   () => runDashboard(),
   });
   opts.push({
-    label: 'Install ECC for another IDE',
-    hint:  'claude-code, cursor, windsurf, antigravity, codex, opencode, gemini, cline, roocode, kimi',
-    run:   () => pickIdeAndInstall(ROOT),
-  });
-  opts.push({
-    label: 'RTK status (input token savings)',
-    hint:  'Show RTK version + wired IDEs + savings',
-    run:   () => runSub(['rtk', 'status']),
-  });
-  opts.push({
-    label: 'Terse status (output compression)',
-    hint:  'Skill install state, ledger totals',
-    run:   () => runSub(['terse', 'status']),
-  });
-  opts.push({
-    label: 'Codebase graph status',
-    hint:  'codebase-memory-mcp (DeusData) — 158 languages, structural queries',
-    run:   () => runSub(['codebase', 'status']),
-  });
-  opts.push({
+    group: 'OBSERVE',
     label: 'Health check (doctor)',
     hint:  'Live check every subsystem is actually wired — catches silent breakage',
     run:   () => runSub(['doctor']),
   });
   opts.push({
+    group: 'OBSERVE',
     label: 'Memory stats (BM25 recall)',
     hint:  'Local BM25 memory — captures, projects, top tags',
     run:   () => runSub(['dashboard', '--port', '5747', '--no-open']),
@@ -92,14 +75,40 @@ async function buildOptions({ ROOT }) {
     backgroundNote: 'Dashboard started at http://127.0.0.1:5747 — visit for full stats. Ctrl+C in this menu to stop watching.',
   });
   opts.push({
+    group: 'INSTALL',
+    label: 'Install ECC for another IDE',
+    hint:  'claude-code, cursor, windsurf, antigravity, codex, opencode, gemini, cline, roocode, kimi, kiro',
+    run:   () => pickIdeAndInstall(ROOT),
+  });
+  opts.push({
+    group: 'INSTALL',
     label: 'Run in background (dashboard + hooks live)',
     hint:  'Detach dashboard as a daemon so /api routes stay reachable',
     run:   () => runBackground(),
   });
   opts.push({
+    group: 'INSTALL',
     label: 'Uninstall ECC completely',
     hint:  'Remove agents/skills/commands/hooks, RTK hook, codebase-mcp, and ~/.kodelythecc/',
     run:   () => runUninstall(ROOT),
+  });
+  opts.push({
+    group: 'TOKEN SAVINGS',
+    label: 'RTK status (input token savings)',
+    hint:  'Show RTK version + wired IDEs + savings',
+    run:   () => runSub(['rtk', 'status']),
+  });
+  opts.push({
+    group: 'TOKEN SAVINGS',
+    label: 'Terse status (output compression)',
+    hint:  'Skill install state, ledger totals',
+    run:   () => runSub(['terse', 'status']),
+  });
+  opts.push({
+    group: 'TOKEN SAVINGS',
+    label: 'Codebase graph status',
+    hint:  'codebase-memory-mcp (DeusData) — 158 languages, structural queries',
+    run:   () => runSub(['codebase', 'status']),
   });
   opts.push({
     label: 'Exit',
@@ -240,18 +249,33 @@ function render({ current, update, opts, index }) {
   else if (update?.updateAvailable) updateLine = C.yellow + `${C.bold}update available: v${update.latest}${C.reset}`;
   else if (update?.latest && update.latest !== current) updateLine = C.gray + `latest: v${update.latest}` + C.reset;
 
-  console.log(`${C.cyan}${C.bold}⚙ Kodelyth ECC${C.reset}  ${C.gray}v${current}${C.reset}  ${C.dim}·${C.reset}  ${C.magenta}Elite Code Crew${C.reset}   ${updateLine}`);
+  // Branded two-line mark — matches the ECC lockup's twin-chevron glyph.
+  // Thin chevron (opacity echo) + solid chevron, then wordmark.
+  console.log('');
+  console.log(`  ${C.dim}${C.cyan}›${C.reset}${C.bold}${C.cyan}› ${C.reset}${C.bold}KODELYTH ${C.magenta}ECC${C.reset}  ${C.gray}· Elite Code Crew${C.reset}`);
+  console.log(`  ${C.gray}v${current}   ${updateLine}${C.reset}`);
+  // Second-row context: where you are + what's running.
+  const cwdHint = `${C.dim}cwd:${C.reset} ${C.gray}${abbrevPath(process.cwd())}${C.reset}`;
+  const dashHint = isDashboardLive(5747) ? `${C.green}● dashboard live :5747${C.reset}` : `${C.dim}dashboard idle${C.reset}`;
+  console.log(`  ${cwdHint}  ${C.gray}·${C.reset}  ${dashHint}`);
   console.log(`${C.gray}${bar}${C.reset}`);
   console.log('');
 
+  let lastGroup = null;
   for (let i = 0; i < opts.length; i++) {
     const o = opts[i];
     const active = i === index;
-    const marker = active ? `${C.cyan} ▸ ${C.reset}` : '   ';
-    const label  = active ? `${C.bold}${o.label}${C.reset}` : o.label;
+    // Insert a group header when the group label changes.
+    if (o.group && o.group !== lastGroup) {
+      console.log(`  ${C.dim}— ${o.group} —${C.reset}`);
+      lastGroup = o.group;
+    } else if (!o.group && lastGroup) {
+      // Transition from a group to no-group also deserves spacing.
+      console.log('');
+      lastGroup = null;
+    }
     const hint   = o.hint ? `${C.gray}${o.hint}${C.reset}` : '';
     const badge  = o.badge ? ` ${C.yellow}[${o.badge}]${C.reset}` : '';
-    // Two columns: label (36 wide) then hint.
     const labelText = (active ? '▸ ' : '  ') + o.label + (o.badge ? ` [${o.badge}]` : '');
     const pad = ' '.repeat(Math.max(2, 40 - labelText.length));
     const colored = active
@@ -261,6 +285,30 @@ function render({ current, update, opts, index }) {
   }
   console.log('');
   console.log(`${C.gray}↑/↓ navigate  ·  ⏎ select  ·  q / esc / Ctrl+C to quit${C.reset}`);
+}
+
+// Shorten a path for the header context line: /Users/you/x/y → ~/x/y
+function abbrevPath(p) {
+  const home = os.homedir();
+  const short = p.startsWith(home) ? '~' + p.slice(home.length) : p;
+  if (short.length <= 42) return short;
+  // Keep first + last segments, collapse middle to …
+  const parts = short.split(path.sep).filter(Boolean);
+  if (parts.length <= 3) return short;
+  return (short.startsWith('/') ? '/' : '') + [parts[0], '…', parts[parts.length - 2], parts[parts.length - 1]].join(path.sep);
+}
+
+// Quick, synchronous, non-blocking check for a live dashboard on the given port.
+// Returns true if the daemon pidfile exists and the pid is alive. Zero network.
+function isDashboardLive() {
+  try {
+    const pidFile = path.join(os.homedir(), '.kodelythecc', 'dashboard-daemon.pid');
+    if (!fs.existsSync(pidFile)) return false;
+    const pid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10);
+    if (!Number.isFinite(pid) || pid <= 0) return false;
+    // `kill -0` doesn't actually kill — it tests whether the process exists.
+    try { process.kill(pid, 0); return true; } catch { return false; }
+  } catch { return false; }
 }
 
 async function pick(title, items) {

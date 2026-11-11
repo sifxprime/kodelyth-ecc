@@ -142,7 +142,12 @@ function overview({
     }
   } catch { /* */ }
 
+  // package.json version — dashboard header shows this so it never drifts.
+  let eccVersion = 'current';
+  try { eccVersion = require(path.join(ROOT, 'package.json')).version; } catch { /* keep default */ }
+
   return {
+    ecc_version: eccVersion,
     package_root: repoRoot,
     storage: {
       memory_dir:  memoryDir,

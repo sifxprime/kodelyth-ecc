@@ -205,18 +205,93 @@
   }
 
   hr.sep { border: 0; border-top: 1px solid #1f2a44; margin: 24px 0; }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     THEME LAYER — adds light mode + explicit toggle on top of the dark base.
+     Uses CSS custom properties so the HTML/markup above is untouched.
+     `prefers-color-scheme: light` auto-switches; `[data-theme="light"]` on
+     <html> overrides either way. Cascade-last — wins over the base rules.
+     ═══════════════════════════════════════════════════════════════════════ */
+  :root {
+    --bg-grad-a:  #1e293b;   --bg-grad-b:  #0b1220;   --bg-grad-c:  #060912;
+    --ink:        #e5e7eb;   --ink-2:      #cbd5e1;   --ink-3:      #94a3b8;
+    --paper:      #0a0f1a;   --paper-2:    #10172a;   --line:       #1f2a44;
+    --brand:      #34d399;   --brand-soft: rgba(52,211,153,0.15);
+    --link:       #93c5fd;   --danger:     #f87171;   --warn:       #facc15;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg-grad-a:  #eef2f7; --bg-grad-b:  #f8fafc;   --bg-grad-c:  #ffffff;
+      --ink:        #0f172a; --ink-2:      #334155;   --ink-3:      #64748b;
+      --paper:      #ffffff; --paper-2:    #f1f5f9;   --line:       #e2e8f0;
+      --brand:      #0f9c6f; --brand-soft: rgba(15,156,111,0.12);
+      --link:       #2563eb; --danger:     #dc2626;   --warn:       #b45309;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg-grad-a:  #eef2f7; --bg-grad-b:  #f8fafc;   --bg-grad-c:  #ffffff;
+    --ink:        #0f172a; --ink-2:      #334155;   --ink-3:      #64748b;
+    --paper:      #ffffff; --paper-2:    #f1f5f9;   --line:       #e2e8f0;
+    --brand:      #0f9c6f; --brand-soft: rgba(15,156,111,0.12);
+    --link:       #2563eb; --danger:     #dc2626;   --warn:       #b45309;
+  }
+  body {
+    color: var(--ink);
+    background: radial-gradient(1200px 600px at 0% 0%, var(--bg-grad-a) 0%, var(--bg-grad-b) 70%, var(--bg-grad-c) 100%) fixed;
+  }
+  a { color: var(--link); }
+  pre { background: var(--paper); border-color: var(--line); color: var(--ink-2); }
+  header.top { background: color-mix(in srgb, var(--paper) 72%, transparent); border-bottom-color: var(--line); }
+  .brand .dot { background: var(--brand); box-shadow: 0 0 12px var(--brand); }
+  .brand h1 { color: var(--ink); }
+  .brand .sub { color: var(--ink-3); }
+  nav.tabs button { color: var(--ink-3); border-color: var(--line); }
+  nav.tabs button:hover { background: var(--paper-2); color: var(--ink-2); border-color: var(--line); }
+  nav.tabs button.active { background: var(--brand); color: #ffffff; border-color: var(--brand); }
+
+  /* ── Brand lockup + theme toggle ───────────────────────────────────────── */
+  .brand-lockup { display: inline-flex; align-items: center; gap: 10px; }
+  .brand-lockup img { height: 28px; width: auto; display: block; }
+  .brand-lockup .ecc-light { display: block; }
+  .brand-lockup .ecc-dark  { display: none; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .brand-lockup .ecc-light { display: none; }
+    :root:not([data-theme="light"]) .brand-lockup .ecc-dark  { display: block; }
+  }
+  :root[data-theme="dark"] .brand-lockup .ecc-light { display: none; }
+  :root[data-theme="dark"] .brand-lockup .ecc-dark  { display: block; }
+  .theme-toggle {
+    background: transparent; color: var(--ink-3);
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 7px 10px; font: inherit; cursor: pointer;
+    transition: background 150ms, color 150ms, border-color 150ms;
+  }
+  .theme-toggle:hover { background: var(--paper-2); color: var(--ink-2); border-color: var(--ink-3); }
+  .theme-toggle .icon { font-family: monospace; font-size: 15px; line-height: 1; }
+
+  /* ── Live pulse — makes SSE realtime visible when data changes ────────── */
+  @keyframes eccPulse {
+    0%   { transform: scale(1);   opacity: 1; }
+    50%  { transform: scale(1.6); opacity: 0.6; }
+    100% { transform: scale(1);   opacity: 1; }
+  }
+  .brand .dot.pulse { animation: eccPulse 600ms ease-out; }
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand">
-      <span class="dot" id="liveDot"></span>
-      <h1>Kodelyth ECC</h1>
-      <span class="sub" id="hostLabel">— dashboard v1.7.4 · localhost</span>
+    <div class="brand brand-lockup" title="Kodelyth ECC — Elite Code Crew">
+      <span class="dot" id="liveDot" title="Live data — pulses when the SSE stream pushes an update"></span>
+      <img class="ecc-light" src="/brand/ecc-lockup-light.svg" alt="Kodelyth ECC" width="620" height="150">
+      <img class="ecc-dark"  src="/brand/ecc-lockup-dark.svg"  alt="Kodelyth ECC" width="620" height="150">
+      <span class="sub" id="hostLabel">— localhost</span>
     </div>
     <div class="header-right">
       <span id="connBadge" class="pill ok" title="Real-time SSE connection status">LIVE</span>
+      <button id="themeToggle" class="theme-toggle" title="Toggle light / dark (persists in localStorage)" aria-label="Toggle theme">
+        <span class="icon" id="themeIcon">◐</span>
+      </button>
       <button id="refreshBtn" class="btn-ghost" title="Refresh active tab  (R key)">Refresh</button>
       <nav class="tabs">
         <button data-tab="overview" class="active">Overview</button>
@@ -478,7 +553,8 @@ kodelyth-ecc codebase query detect_changes '{}'</pre>
   async function loadOverview() {
     try {
       const o = await api('/api/overview');
-      $('#hostLabel').textContent = `— dashboard v1.7.4 · ${location.host} · ${o.package_root.split('/').slice(-2).join('/')}`;
+      const pkgVersion = o.ecc_version || o.version || 'current';
+      $('#hostLabel').textContent = `— dashboard v${pkgVersion} · ${location.host} · ${o.package_root.split('/').slice(-2).join('/')}`;
       $('#overviewCards').innerHTML = [
         statCard(o.catalog.agents,   'Agents'),
         statCard(o.catalog.skills,   'Skills'),
@@ -997,7 +1073,17 @@ kodelyth-ecc codebase query detect_changes '{}'</pre>
         if (msg.type === 'connected') { updateConnBadge(true); return; }
         // Only refresh on actual data changes. Heartbeat is a keepalive only —
         // triggering a full reload on every heartbeat wastes 6 API calls/minute.
-        if (msg.type === 'data-changed') onTabShown(currentTab);
+        if (msg.type === 'data-changed') {
+          // Visible pulse so realtime is obvious, not a claim.
+          const dot = $('#liveDot');
+          if (dot) {
+            dot.classList.remove('pulse');
+            // Force reflow so animation restarts on back-to-back events.
+            void dot.offsetWidth;
+            dot.classList.add('pulse');
+          }
+          onTabShown(currentTab);
+        }
       } catch { /* malformed event — ignore */ }
     };
     _es.onerror = () => {
@@ -1027,6 +1113,39 @@ kodelyth-ecc codebase query detect_changes '{}'</pre>
   });
   $('#catQuery').addEventListener('keydown', e => { if (e.key === 'Enter') loadCatalog(); });
   $('#refreshBtn').addEventListener('click', () => onTabShown(currentTab));
+
+  // ───── theme toggle — persists per-browser, respects OS default ─────────
+  (function initTheme() {
+    const ICON = { light: '☀', dark: '☾', auto: '◐' };
+    const root = document.documentElement;
+    const btn  = $('#themeToggle');
+    const icon = $('#themeIcon');
+
+    function apply(mode) {
+      // mode is 'light', 'dark', or 'auto'. 'auto' removes data-theme so the
+      // CSS @media (prefers-color-scheme) cascade decides.
+      if (mode === 'auto') root.removeAttribute('data-theme');
+      else root.setAttribute('data-theme', mode);
+      if (icon) icon.textContent = ICON[mode] || ICON.auto;
+      btn && btn.setAttribute('title', `Theme: ${mode} — click to cycle (auto → light → dark)`);
+    }
+    function read() {
+      try { return localStorage.getItem('ecc-dash-theme') || 'auto'; }
+      catch { return 'auto'; }
+    }
+    function write(mode) {
+      try { localStorage.setItem('ecc-dash-theme', mode); } catch { /* private window: skip */ }
+    }
+    let current = read();
+    apply(current);
+    if (btn) {
+      btn.addEventListener('click', () => {
+        current = current === 'auto' ? 'light' : current === 'light' ? 'dark' : 'auto';
+        write(current);
+        apply(current);
+      });
+    }
+  })();
 
   loadOverview();
   connectSSE();

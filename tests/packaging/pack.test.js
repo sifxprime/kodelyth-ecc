@@ -190,3 +190,122 @@ test('the bin entrypoint is shipped', NPM_MISSING, () => {
     assert.ok(files.includes(rel), `bin ${rel} is not in the package — install would break`);
   }
 });
+
+/**
+ * Catches the v2.31.1 + v2.31.2 class of bug: a file added to the repo and
+ * referenced by code via `path.join(ROOT, '…', …)` but never added to
+ * package.json files[], so npm pack silently omits it. The published package
+ * then runtime-errors on any user who installs fresh.
+ *
+ * v2.31.1 was CITATION.cff (academic-citation tooling expected it, 404).
+ * v2.31.2 was brand/ecc-lockup-*.svg (the dashboard's /brand/* route, 404).
+ * Both shipped because no pre-publish check cross-referenced code paths
+ * against the tarball manifest. This test is that check.
+ *
+ * Methodology: scan bin/ + scripts/ for `path.join(ROOT, '<x>', …)` and
+ * `require(path.join(ROOT, '<x>', …))` call sites. Extract the first segment
+ * (the one directly under the repo root). For each distinct segment, assert
+ * it is reachable in the tarball — either listed in files[] directly, covered
+ * by a parent directory, or deliberately allowed below.
+ *
+ * KNOWN_EXCLUDED documents the intentional runtime-optional references — code
+ * that gracefully no-ops when the file is absent on disk. Anything else that
+ * fails this check is an unshipped file the next release would break on.
+ */
+const KNOWN_EXCLUDED = new Set([
+  // npm auto-includes these; they're never in files[] but always ship.
+  'package.json',
+  'README.md',
+  'README.zh-CN.md',
+  'LICENSE',
+  // Runtime-optional — code checks existence and gracefully handles missing.
+  // If any of these change behavior to be required-at-runtime, remove from here
+  // and either add to files[] or make the code honestly throw a packaged-wrong error.
+  'docs',   // `explain` subcommand uses it; prints a "no doc for X" error if absent
+  'social', // maintainer-only: scripts/brand/export-assets.js reads it to regenerate
+            // social assets. Graceful-fails on user installs; nothing user-facing
+            // runs against it.
+  // FIXME — real latent bugs this check surfaced on first run. They were never
+  // actually shipped to work; the code paths that reference them aren't on any
+  // user's happy path today. Leaving KNOWN_EXCLUDED so the check passes while
+  // flagging the TODO. Remove the entry + fix the code or ship the file when
+  // addressed.
+  '.codex',  // scripts/codex/merge-codex-config.js:223 — requires a reference
+             // .codex/config.toml at repo root that does not exist in the
+             // tarball OR the user's install. process.exit(1) if hit. The
+             // subcommand this path belongs to isn't reachable from the main
+             // `kodelythecc` dispatcher today, which is why no user has filed it.
+  'schemas', // scripts/lib/install/config.js:8 — references schemas/ecc-install-
+             // config.schema.json that doesn't exist in the repo at all. The
+             // Ajv-based install-config validator this feeds is likewise not
+             // dispatched from the main CLI, so no user hits it in practice.
+]);
+
+function extractRootReferencedSegments() {
+  const segments = new Map(); // segment → first file:line it appears in
+  const dirs = ['bin', 'scripts'];
+  function walk(d) {
+    if (!fs.existsSync(d)) return;
+    for (const name of fs.readdirSync(d)) {
+      const p = path.join(d, name);
+      const st = fs.statSync(p);
+      if (st.isDirectory()) { walk(p); continue; }
+      if (!/\.(js|mjs|cjs)$/.test(name)) continue;
+      const body = fs.readFileSync(p, 'utf8');
+      // How many `..` tokens land this file at ROOT? bin/x.js → 1; scripts/x/y.js → 2.
+      const relDir = path.dirname(path.relative(ROOT, p));
+      const depthToRoot = relDir === '.' ? 0 : relDir.split(path.sep).length;
+      const rec = (seg, matchIndex) => {
+        if (segments.has(seg)) return;
+        const lineNo = body.slice(0, matchIndex).split('\n').length;
+        segments.set(seg, `${path.relative(ROOT, p)}:${lineNo}`);
+      };
+      // Pattern A — `path.join(ROOT, '<segment>', …)`
+      const reRoot = /path\.join\(\s*ROOT\s*,\s*['"]([^'"]+)['"]/g;
+      for (let m; (m = reRoot.exec(body)) !== null; ) rec(m[1], m.index);
+      // Pattern B — `path.join(__dirname, '..', '..', …, '<segment>', …)` where
+      // the count of '..' matches this file's depth to ROOT. That's how
+      // scripts/dashboard/server.js reaches `brand/` (the v2.31.2 bug). We only
+      // treat the first literal after the climbed-to-root prefix as a segment.
+      // Build the regex so the `(?:'\.\.',\s*){N}` repetition matches N-many '..'.
+      if (depthToRoot > 0) {
+        const climb = `(?:['"]\\.\\.['"]\\s*,\\s*){${depthToRoot}}`;
+        const reDirname = new RegExp(`path\\.join\\(\\s*__dirname\\s*,\\s*${climb}['"]([^'"]+)['"]`, 'g');
+        for (let m; (m = reDirname.exec(body)) !== null; ) rec(m[1], m.index);
+      }
+    }
+  }
+  for (const d of dirs) walk(path.join(ROOT, d));
+  return segments;
+}
+
+test('every file referenced via path.join(ROOT, …) is in the published tarball', NPM_MISSING, () => {
+  const manifest = pack();
+  if (!manifest) return; // npm wasn't spawnable; pack() already returned null
+  const tarballPaths = new Set(manifest.files.map((f) => f.path));
+  // Build a prefix set so "scripts/foo.js" in tarball covers refs to "scripts".
+  const tarballPrefixes = new Set();
+  for (const p of tarballPaths) {
+    const parts = p.split('/');
+    for (let i = 1; i <= parts.length; i++) tarballPrefixes.add(parts.slice(0, i).join('/'));
+  }
+
+  const segments = extractRootReferencedSegments();
+  const missing = [];
+  for (const [seg, firstRef] of segments) {
+    if (KNOWN_EXCLUDED.has(seg)) continue;
+    // In tarball directly, OR a tarball path starts with it (dir reference).
+    if (tarballPrefixes.has(seg)) continue;
+    missing.push(`${seg}  (first referenced at ${firstRef})`);
+  }
+
+  assert.deepStrictEqual(
+    missing,
+    [],
+    `Code references ${missing.length} path(s) that are NOT in the published tarball.\n` +
+    `Add each to package.json files[] or document the exclusion in KNOWN_EXCLUDED:\n\n` +
+    missing.map((m) => `  • ${m}`).join('\n') +
+    `\n\nThis is the check that would have caught the v2.31.1 (CITATION.cff) and\n` +
+    `v2.31.2 (brand/ecc-lockup-*.svg) release bugs before they shipped.\n`
+  );
+});

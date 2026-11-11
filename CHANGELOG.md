@@ -2,6 +2,48 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.31.3 — release-ritual guards for the v2.31.1 + v2.31.2 bug classes (November 2026)
+
+Pure test-suite release. No user-facing behavior change. Hardens the release
+ritual so the two categories of bug the v2.31.x train shipped cannot ship
+again unnoticed.
+
+v2.31.1 was `CITATION.cff` — a root-level metadata file consumed by external
+tooling (GitHub's cite / community-standards widgets, Zenodo, reference
+managers) but missing from `package.json` `files[]`. v2.31.2 was the same
+pattern applied to code-referenced files: the dashboard's `/brand/*` route
+reads SVGs from the package root via `path.join(__dirname, "..", "..", "brand")`,
+and `brand/` wasn't in `files[]` either.
+
+Two paired packaging tests now catch both patterns pre-publish:
+  • **Code-reference guard** — scans `bin/` and `scripts/` for literal
+    `path.join(ROOT, "<seg>", …)` and `path.join(__dirname, "..", …, "<seg>", …)`
+    (depth-matched to each file's distance to ROOT). Cross-references every
+    distinct first segment against `npm pack --dry-run --json`. Fails on any
+    missing path with a clear `file:line` citation.
+  • **CITATION-class guard** — iterates a 12-entry allowlist of conventional
+    root-level metadata files (CITATION.cff, CODE_OF_CONDUCT.md, CONTRIBUTING.md,
+    SECURITY.md, SUPPORT.md, GOVERNANCE.md, MAINTAINERS.md, AUTHORS, AUTHORS.md,
+    NOTICE, THIRD-PARTY.md, ACKNOWLEDGMENTS.md). For each that exists in the
+    repo but is neither in `files[]` nor auto-included by npm, fail with the
+    filename.
+
+Both run automatically via `node tests/run-all.js`, which is already the
+pre-publish gate in `.github/workflows/publish.yml`. No workflow edits needed.
+
+Verified both guards catch regressions: a simulated v2.31.1 (remove
+CITATION.cff from `files[]`) trips the CITATION-class guard; a simulated
+v2.31.2 (remove `brand/ecc-lockup-*.svg` from `files[]`) trips the
+code-reference guard.
+
+Blind spots the guards don't cover (documented honestly in the test file):
+dynamic path interpolation (only literal strings are scanned), new external-tool
+conventions not yet in the allowlist, and doc-linked-but-not-code-referenced
+files (that's a separate link-checker, not packaging).
+
+31 tests pass total (was 30 in v2.31.2 — one new test). No runtime code
+changes shipped.
+
 ## v2.31.2 — brand/ assets in the published tarball (November 2026)
 
 Another tiny packaging fix in the same category as v2.31.1's CITATION.cff bug.

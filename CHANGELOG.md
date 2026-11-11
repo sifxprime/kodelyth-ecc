@@ -2,6 +2,23 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.31.1 — CITATION.cff in the published tarball (November 2026)
+
+Tiny packaging fix. The CITATION.cff file added in v2.30.x was committed to
+the repo but not listed in package.json` files[]`, so it never shipped in the
+npm tarball. Researchers reading the published package through `npm pack`
+wouldn't find it (GitHub was fine — the file is in the repo, which is what
+GitHub's own "Cite this repository" button + Zenodo + most academic tools
+read). Fixed by adding `CITATION.cff` to `files[]` alongside the other
+root-level metadata files.
+
+Caught by the same release-prep smoke-test that caught the pipe-truncation
+bug in v2.31.0 — `npm pack kodelyth-ecc@2.31.0 && ls package/CITATION.cff`
+returned "file not found". Same fresh-install verification will confirm the
+fix on v2.31.1.
+
+No code changes. 30 tests still pass.
+
 ## v2.30.1 — Dashboard redesign, new `explain` + `catalog` CLI, pipe truncation fix (November 2026)
 
 **NOTE on semver**: this release adds two user-facing CLI subcommands (`explain`,

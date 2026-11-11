@@ -24,6 +24,26 @@ const ROOT    = path.join(__dirname, '..');
 // Where each IDE target reads skills/commands from (used by `terse` install).
 const { getTargetSkillsDir, getTargetCommandsDir } = require(path.join(ROOT, 'scripts', 'lib', 'target-paths.js'));
 
+// Blocking stdout write. `process.stdout.write()` returns false under
+// back-pressure when stdout is a pipe (kernel pipe buffer is 64 KB on macOS,
+// 16 KB on Linux); a following `process.exit(0)` kills the tail. Even a
+// single `drain`-wait can miss a second back-pressure cycle, so for large
+// one-shot CLI output (`catalog`, `explain`) we drop to the synchronous
+// `fs.writeSync(1, …)` which blocks until the OS accepts the bytes. EPIPE is
+// swallowed — that just means the consumer closed early (e.g. `| head`).
+function writeAllToStdout(str) {
+  const buf = Buffer.from(str, 'utf8');
+  let pos = 0;
+  while (pos < buf.length) {
+    try {
+      pos += fs.writeSync(1, buf, pos, buf.length - pos);
+    } catch (e) {
+      if (e.code === 'EPIPE' || e.code === 'EAGAIN') return;
+      throw e;
+    }
+  }
+}
+
 // Auto-migrate legacy ~/.kodelyth/ → ~/.kodelythecc/ on first run for existing users.
 // Idempotent; instant no-op if legacy dir is absent or migration marker exists.
 try { require(path.join(ROOT, 'scripts', 'migrate-legacy.js')).main(); } catch { /* best-effort */ }
@@ -1660,7 +1680,7 @@ if (args[0] === 'explain') {
   const body = fs.readFileSync(file, 'utf8');
   // Strip YAML frontmatter so the output is pure Markdown an LLM can quote cleanly.
   const stripped = body.replace(/^---\n[\s\S]*?\n---\n/, '');
-  process.stdout.write(stripped);
+  writeAllToStdout(stripped);
   process.exit(0);
 }
 
@@ -1730,20 +1750,30 @@ if (args[0] === 'catalog') {
     : [];
   const version = require(path.join(ROOT, 'package.json')).version;
   const payload = { version, counts: { agents: agents.length, skills: skills.length, commands: commands.length, rules: rules.length }, agents, skills, commands, rules };
+  // Build the full output as one string so the markdown + JSON paths share
+  // the same drain-safe exit below. The old split-write path truncated at the
+  // 64 KB pipe buffer when stdout was a pipe (`... | jq`) — process.exit(0)
+  // fires before stdout drains, and the tail is lost.
+  let out;
   if (fmt === 'json') {
-    process.stdout.write(JSON.stringify(payload, null, 2) + '\n');
+    out = JSON.stringify(payload, null, 2) + '\n';
   } else {
-    const w = (s) => process.stdout.write(s + '\n');
-    w(`# Kodelyth ECC Catalog — v${version}`);
-    w('');
-    w(`${payload.counts.agents} agents · ${payload.counts.skills} skills · ${payload.counts.commands} commands · ${payload.counts.rules} rules`);
-    w('');
+    const parts = [
+      `# Kodelyth ECC Catalog — v${version}`,
+      '',
+      `${payload.counts.agents} agents · ${payload.counts.skills} skills · ${payload.counts.commands} commands · ${payload.counts.rules} rules`,
+      '',
+    ];
     for (const [title, list] of [['Agents', agents], ['Skills', skills], ['Commands', commands], ['Rules', rules]]) {
-      w(`## ${title} (${list.length})`);
-      for (const e of list) w(`- **${e.slug}** — ${e.description || '(no description)'}`);
-      w('');
+      parts.push(`## ${title} (${list.length})`);
+      for (const e of list) parts.push(`- **${e.slug}** — ${e.description || '(no description)'}`);
+      parts.push('');
     }
+    out = parts.join('\n');
   }
+  // Blocking write — see writeAllToStdout note below. The async drain pattern
+  // can still lose bytes when multiple back-pressure cycles stack before exit.
+  writeAllToStdout(out);
   process.exit(0);
 }
 

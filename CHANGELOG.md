@@ -2,6 +2,69 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.30.1 — Dashboard redesign, new `explain` + `catalog` CLI, pipe truncation fix (November 2026)
+
+**NOTE on semver**: this release adds two user-facing CLI subcommands (`explain`,
+`catalog`) which is technically MINOR scope. Shipped as PATCH because the surface
+area is additive + the headline is a fix caught at release-prep time. Next
+feature release will be v2.31.
+
+**Pipe truncation fix (caught at release-prep).** `kodelythecc catalog` over a
+pipe (e.g. `| jq`, `| python -c`, `| grep`) truncated at exactly 65536 bytes —
+the macOS pipe-buffer limit. Node's `process.stdout.write()` returns false
+under back-pressure, and the following `process.exit(0)` killed the tail
+before `drain` fired. Even a single `drain`-wait missed a second back-pressure
+cycle. The fix uses `fs.writeSync(1, …)` for the big one-shot writes, which
+blocks until the OS accepts the bytes. EPIPE is swallowed (gracefully handles
+`... | head`). Applied to `catalog` + `explain`; shared helper in `bin/`.
+
+**New CLI subcommand: `kodelythecc explain <topic>`.** Prints the authoritative
+doc body for a topic, frontmatter stripped. Novel AEO vector: an AI tool
+calling this via its shell gets back a verbatim cite-able reference instead
+of inventing or paraphrasing. Zero network. `explain --help` lists all 18
+topics.
+
+**New CLI subcommand: `kodelythecc catalog [--format=json|markdown]`.** One-shot
+dump of every agent, skill, command, rule — with descriptions. For LLM
+ingestion, release-note builds, or AI tools enumerating ECC's surface in one
+call. YAML folded-block-scalar descriptions handled correctly (empty-description
+count: 1 of 371 vs 195 before).
+
+**Dashboard full visual refresh.** The dark-only monolithic stylesheet is now
+a variable-driven design system that supports light mode auto (OS
+prefers-color-scheme) + explicit toggle (persisted per-browser). The ECC
+lockup replaces the plain "Kodelyth ECC" text header, switching between light
+and dark variants automatically. SSE `data-changed` events now trigger a
+visible pulse on the status dot — "realtime" is no longer a claim. The stale
+"dashboard v1.7.4" string is dead; the header reads `ecc_version` from
+`/api/overview` which reads `package.json`, so it can never drift again.
+Tabs got a pill-style active state, cards use tabular-nums for stats, and
+tables have brand-soft hover — same markup, cleaner result.
+
+**CLI menu branded header.** New two-line header with twin-chevron glyph
+matching the lockup + wordmark + version + cwd + live-dashboard indicator
+(pidfile-checked, zero network). Items grouped into OBSERVE / INSTALL /
+TOKEN SAVINGS sections.
+
+**Lockup SVGs no longer carry a backing rectangle.** The lockup rendered as
+a visible white/dark card on any page whose background wasn't exactly
+`#ffffff` or `#0a0e14` — the hardcoded `<rect width="620" height="150" .../>`
+backing didn't blend. Removed from both light and dark variants in
+`brand/`. Lockup now sits transparently on whatever background it's on.
+
+**Package metadata.** 12 new npm keywords (`super-agent`, `autonomous-agent`,
+`autonomous-orchestrator`, `memory-core`, `mcp-auto-wire`, `agentic-coding`,
+`kiro`, `ai-code-review`, `claude-code-toolkit`, `mcp-server`, `token-savings`,
+`rust-token-killer`) — 62 total. New `funding` field (GitHub Sponsors). New
+`CITATION.cff` for research tooling.
+
+**README SEO rewrite.** New opening paragraph above the brand demo, dense
+with the keywords that match search intent (Claude Code, 12 IDEs, Super
+Agent, MCP, Memory Core, 158 languages, zero telemetry, 2-minute install),
+with a `npm i -g` snippet immediately.
+
+All SVGs restamped from v2.30.0 → v2.30.1. Full test suite green.
+
 ## v2.30.0 — Terse reaches Roo Code, Aider, Kimi; the CLI stops lying about its version (November 2026)
 
 **Terse was silently skipped on three IDEs.** The helpers that tell the terse

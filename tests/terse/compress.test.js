@@ -350,7 +350,16 @@ test('regression: temp filenames are unpredictable', () => {
       finally { fs.renameSync = realRename; }
     }
     assert.equal(seen.size, 3, 'temp suffix repeated across runs');
-    for (const s of seen) assert.ok(!s.includes(String(process.pid)), 'temp name contains the pid');
+    // The suffix is `.tmp-<16 hex>` — all random, no pid, no timestamp, no
+    // other scheme. A substring check for `String(process.pid)` would fire on
+    // coincidental hex digits (CI pids can be single-digit, and a single
+    // digit lands in 16 random hex chars ~65% of the time — the original
+    // assertion was flaky by construction). Shape check instead: anything
+    // other than `.tmp-<lowercase hex>` is a regression worth re-auditing,
+    // including every pid-based scheme.
+    for (const s of seen) {
+      assert.match(s, /^\.tmp-[0-9a-f]{16}$/, `expected .tmp-<16 hex> but got: ${s}`);
+    }
   });
 });
 

@@ -2,6 +2,65 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.31.5 — stop writing compaction summaries to lessons.md (November 2026)
+
+Pollution fix. The Stop hook `hooks/memory/capture-correction.js` was reading
+compaction-summary turns as if they were human corrections and appending them
+to `tasks/lessons.md`. Across the user's projects on this machine, 123
+polluted entries had accumulated in 9 `tasks/lessons.md` files before the fix
+landed.
+
+**The bug.** Claude Code's `/compact` (and the auto-compact that fires near
+the context limit) injects the previous conversation's summary into the next
+session as an event of `type: "user"` with `isCompactSummary: true` and
+message text that starts with "This session is being continued from a
+previous conversation…". The capture hook filtered only on
+`event.type !== "user"`, so every compaction summary flowed into the
+correction classifier. The classifier is intentionally broad — "always use",
+"we always", "never do", "please stop" — and a long summary full of narrated
+facts is guaranteed to hit it. The result: every /compact pushed the entire
+summary into `tasks/lessons.md`, which then got injected back into every
+subsequent session at ~300 characters per entry, every session forever.
+
+**The fix.** A new `isSystemMessage(text, event)` guard runs before the
+correction classifier. It skips the turn when any of these is true:
+
+- `event.isCompactSummary` — the official flag, confirmed from real session
+  JSONLs on disk (compaction turns are emitted as
+  `type: "user", isCompactSummary: true, isVisibleInTranscriptOnly: true`)
+- `event.isMeta` / `event.isSidechain` / `event.isVisibleInTranscriptOnly` —
+  belt-and-suspenders for related synthetic shapes (subagent turns, metadata
+  injections)
+- Text starting with `This session is being continued from a previous
+  conversation` — the fallback if a future Claude Code version changes the
+  flag shape
+- Text that opens with a synthetic block tag: `<system-reminder>`,
+  `<command-name>`, `<command-message>`, `<local-command-stdout>`,
+  `<local-command-stderr>`, `<caveat>`, `<user-prompt-submit-hook>`,
+  `<pasted-content>`, `<ide_selection>`, `<ide_opened_files>`, raw
+  `<stdin>`/`<stdout>`/`<stderr>`
+
+The guard matches at leading position only — a user who types "stop writing
+system-reminder blocks in output" in prose is still a valid correction.
+
+**Testability.** The hook's pure functions (`isSystemMessage`, `extractText`,
+`extractCorrections`) are now exported, and the stdin listener is gated behind
+`require.main === module`. The new test file
+`tests/hooks/capture-correction.test.js` exercises 33 cases that matter: the
+exact two shapes of pollution that infected v2.31.4 (markdown-emphasised and
+plain summaries), every event-level flag, every synthetic tag, and an
+end-to-end JSONL fixture that reproduces the regression ("summary turn then
+real correction → summary dropped, correction survives").
+
+**Cleanup.** The two polluted blocks that had been committed to this repo's
+own `tasks/lessons.md` (dated 2026-11-11) are removed in the same commit.
+Scanning the rest of this machine turned up 9 other `tasks/lessons.md` files
+with the same shape — those are the user's own project repos and are not
+touched by this release.
+
+843 tests pass total (was 811 in v2.31.4). No other runtime behaviour
+changed.
+
 ## v2.31.4 — fail-open security hook + vendored replacement (November 2026)
 
 Security fix. Reported externally by Daisy (daisy-49@ilands.app) on 2026-11-12

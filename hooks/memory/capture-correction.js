@@ -18,6 +18,10 @@
 const fs   = require('fs');
 const path = require('path');
 
+// Entry point is at the bottom of this file, gated by require.main === module
+// so the hook's pure functions can be unit-tested without spawning the stdin
+// listener. See tests/hooks/capture-correction.test.js.
+
 // ── Correction signal patterns ─────────────────────────────────────────────
 const CORRECTION_SIGNALS = [
   /\bno[,.]?\s+(don'?t|do not|never|stop|that'?s)/i,
@@ -43,14 +47,29 @@ const EXCLUDE_PATTERNS = [
 // ── Minimum message length to bother with ─────────────────────────────────
 const MIN_LEN = 8;
 
-// ── Entry point ───────────────────────────────────────────────────────────
-let raw = '';
-process.stdin.setEncoding('utf8');
-process.stdin.on('data', chunk => { raw += chunk; });
-process.stdin.on('end', run);
-setTimeout(() => { if (!process.stdin.readableEnded) run(); }, 150);
+// ── System-generated messages that look like user input ──────────────────
+// Claude Code emits several events with type: "user" that are NOT typed by
+// the human: the compaction summary after /compact (isCompactSummary: true,
+// text starting with "This session is being continued from a previous
+// conversation…"), <system-reminder> blocks injected by hooks, sidechain
+// turns from subagents, and various <command-*> / <local-command-*> tags.
+// Before v2.31.5 the classifier read these as corrections and wrote them to
+// tasks/lessons.md. This guard runs before correction matching.
+const SYSTEM_MESSAGE_PATTERNS = [
+  /^\s*This session is being continued from a previous conversation/i,
+  /^\s*<system-reminder[\s>]/i,
+  /^\s*<(command-name|command-message|local-command-stdout|local-command-stderr|caveat|user-prompt-submit-hook|pasted-content|stdin|stdout|stderr|ide_selection|ide_opened_files)[\s>]/i,
+];
 
-function run() {
+function isSystemMessage(text, event) {
+  if (event && (event.isCompactSummary || event.isMeta || event.isSidechain || event.isVisibleInTranscriptOnly)) {
+    return true;
+  }
+  if (!text) return false;
+  return SYSTEM_MESSAGE_PATTERNS.some(p => p.test(text));
+}
+
+function run(raw) {
   // Always pass stdin through — never block a session
   if (raw) process.stdout.write(raw);
 
@@ -85,6 +104,12 @@ function extractCorrections(sessionJsonl) {
 
     const text = extractText(event);
     if (!text || text.length < MIN_LEN) continue;
+
+    // Skip system-generated turns that arrive with type: "user" but were not
+    // typed by the human (compaction summary, <system-reminder>, sidechain,
+    // meta events). Without this guard the compaction summary from /compact
+    // was being captured as a "correction" and pushed into tasks/lessons.md.
+    if (isSystemMessage(text, event)) continue;
 
     // Skip if it looks like a question
     if (EXCLUDE_PATTERNS.some(p => p.test(text.trim()))) continue;
@@ -198,4 +223,25 @@ function findLatestSession(cwd) {
   } catch {
     return null;
   }
+}
+
+// Exported for unit tests. The hook itself only runs its stdin listener when
+// invoked directly from Claude Code's Stop event (require.main === module).
+module.exports = {
+  CORRECTION_SIGNALS,
+  EXCLUDE_PATTERNS,
+  SYSTEM_MESSAGE_PATTERNS,
+  MIN_LEN,
+  isSystemMessage,
+  extractText,
+  extractCorrections,
+};
+
+// ── Entry point (hook) ─────────────────────────────────────────────────────
+if (require.main === module) {
+  let raw = '';
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', chunk => { raw += chunk; });
+  process.stdin.on('end', () => run(raw));
+  setTimeout(() => { if (!process.stdin.readableEnded) run(raw); }, 150);
 }

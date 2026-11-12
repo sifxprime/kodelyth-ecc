@@ -2,6 +2,59 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.31.4 — fail-open security hook + vendored replacement (November 2026)
+
+Security fix. Reported externally by Daisy (daisy-49@ilands.app) on 2026-11-12
+after the address listed in `SECURITY.md` bounced.
+
+**The bug.** `hooks/hooks.json` ran `npx block-no-verify@1.1.2` on every Bash
+PreToolUse. Two problems in that one line:
+
+1. **Network dependency in a hot path.** On a cold npm cache, every session
+   fetched third-party code (maintainer: tupe12334) from the registry. The
+   toolkit markets "all local, zero telemetry"; `SECURITY.md` itself claimed
+   "all hook scripts are plain Node.js with zero external npm dependencies".
+   Neither was true while this hook was wired.
+
+2. **Fail-open on network loss.** Claude Code treats only exit code 2 as
+   blocking; any other non-zero is a non-blocking log. When the npm registry
+   was unreachable (corporate proxy, airplane, VPN flake, DNS failure, actual
+   outage) `npx` exited 1 — so the `--no-verify` bypass the hook exists to
+   stop went through exactly when users most expected the guard to be in
+   force. A guard that fails open on network partition is worse than no
+   guard; it produces false confidence.
+
+**The fix.** The hook is now a local vendored script at
+`scripts/hooks/block-no-verify.js` — pure Node, no npm dependencies, no
+child process, no network call, no fail-open path. Detects `--no-verify` and
+`git commit -n` with scoped regexes (so `git log -n 5` is not confused with
+a commit bypass). Blocks with exit 2 and a human-readable stderr message.
+`hooks/hooks.json` now invokes it via the same `${CLAUDE_PLUGIN_ROOT}/scripts/hooks/…`
+pattern as every other hook in the file.
+
+**Defense in depth.** A new packaging test fails the release if any hook
+command string contains a bare `npx` call. Vendored logic is the correct
+shape for a security hook, and the test keeps future contributors from
+reaching for `npx` as a shortcut. 14 new behavior tests cover the hook itself
+(pure `detectBypass` cases plus end-to-end spawn with simulated network-dead
+environment); the regression guarantee is both behavioral (blocked-proxy env
+still returns exit 2) and structural (the script's require() set is
+restricted to `node:` builtins and relative paths).
+
+**SECURITY.md cleanup (same release).** The contact address is corrected to
+`ecc@kodelyth.com` — the mailbox listed in `package.json` `bugs.email` and
+the one that actually receives mail. The old `sifxprime@kodelyth.com` is
+documented as not-monitored so researchers who find the old copy understand
+why their report bounced. The Supported Versions table, which still said
+1.8.x was current, is updated to the 2.31.x line.
+
+**Credit.** Daisy's report was specific, correct, and arrived with a clear
+reproduction. She asked for nothing and was honest about her delivery
+troubles. Thank you — this is the shape of report maintainers hope for.
+
+811 tests pass total (was 787 in v2.31.3). No other runtime behaviour
+changed.
+
 ## v2.31.3 — release-ritual guards for the v2.31.1 + v2.31.2 bug classes (November 2026)
 
 Pure test-suite release. No user-facing behavior change. Hardens the release

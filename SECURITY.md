@@ -2,14 +2,13 @@
 
 ## Supported Versions
 
-| Version | Supported |
-|---------|-----------|
-| 1.8.x   | Yes — current stable |
-| 1.7.x   | Yes — security fixes only |
-| 1.6.x   | Yes — security fixes only |
-| 1.5.x   | No — upgrade to 1.8.x |
-| < 1.5   | No — upgrade to 1.8.x |
-| < 1.0   | No |
+| Version  | Supported |
+|----------|-----------|
+| 2.31.x   | Yes — current stable |
+| 2.30.x   | Yes — security fixes only |
+| 2.29.x   | Yes — security fixes only |
+| < 2.29   | No — upgrade to 2.31.x |
+| 1.x      | No — upgrade to 2.31.x |
 
 ---
 
@@ -19,9 +18,13 @@
 
 Report privately via email:
 
-**sifxprime@kodelyth.com**
+**ecc@kodelyth.com**
 
 Subject line: `[SECURITY] kodelyth-ecc — <short description>`
+
+> Older copies of this file listed `sifxprime@kodelyth.com`; that address is
+> not monitored. `ecc@kodelyth.com` is the canonical security contact and
+> matches the `bugs.email` in `package.json`.
 
 ### What to include
 

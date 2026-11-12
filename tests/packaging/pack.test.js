@@ -373,3 +373,55 @@ test('conventional external-tool files present in the repo are also in the tarba
     `before it shipped.\n`
   );
 });
+
+/**
+ * Catches the v2.31.3-era class of bug: a hook in hooks/hooks.json runs a
+ * bare `npx <pkg>` on every tool invocation. Two failure modes this test
+ * exists to prevent:
+ *
+ *   1. Network dependency in a hook hot path — the toolkit markets "all
+ *      local, zero telemetry" but every cold-cache session fetches that
+ *      package from the registry.
+ *
+ *   2. Fail-open on network loss — Claude Code treats only exit code 2 as
+ *      blocking; `npx` returns 1 on ECONNREFUSED/ENOTFOUND/timeout, so the
+ *      guard allows the command it exists to refuse exactly when the
+ *      network is unreachable.
+ *
+ * The fix is always "vendor the logic into scripts/hooks/" — the package
+ * already ships that whole directory, and a local script has no network
+ * failure mode because it has no network call. Reported by
+ * daisy-49@ilands.app on 2026-11-12 (v2.31.3 shipped the hook; v2.31.4
+ * vendored it and added this guard).
+ */
+test('no hook command calls `npx` (would fail open on network loss)', () => {
+  const hooksPath = path.join(ROOT, 'hooks', 'hooks.json');
+  if (!fs.existsSync(hooksPath)) return;
+  const hooks = JSON.parse(fs.readFileSync(hooksPath, 'utf8'));
+  const found = [];
+  function walk(node, trail) {
+    if (Array.isArray(node)) {
+      node.forEach((v, i) => walk(v, `${trail}[${i}]`));
+      return;
+    }
+    if (node && typeof node === 'object') {
+      if (typeof node.command === 'string' && /\bnpx\b/.test(node.command)) {
+        const label = node.id || trail;
+        found.push(`${label}: ${node.command}`);
+      }
+      for (const [k, v] of Object.entries(node)) walk(v, `${trail}.${k}`);
+    }
+  }
+  walk(hooks, '');
+  assert.deepStrictEqual(
+    found,
+    [],
+    `hook command(s) call \`npx\`, which is a network fetch on cold cache ` +
+    `and fails open on network loss (Claude Code treats only exit 2 as ` +
+    `blocking; npx returns 1 on registry failure). Vendor the logic into ` +
+    `scripts/hooks/ instead:\n\n` +
+    found.map((f) => `  • ${f}`).join('\n') +
+    `\n\nThis is the check that would have caught the v2.31.3 block-no-verify\n` +
+    `bug before it shipped. Reported by daisy-49@ilands.app.\n`
+  );
+});

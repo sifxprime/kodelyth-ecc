@@ -54,3 +54,69 @@ test('failing checks carry a fix hint', () => {
     }
   }
 });
+
+test('run() includes the config-drift check', () => {
+  const r = doctor.run();
+  const drift = r.checks.find((c) => c.id === 'config-drift');
+  assert.ok(drift, 'config-drift check must be present');
+  assert.ok([doctor.PASS, doctor.WARN, doctor.FAIL].includes(drift.status));
+});
+
+// ── configDriftStatus: the pure drift decision ───────────────────────────────
+// This is the check that would have caught the real bug: a ~/.claude installed
+// from v2.30.0 while the package had moved to v2.31.6, so hooks.json kept
+// running a superseded hook. The version stamp is written by install.sh/ps1.
+
+test('configDriftStatus WARNs when installed config is behind the package', () => {
+  const s = doctor.configDriftStatus({
+    installedVersion: '2.30.0',
+    packageVersion: '2.31.6',
+    installedAt: '2026-11-11T13:51:02Z',
+  });
+  assert.equal(s.status, doctor.WARN);
+  assert.match(s.detail, /2\.30\.0/);
+  assert.match(s.detail, /2\.31\.6/);
+  assert.match(s.fix, /--target claude-code/, 'fix must point at re-running the installer');
+});
+
+test('configDriftStatus PASSes when installed config matches the package', () => {
+  const s = doctor.configDriftStatus({ installedVersion: '2.31.6', packageVersion: '2.31.6' });
+  assert.equal(s.status, doctor.PASS);
+  assert.match(s.detail, /in sync/);
+});
+
+test('configDriftStatus treats patch, minor, and major drift as behind', () => {
+  for (const [installed, pkg] of [
+    ['2.31.5', '2.31.6'],  // patch
+    ['2.30.9', '2.31.0'],  // minor
+    ['1.9.9', '2.0.0'],    // major
+  ]) {
+    const s = doctor.configDriftStatus({ installedVersion: installed, packageVersion: pkg });
+    assert.equal(s.status, doctor.WARN, `${installed} vs ${pkg} should warn`);
+  }
+});
+
+test('configDriftStatus WARNs (does not crash) when config is newer than the package', () => {
+  const s = doctor.configDriftStatus({ installedVersion: '2.32.0', packageVersion: '2.31.6' });
+  assert.equal(s.status, doctor.WARN);
+  assert.match(s.detail, /newer/);
+  assert.match(s.fix, /npm i -g/);
+});
+
+test('configDriftStatus WARNs when the install-state version is missing', () => {
+  const s = doctor.configDriftStatus({ installedVersion: null, packageVersion: '2.31.6' });
+  assert.equal(s.status, doctor.WARN);
+});
+
+test('configDriftStatus WARNs when the package version is unknown', () => {
+  const s = doctor.configDriftStatus({ installedVersion: '2.31.6', packageVersion: null });
+  assert.equal(s.status, doctor.WARN);
+});
+
+test('cmpSemver orders versions numerically, not lexically', () => {
+  assert.ok(doctor.cmpSemver('2.30.0', '2.31.6') < 0);
+  assert.ok(doctor.cmpSemver('2.31.6', '2.30.0') > 0);
+  assert.equal(doctor.cmpSemver('2.31.6', '2.31.6'), 0);
+  // lexical sort would put '2.9.0' after '2.31.0'; numeric must not.
+  assert.ok(doctor.cmpSemver('2.9.0', '2.31.0') < 0, '2.9.0 is older than 2.31.0');
+});

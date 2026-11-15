@@ -153,6 +153,93 @@ function checkCodebaseGraph() {
   return { status: PASS, detail: 'codebase-memory-mcp installed' };
 }
 
+// ── Config drift ─────────────────────────────────────────────────────────────
+//
+// The update check answers "is the npm PACKAGE behind the registry?". It says
+// nothing about whether the config in ~/.claude (hooks, agents, skills, rules)
+// is behind the package. Those drift apart the moment someone runs
+// `npm i -g kodelyth-ecc` without re-running the installer: the package jumps
+// forward, ~/.claude stays frozen at whatever version last wrote it. That is
+// exactly how a hooks.json from v2.30.0 kept running a superseded hook while the
+// package was six patch versions ahead — invisible to every existing check.
+//
+// install.sh and install.ps1 both already stamp the installing version into
+// <target>/kodelyth-ecc-install-state.json, but until now nothing read it back.
+// This check closes that loop. No network: the comparison is the installed
+// config's version against this package's version, both read from disk.
+
+// Self-contained major.minor.patch compare. doctor must run even when sibling
+// modules fail to load, so this is local rather than imported from update-check.
+function cmpSemver(a, b) {
+  const pa = String(a).split('.').map(n => parseInt(n, 10) || 0);
+  const pb = String(b).split('.').map(n => parseInt(n, 10) || 0);
+  for (let i = 0; i < 3; i++) {
+    if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) - (pb[i] || 0);
+  }
+  return 0;
+}
+
+/**
+ * Pure drift decision, separated from file I/O so it can be unit-tested without
+ * a home directory. Given the version that last wrote ~/.claude config and the
+ * current package version, decide whether the installed config has drifted.
+ */
+function configDriftStatus({ installedVersion, packageVersion, installedAt } = {}) {
+  if (!installedVersion) {
+    return {
+      status: WARN,
+      detail: 'install-state has no version — ~/.claude config predates version tracking',
+      fix: 'kodelythecc --target claude-code    installs config and starts tracking its version',
+    };
+  }
+  if (!packageVersion) {
+    return { status: WARN, detail: `config installed from v${installedVersion}; current package version unknown` };
+  }
+  const delta = cmpSemver(installedVersion, packageVersion);
+  if (delta < 0) {
+    const when = installedAt ? ` on ${installedAt}` : '';
+    return {
+      status: WARN,
+      detail: `~/.claude config was installed from v${installedVersion}${when}; package is now v${packageVersion} — installed hooks, agents, skills and rules may be stale`,
+      fix: `kodelythecc --target claude-code    refreshes ~/.claude to v${packageVersion}`,
+    };
+  }
+  if (delta > 0) {
+    return {
+      status: WARN,
+      detail: `~/.claude config is from v${installedVersion}, newer than the running package v${packageVersion}`,
+      fix: 'npm i -g kodelyth-ecc    to bring the package up to the config it was installed from',
+    };
+  }
+  return { status: PASS, detail: `~/.claude config in sync with package (v${packageVersion})` };
+}
+
+function checkConfigDrift() {
+  const stateFile = path.join(HOME, '.claude', 'kodelyth-ecc-install-state.json');
+  if (!fs.existsSync(stateFile)) {
+    return {
+      status: WARN,
+      detail: 'no install-state in ~/.claude — config never installed, or predates version tracking',
+      fix: 'kodelythecc --target claude-code    installs config and records its version',
+    };
+  }
+  let state;
+  try { state = JSON.parse(fs.readFileSync(stateFile, 'utf8')); }
+  catch { return { status: WARN, detail: 'install-state file is not valid JSON', fix: 'kodelythecc --target claude-code    to rewrite it' }; }
+
+  let packageVersion = null;
+  try { packageVersion = require(path.join(ROOT, 'package.json')).version; }
+  catch {
+    try { packageVersion = fs.readFileSync(path.join(ROOT, 'VERSION'), 'utf8').trim(); } catch { /* unknown */ }
+  }
+
+  return configDriftStatus({
+    installedVersion: state && typeof state.version === 'string' ? state.version.trim() : null,
+    packageVersion,
+    installedAt: state && typeof state.installed_at === 'string' ? state.installed_at : null,
+  });
+}
+
 // ── Runner ───────────────────────────────────────────────────────────────────
 
 /**
@@ -182,6 +269,7 @@ function run({ update } = {}) {
     check('binaries',            checkBinaries),
     check('install-target',      checkInstallTarget),
     check('hooks-registered',    checkHooksRegistered),
+    check('config-drift',        checkConfigDrift),
     check('memory-recall',       checkMemoryRecall),
     check('memory-index',        checkMemoryIndex),
     check('mcp-registered',      checkMcpRegistered),
@@ -205,4 +293,4 @@ function run({ update } = {}) {
   return { checks, summary };
 }
 
-module.exports = { run, checkVersion, PASS, WARN, FAIL };
+module.exports = { run, checkVersion, configDriftStatus, cmpSemver, PASS, WARN, FAIL };

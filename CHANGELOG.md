@@ -2,6 +2,53 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.31.7 — doctor now detects stale installed config (November 2026)
+
+`doctor` gained a `config-drift` check. It answers a question nothing in the
+toolkit answered before: **is the config in `~/.claude` behind the installed
+package?**
+
+**The gap.** The existing update check (`scripts/cli/update-check.js`) compares
+the npm PACKAGE against the registry. It says nothing about whether the
+installed config — hooks, agents, skills, rules in `~/.claude` — matches the
+package. Those drift apart the instant someone runs `npm i -g kodelyth-ecc`
+without re-running the installer: the package jumps forward, `~/.claude` stays
+frozen at whatever version last wrote it. This is not hypothetical — it is
+exactly how a `hooks.json` installed at v2.30.0 kept running a superseded
+`npx block-no-verify` hook (and a pre-fix `capture-correction.js`) while the
+package sat six patch versions ahead. Every existing doctor check passed; the
+drift was invisible.
+
+**The fix.** `install.sh` and `install.ps1` have always stamped the installing
+version into `<target>/kodelyth-ecc-install-state.json` — but nothing ever read
+it back (it was write-only). The new `checkConfigDrift()` in
+`scripts/doctor-health.js` closes that loop: it reads the installed config's
+version and compares it to this package's version. Behind → WARN with the exact
+re-install command. In sync → PASS. The comparison is entirely local (both
+versions read from disk), so unlike the registry update check it needs no warm
+cache and works in `doctor` every time.
+
+**Example output** against a real stale install:
+
+```
+⚠ config-drift — ~/.claude config was installed from v2.30.0 on
+  2026-11-11T13:51:02Z; package is now v2.31.7 — installed hooks, agents,
+  skills and rules may be stale
+  fix: kodelythecc --target claude-code    refreshes ~/.claude to v2.31.7
+```
+
+**Scope, kept deliberately tight.** This detects version drift (package moved,
+config did not), which is the real failure mode. It does not content-hash every
+installed file — a user who hand-edits one hook is a rarer, different case. The
+decision logic is a pure, exported `configDriftStatus()` with 8 unit tests;
+`cmpSemver()` is self-contained so `doctor` still runs if sibling modules fail
+to load. The deliberately cache-only `doctor` update check is left untouched —
+that was a conscious design choice by the author, not a gap.
+
+Tests: `tests/doctor/health.test.js` grew from 4 to 12 (config-drift presence
+in `run()`, behind/ahead/in-sync/missing-version/unknown-package cases, and
+numeric-not-lexical version ordering).
+
 ## v2.31.6 — close two more --no-verify bypass vectors (November 2026)
 
 Security patch. The vendored `block-no-verify` hook shipped in v2.31.4 still

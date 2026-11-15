@@ -30,6 +30,29 @@
  * emits exit 2 when it affirmatively matches a bypass pattern. Any other
  * input (empty stdin, malformed JSON, unrelated command) is exit 0. There
  * is no network failure mode because there is no network call.
+ *
+ * v2.31.6 — same reporter closed two more gaps verified in-session:
+ *
+ *   3. git's parse-options accepts any unambiguous prefix, so
+ *      `git commit --no-verif` and even `--no-veri` skip the hooks while
+ *      sailing past a regex that required the literal word. Prefix forms
+ *      --no-veri / --no-verif / --no-verify are all caught now; the
+ *      terminator excludes --no-verify-signatures and similar legitimate
+ *      flags.
+ *
+ *   4. core.hooksPath routes git past the repo's hooks entirely.
+ *      `git -c core.hooksPath=/dev/null commit`, the persistent
+ *      `git config [--global] core.hooksPath ...` form, and the env-var
+ *      forms (GIT_CONFIG_PARAMETERS / GIT_CONFIG_COUNT) all qualify.
+ *      Caught now by matching any command segment that mentions both
+ *      "git" and "core.hooksPath" — the key has no benign use alongside
+ *      git invocations.
+ *
+ * Still out of scope, documented so the gap is explicit rather than
+ * silent: GIT_CONFIG_SYSTEM=/dev/null git commit (points system config
+ * at a dead file; no core.hooksPath string appears), and
+ * attacker-controlled edits to .git/hooks/* before commit (not a flag
+ * class — a file-tamper class).
  */
 
 const fs = require('node:fs')
@@ -58,12 +81,18 @@ function readPayload () {
  * command would skip git hooks, or null otherwise.
  *
  * Detection rules:
- *   • --no-verify — git commit/push/merge/rebase/am. Match the literal flag
- *     on a word boundary so that trailing text ("--no-verify-ssl") doesn't
- *     false-positive.
+ *   • --no-verify (and its unambiguous prefixes --no-verif, --no-veri) —
+ *     git's parse-options accepts prefix matches. --no-veri is the shortest
+ *     prefix that resolves uniquely to verify (--no-verb* goes to verbose).
+ *     The terminator rejects --no-verify-signatures and similar.
  *   • git commit -n — short form of --no-verify, but only on commit. Other
  *     subcommands use -n for different things (git log -n 5 = count), so
  *     the scope is intentionally narrow.
+ *   • core.hooksPath — in the same command segment as `git`, in any form:
+ *     `git -c core.hooksPath=...`, `git config [--global] core.hooksPath ...`,
+ *     or `GIT_CONFIG_PARAMETERS=...core.hooksPath... git ...`. The config
+ *     key has no benign use next to a git invocation; even `git config
+ *     --get core.hooksPath` from a script is suspect enough to interrupt.
  *
  * False positives we knowingly accept: shell comments (`# --no-verify`) and
  * string literals that mention the flag (`echo "do not use --no-verify"`).
@@ -72,10 +101,12 @@ function readPayload () {
  */
 function detectBypass (command) {
   if (typeof command !== 'string' || command.length === 0) return null
-  // --no-verify as a complete flag. Boundary on both sides to reject
-  // --no-verify-ssl and similar.
-  if (/(^|[\s;&|`(])--no-verify(\s|$|[;&|`)])/.test(command)) {
-    return '--no-verify'
+  // --no-verify and its two unambiguous prefixes (--no-verif, --no-veri).
+  // The optional (f(y)?)? makes --no-veri match on its own; the terminator
+  // set excludes '-' so --no-verify-signatures (push/merge sig verify) and
+  // any hypothetical --no-verifier do not false-positive.
+  if (/(^|[\s;&|`(])--no-veri(f(y)?)?(\s|$|[;&|`)=])/.test(command)) {
+    return '--no-verify (or an unambiguous prefix: --no-veri / --no-verif)'
   }
   // `git commit ... -n` short form. Allow arbitrary args between `git` and
   // `commit` (e.g. `git -C /tmp commit -n`) so long as no shell command
@@ -83,6 +114,14 @@ function detectBypass (command) {
   // isn't conflated with a commit bypass.
   if (/\bgit\b[^;&|`\n]*?\bcommit\b[^;&|`\n]*?\s-n\b/.test(command)) {
     return 'git commit -n'
+  }
+  // core.hooksPath override, any form. Match when both `git` and the
+  // literal config key appear in the same command segment (no shell
+  // boundary between them), in either order — `git -c core.hooksPath=...`
+  // has git first; `GIT_CONFIG_PARAMETERS='core.hooksPath=...' git ...`
+  // has the key first. One pattern covers both.
+  if (/\bgit\b[^;&|`\n]*?\bcore\.hooksPath\b|\bcore\.hooksPath\b[^;&|`\n]*?\bgit\b/.test(command)) {
+    return 'core.hooksPath override'
   }
   return null
 }

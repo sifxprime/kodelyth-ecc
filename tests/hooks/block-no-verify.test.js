@@ -62,7 +62,37 @@ test('detectBypass blocks --no-verify in every position', () => {
     'git commit -m "x"; git push --no-verify',
     '(git commit --no-verify -m "x")',
   ]) {
-    assert.equal(detectBypass(cmd), '--no-verify', `should block: ${cmd}`)
+    assert.match(detectBypass(cmd), /^--no-verify/, `should block: ${cmd}`)
+  }
+})
+
+// v2.31.6: git's parse-options accepts any unambiguous prefix, so the
+// regex must catch --no-veri and --no-verif too, not just the literal
+// word. Daisy's second report, verified in-session: both forms bypass
+// the pre-commit hook in live git.
+test('detectBypass blocks unambiguous prefixes of --no-verify', () => {
+  for (const cmd of [
+    'git commit --no-veri -m "x"',
+    'git commit --no-verif -m "x"',
+    'git push --no-veri',
+    'git push --no-verif',
+    'echo setup && git commit --no-verif -m "x"',
+    'git commit -m "x" || git commit --no-veri -m "y"',
+  ]) {
+    assert.match(detectBypass(cmd), /^--no-verify/, `should block: ${cmd}`)
+  }
+})
+
+test('detectBypass does NOT touch --no-verify-signatures (sig verify, not hook bypass)', () => {
+  // git push/merge accept --no-verify-signatures to skip GPG verification
+  // of pulled commits — completely unrelated to hook bypass. The hyphen
+  // after "verify" must not count as a terminator.
+  for (const cmd of [
+    'git push --no-verify-signatures origin main',
+    'git merge --no-verify-signatures branch',
+    'curl --no-verify-hostname foo',  // unrelated tool with similar flag
+  ]) {
+    assert.equal(detectBypass(cmd), null, `should allow: ${cmd}`)
   }
 })
 
@@ -93,6 +123,55 @@ test('detectBypass does NOT match --no-verify-ssl and similar suffixes', () => {
   ]) {
     assert.equal(detectBypass(cmd), null, `should allow: ${cmd}`)
   }
+})
+
+// v2.31.6: `git -c core.hooksPath=/dev/null commit` and the persistent
+// `git config core.hooksPath ...` form both route past the repo's hooks
+// without ever mentioning --no-verify. Caught now by matching both
+// tokens (git + core.hooksPath) in the same command segment.
+test('detectBypass blocks core.hooksPath override in every form', () => {
+  for (const cmd of [
+    'git -c core.hooksPath=/dev/null commit -m "x"',
+    'git -c core.hooksPath=/tmp/empty commit -m "x"',
+    'git config core.hooksPath /dev/null',
+    'git config --global core.hooksPath /dev/null',
+    'git config --local core.hooksPath /dev/null',
+    'echo setup && git -c core.hooksPath=/dev/null commit -m "x"',
+    // env-var form: GIT_CONFIG_PARAMETERS appears BEFORE git on the line
+    "GIT_CONFIG_PARAMETERS=\"'core.hooksPath=/dev/null'\" git commit -m x",
+    // GIT_CONFIG_COUNT/KEY_N/VALUE_N trio form
+    'GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.hooksPath GIT_CONFIG_VALUE_0=/dev/null git commit -m x',
+  ]) {
+    assert.equal(detectBypass(cmd), 'core.hooksPath override', `should block: ${cmd}`)
+  }
+})
+
+test('detectBypass does NOT trip on core.hooksPath outside a git context', () => {
+  // Reading/greping documentation that mentions the config key is not a
+  // bypass unless `git` is also in the same segment.
+  for (const cmd of [
+    'grep -r "core.hooksPath" docs/',
+    'echo "the config key is called core.hooksPath" > notes.txt',
+    'cat README.md | less',
+  ]) {
+    assert.equal(detectBypass(cmd), null, `should allow: ${cmd}`)
+  }
+})
+
+test('detectBypass does NOT span shell command boundaries', () => {
+  // A later, unrelated git command on the same line (chained with && / ;
+  // / || / |) must not reach back and claim a core.hooksPath mentioned
+  // in the first segment.
+  assert.equal(
+    detectBypass('echo "core.hooksPath is a config key" ; git status'),
+    null,
+    'echo-then-git across `;` must not trip',
+  )
+  assert.equal(
+    detectBypass('cat core.hooksPath.txt && git log -n 1'),
+    null,
+    'cat-then-git across `&&` must not trip',
+  )
 })
 
 test('detectBypass handles non-string input without throwing', () => {
@@ -142,6 +221,24 @@ test('end-to-end: exits 2 on git commit -n', () => {
   })
   assert.equal(r.status, 2)
   assert.match(r.stderr, /git commit -n/)
+})
+
+test('end-to-end: exits 2 on --no-verify prefix form', () => {
+  const r = run({
+    tool_name: 'Bash',
+    tool_input: { command: 'git commit --no-verif -m "x"' },
+  })
+  assert.equal(r.status, 2)
+  assert.match(r.stderr, /refused/)
+})
+
+test('end-to-end: exits 2 on core.hooksPath override', () => {
+  const r = run({
+    tool_name: 'Bash',
+    tool_input: { command: 'git -c core.hooksPath=/dev/null commit -m "x"' },
+  })
+  assert.equal(r.status, 2)
+  assert.match(r.stderr, /core\.hooksPath/)
 })
 
 // ── Regression guarantee for Daisy's finding ─────────────────────────────

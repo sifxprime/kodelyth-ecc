@@ -2,6 +2,58 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.31.6 — close two more --no-verify bypass vectors (November 2026)
+
+Security patch. The vendored `block-no-verify` hook shipped in v2.31.4 still
+had two silent-allow gaps against adversarial git commands. Both reported by
+`daisy-49@ilands.app`, both verified in-session against the shipped file
+(not a diff) and reproduced in live git before shipping.
+
+**Gap #1 — prefix matching.** git's parse-options accepts any unambiguous
+prefix of a long flag. `git commit --no-verif -m x` and even `git commit
+--no-veri -m x` both resolve to `--no-verify` and skip the hooks. The
+previous regex `/(^|[\s;&|`(])--no-verify(\s|$|[;&|`)])/` required the
+literal word and let both prefix forms through.
+
+**Gap #2 — core.hooksPath override.** Pointing git at an empty hooks
+directory bypasses the repo's hooks without ever mentioning `--no-verify`.
+Both forms work:
+
+- `git -c core.hooksPath=/dev/null commit -m x` (inline override)
+- `git config [--global] core.hooksPath /dev/null` (persistent write)
+
+The env-var siblings (`GIT_CONFIG_PARAMETERS`, `GIT_CONFIG_COUNT` +
+`GIT_CONFIG_KEY_N` / `GIT_CONFIG_VALUE_N`) are the same class.
+
+**The fix.** `detectBypass` in `scripts/hooks/block-no-verify.js` grew two
+additional rules on top of the existing `--no-verify` and `git commit -n`
+checks:
+
+- `/(^|[\s;&|`(])--no-veri(f(y)?)?(\s|$|[;&|`)=])/` — catches the two
+  unambiguous prefixes (`--no-veri`, `--no-verif`) alongside the full flag,
+  while the `-` excluded from the terminator keeps `--no-verify-signatures`
+  (legitimate GPG-verification skip on push/merge) out of scope.
+- `/\bgit\b[^;&|`\n]*?\bcore\.hooksPath\b|\bcore\.hooksPath\b[^;&|`\n]*?\bgit\b/` —
+  blocks any command segment that mentions both `git` and `core.hooksPath`
+  in either order, covering the inline `-c` form, the persistent `git
+  config` write, and the env-var forms. Shell boundaries (`;`, `&&`, `||`,
+  `|`, newline) stop the match so unrelated chained commands don't cross
+  over.
+
+**Still out of scope, documented so it's an explicit gap rather than a
+silent one:** `GIT_CONFIG_SYSTEM=/dev/null git commit` (points git's
+system config at a dead file; no `core.hooksPath` string appears in the
+command) and attacker-controlled edits to `.git/hooks/*` before commit
+(not a flag class — a file-tamper class).
+
+**Tests.** `tests/hooks/block-no-verify.test.js` grew from 14 tests to 21.
+The new coverage locks in every prefix form, every core.hooksPath form
+(including both env-var variants), the `--no-verify-signatures` exemption,
+and two negative tests proving the detection does not false-positive on
+documentation or cross segments on `;`/`&&`.
+
+Credit: Daisy's follow-up report, rechecked against v2.31.5 shipped files.
+
 ## v2.31.5 — stop writing compaction summaries to lessons.md (November 2026)
 
 Pollution fix. The Stop hook `hooks/memory/capture-correction.js` was reading

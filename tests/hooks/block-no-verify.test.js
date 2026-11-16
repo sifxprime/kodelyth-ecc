@@ -102,7 +102,7 @@ test('detectBypass blocks git commit -n short form', () => {
     'git commit -n -am "x"',
     'git -C /tmp commit -n -m "x"',   // flag between git and commit
   ]) {
-    assert.equal(detectBypass(cmd), 'git commit -n', `should block: ${cmd}`)
+    assert.match(detectBypass(cmd) || '', /^git commit -n/, `should block: ${cmd}`)
   }
 })
 
@@ -174,7 +174,7 @@ test('detectBypass blocks quoted, concatenated, and escaped bypass flags', () =>
   for (const cmd of noVerify) {
     assert.match(detectBypass(cmd) || '', /^--no-verify/, `should block: ${cmd}`)
   }
-  assert.equal(detectBypass('git commit "-n" -m x'), 'git commit -n', 'quoted -n')
+  assert.match(detectBypass('git commit "-n" -m x') || '', /^git commit -n/, 'quoted -n')
   assert.equal(
     detectBypass('git -c "core.hooksPath=/dev/null" commit -m x'),
     'core.hooksPath override',
@@ -212,6 +212,80 @@ test('detectBypass blocks flags split by a shell line continuation', () => {
 test('detectBypass allows a benign shell line continuation', () => {
   assert.equal(detectBypass('echo one \\\ntwo'), null)
   assert.equal(detectBypass('git status \\\n  --short'), null)
+})
+
+// v2.31.10 case 10: shell expansions that collapse to nothing can splice a flag
+// token invisibly. The shell removes $(), empty backticks, and ${unset} before
+// git parses, reassembling the bare flag; the raw text never shows it contiguous.
+// All CONFIRMED live bypasses. detectBypass checks an expansion-stripped view.
+test('detectBypass blocks flags spliced by empty shell expansions', () => {
+  for (const cmd of [
+    'git commit --no-ver$()ify -m x',
+    'git commit --no-ver``ify -m x',        // empty backticks
+    'git commit --no-ver${U}ify -m x',
+    'git commit --no-ver$(:)ify -m x',       // non-empty parens, empty output
+  ]) {
+    assert.match(detectBypass(cmd) || '', /^--no-verify/, `should block: ${cmd}`)
+  }
+  assert.equal(detectBypass('git -c core.hooks$()Path=/dev/null commit -m x'), 'core.hooksPath override')
+  assert.equal(detectBypass('git -c core.hooks${U}Path=/dev/null commit -m x'), 'core.hooksPath override')
+})
+
+// v2.31.10 case 11: git unbundles a single-dash short-flag run, so -n hides in
+// -nm / -vn / -qn / -sn. CONFIRMED live bypasses. The pre-n class is no-arg flags
+// only, so -mn (message "n") and -am (-a -m) do NOT match.
+test('detectBypass blocks -n bundled into a short-flag cluster', () => {
+  for (const cmd of ['git commit -nm x', 'git commit -vn -m x', 'git commit -qn -m x', 'git commit -snm x']) {
+    assert.match(detectBypass(cmd) || '', /^git commit -n/, `should block: ${cmd}`)
+  }
+  // -m before n consumes n as the message value, so these are NOT bypasses.
+  assert.equal(detectBypass('git commit -mn x'), null, '-mn is -m with message n')
+  assert.equal(detectBypass('git commit -am "x"'), null, '-am is -a -m')
+})
+
+// A -n that is a WORD inside a quoted commit message is the message, not the flag
+// (verified in live git: hooks RAN), so it must be allowed. Multi-word quoted
+// phrases are dropped before the -n rule runs. (A quoted --no-verify still trips,
+// by the documented fail-closed trade — that literal is rare in real messages.)
+test('detectBypass does NOT trip on -n inside a commit message', () => {
+  for (const cmd of [
+    'git commit -m "add -n flag docs"',
+    'git commit -m "the number is -n here"',
+    'git commit -am "wip -n notes"',
+    'git commit -m "release v2.31.10"',
+  ]) {
+    assert.equal(detectBypass(cmd), null, `should allow: ${cmd}`)
+  }
+})
+
+// v2.31.10 case 12: husky/lefthook kill-switch env vars disable manager-installed
+// git hooks. Verified as real bypasses in a manager-style repo. The env-var names
+// are unambiguous, so an assignment alongside a git commit/push is a bypass.
+test('detectBypass blocks hook-manager kill-switches with a git commit/push', () => {
+  for (const cmd of [
+    'HUSKY=0 git commit -m x',
+    'HUSKY_SKIP_HOOKS=1 git commit -m x',
+    'LEFTHOOK=0 git commit -m x',
+    'LEFTHOOK=false git push',
+    'export HUSKY=0; git commit -m x',
+  ]) {
+    assert.match(detectBypass(cmd) || '', /hook-manager/, `should block: ${cmd}`)
+  }
+})
+
+// Lookalikes must be allowed: enabling values, different var names, message
+// mentions, and a kill-switch with no git commit/push in the command.
+test('detectBypass does NOT trip on hook-manager lookalikes', () => {
+  for (const cmd of [
+    'HUSKY=1 git commit -m x',
+    'LEFTHOOK=1 git commit -m x',
+    'MY_HUSKY=0 git commit -m x',
+    'git commit -m "set HUSKY=0 in CI config"',
+    'echo HUSKY=0 > .env',
+    'husky install && git commit -m x',
+  ]) {
+    assert.equal(detectBypass(cmd), null, `should allow: ${cmd}`)
+  }
 })
 
 // v2.31.8 case 8: a flag passed through a shell variable is NOT in the command

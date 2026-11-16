@@ -92,7 +92,43 @@
  *      quotes where backslash-newline is literal, the fail-closed direction
  *      already chosen for 5-7.
  *
+ * v2.31.10 — a maintainer-run adversarial sweep (be-the-reporter), each vector
+ * reproduced in live git before any code changed. Three classes closed:
+ *
+ *  10. Empty-expansion splices. `--no-ver$()ify`, `--no-ver` + empty backticks +
+ *      `ify`, `--no-ver${UNSET}ify`, `--no-ver$(:)ify`, and the same inside the
+ *      key (`core.hooks$()Path`) all reassemble the bare flag/key, because the
+ *      shell removes a command substitution or parameter expansion before git
+ *      parses. Closed by checking a view with $(...), `...`, ${...}, and $name
+ *      collapsed away — IN ADDITION to the raw command, so a substitution that
+ *      literally contains the flag is still caught by the raw pass.
+ *
+ *  11. Clustered short flags. git unbundles a single-dash run, so -n hides in
+ *      -nm / -vn / -qn / -sn. Closed by matching a bundle whose pre-n characters
+ *      are all no-argument flags (arg-takers m c C F t excluded, so -mn = -m "n"
+ *      and -am = -a -m do NOT match). This rule runs only on views with
+ *      multi-word quoted phrases removed, because a bare `-n` is a common WORD in
+ *      commit messages — verified in live git that a `-n` inside a message is the
+ *      message, not the flag, so matching it there would be a false positive.
+ *
+ *  12. Hook-manager kill-switches. husky and lefthook install their hooks as
+ *      git's pre-commit/commit-msg/pre-push, and short-circuit to a no-op on
+ *      HUSKY=0 / HUSKY_SKIP_HOOKS=<any> / LEFTHOOK=0|false|off. In those repos
+ *      (the JS/TS ones this toolkit most runs in) that skips the hooks exactly
+ *      like --no-verify. Verified as real bypasses. Matched when such an
+ *      assignment shares a command with a git commit/push; runs on phrase-free
+ *      views so a message mentioning the string does not trip, and the var names
+ *      are unambiguous (HUSKY=1, MY_HUSKY=0, `husky install` do not match).
+ *
  * Still out of scope, documented so the gap is explicit rather than silent:
+ *   - The shell-variable / assembled-flag ceiling (rule 8): `f=--no-verif; git
+ *     commit $f` and `$(printf -- '--no-ver'; printf 'ify')` put the literal in
+ *     NO view of the text. Unclosable by a text guard; pinned by tests. The only
+ *     real fix is enforcement that observes whether the hook RAN (committer-side
+ *     wrapper or server-side pre-receive) — a different surface.
+ *   - pre-commit framework's SKIP=<id> and PRE_COMMIT_ALLOW_NO_CONFIG env opt-
+ *     outs. Real bypasses in pre-commit-framework repos, but SKIP is a collision-
+ *     prone name; left documented, not matched, pending a request to cover it.
  *   - GIT_CONFIG_SYSTEM=/dev/null git commit. Verified by the reporter NOT
  *     to bypass in a normal repo: with core.hooksPath in the repo's local
  *     config, blanking the system or global config file still runs the hook.
@@ -149,9 +185,12 @@ function readPayload () {
  * of a silent allow is why this hook exists.
  */
 
-// Apply the three bypass patterns to one already-normalized command string.
-// Returns the matched label or null. detectBypass() runs this against both the
-// raw command and a quote/escape-stripped copy.
+// Apply the flag-literal bypass patterns (--no-verify and core.hooksPath) to
+// one already-normalized command string. Returns the matched label or null.
+// detectBypass() runs this against every view of the command. The -n short-form
+// rule is NOT here — it lives in matchDashN() and runs only on views with
+// multi-word quoted phrases removed, because a bare `-n` is a common word in
+// commit messages and must not trip when it appears inside a message string.
 function matchBypassPatterns (command) {
   // --no-verify and its two unambiguous prefixes (--no-verif, --no-veri).
   // The optional (f(y)?)? makes --no-veri match on its own; the terminator
@@ -159,13 +198,6 @@ function matchBypassPatterns (command) {
   // any hypothetical --no-verifier do not false-positive.
   if (/(^|[\s;&|`(])--no-veri(f(y)?)?(\s|$|[;&|`)=])/.test(command)) {
     return '--no-verify (or an unambiguous prefix: --no-veri / --no-verif)'
-  }
-  // `git commit ... -n` short form. Allow arbitrary args between `git` and
-  // `commit` (e.g. `git -C /tmp commit -n`) so long as no shell command
-  // boundary intervenes; that way a later `git log -n 5` on the same line
-  // isn't conflated with a commit bypass.
-  if (/\bgit\b[^;&|`\n]*?\bcommit\b[^;&|`\n]*?\s-n\b/.test(command)) {
-    return 'git commit -n'
   }
   // core.hooksPath override, any form. Match when both `git` and the config
   // key appear in the same command segment (no shell boundary between them),
@@ -175,6 +207,45 @@ function matchBypassPatterns (command) {
   // and core.HooksPath are the same key.
   if (/\bgit\b[^;&|`\n]*?\bcore\.hooksPath\b|\bcore\.hooksPath\b[^;&|`\n]*?\bgit\b/i.test(command)) {
     return 'core.hooksPath override'
+  }
+  return null
+}
+
+// `git commit ... -n` short form, including clustered short-flag bundles.
+// git's parse-options unbundles a single-dash run of short flags, so -n hides
+// inside any bundle whose characters BEFORE the n are all no-argument flags:
+// -vn, -qn, -sn, -an, -nm, etc. The pre-n class is the set of commit short flags
+// that take no argument (a s v q e o i p u z S A n). A flag that DOES take an
+// argument before n (m c C F t) would consume the n as its own value, so `-mn`
+// is `-m` with message "n" and must NOT match — those letters are excluded from
+// the pre-n class. Allow arbitrary args between `git` and `commit` so long as no
+// shell command boundary intervenes, so a later `git log -n 5` on the same line
+// is not conflated with a commit bypass. This runs ONLY on phrase-stripped views
+// (see detectBypass), so a `-n` inside a quoted commit message does not trip.
+function matchDashN (command) {
+  if (/\bgit\b[^;&|`\n]*?\bcommit\b[^;&|`\n]*?\s-[asvqeoipuzSA]*n[a-zA-Z]*(?=\s|$)/.test(command)) {
+    return 'git commit -n (short form, bundled or not)'
+  }
+  return null
+}
+
+// Hook-manager kill-switches. husky and lefthook install their hooks as git's
+// pre-commit/commit-msg/pre-push (via core.hooksPath or .git/hooks), and their
+// scripts short-circuit to a no-op when a manager-specific env var is set:
+// HUSKY=0, HUSKY_SKIP_HOOKS=<any>, LEFTHOOK=0 / false / off. Setting one of these
+// alongside a git commit/push skips the repo's hooks exactly as --no-verify does,
+// in the very repos (JS/TS) this toolkit most often runs in. Verified as real
+// bypasses in a manager-style repo. These env-var NAMES have no legitimate use
+// other than disabling hooks, so an assignment of one in the same command as a
+// git commit/push is a bypass. Runs ONLY on phrase-stripped views (see
+// detectBypass), so the string "HUSKY=0" inside a commit message does not trip.
+// Out of scope by deliberate choice (collision-prone names, documented not
+// matched): pre-commit framework's SKIP=<id> and PRE_COMMIT_ALLOW_NO_CONFIG.
+function matchHookManager (command) {
+  const killSwitch = /(?:^|[\s;&|`(]|export\s+)(?:HUSKY=0|HUSKY_SKIP_HOOKS=\S|LEFTHOOK=(?:0|false|off))\b/
+  const gitCommitOrPush = /\bgit\b[^;&|`\n]*?\b(?:commit|push)\b/
+  if (killSwitch.test(command) && gitCommitOrPush.test(command)) {
+    return 'hook-manager kill-switch (HUSKY / LEFTHOOK) with git commit/push'
   }
   return null
 }
@@ -197,9 +268,56 @@ function detectBypass (command) {
   // variable (`f=--no-verif; git commit $f`) still slips — the literal is not in
   // the text at all; see rule 8 in the header.
   const unwrapped = command.replace(/\\\r?\n/g, '')
-  const variants = [command, unwrapped, unwrapped.replace(/['"\\]/g, '')]
-  for (const text of variants) {
+  // A copy with shell expansions collapsed away. The shell removes a command
+  // substitution ($(...) or `...`) or a parameter expansion (${...} or $name)
+  // before git parses the line, so `--no-ver$()ify`, `--no-ver${x}ify`, and
+  // `core.hooks$(:)Path` all reassemble the bare flag at runtime while hiding
+  // the literal in the raw text. Collapsing the expansions reconstructs the
+  // token. This is checked IN ADDITION TO the raw command, never instead of it,
+  // so a substitution that literally CONTAINS the flag (`git commit $(echo
+  // --no-verify)`) is still caught by the raw/unwrapped passes — only the empty-
+  // or value-splice forms rely on this copy. A substitution assembled from
+  // pieces that never form the literal (`$(printf -- '--no-ver'; printf 'ify')`)
+  // is the shell-variable ceiling of rule 8: the literal is in neither view.
+  const noExpansion = unwrapped
+    .replace(/\$\([^()]*\)/g, '')            // $(...) command substitution
+    .replace(/`[^`]*`/g, '')                 // `...` command substitution
+    .replace(/\$\{[^}]*\}/g, '')             // ${...} parameter expansion
+    .replace(/\$[A-Za-z_][A-Za-z0-9_]*/g, '') // $name variable
+  // Remove MULTI-WORD quoted strings (commit messages, echo text) before the
+  // quote strip. A real bypass flag is always a single shell token — bare, or a
+  // single-token quote like "--no-verif" or "-n" — never a multi-word quoted
+  // phrase, which git would receive as one unknown argument and reject. Dropping
+  // the phrases stops a flag-shaped WORD inside a message (`-m "pass -n to
+  // disable"`, `-m "do not use --no-verify"`) from tripping the guard, while a
+  // single-token quoted flag survives the drop and is still caught after the
+  // quote strip. (A message that is literally and only "-n" is the one residual
+  // over-block; committing that exact string is vanishingly rare, and the
+  // fail-closed cost is one reworded message.)
+  const dropPhrases = (s) => s
+    .replace(/"[^"]*\s[^"]*"/g, ' ')
+    .replace(/'[^']*\s[^']*'/g, ' ')
+  // Phrase-free views: multi-word quoted strings removed, then quotes/escapes
+  // stripped. These are the only views the -n rule may see.
+  const phraseFree = [
+    dropPhrases(unwrapped).replace(/['"\\]/g, ''),
+    dropPhrases(noExpansion).replace(/['"\\]/g, ''),
+  ]
+  // The --no-verify and core.hooksPath rules run on every view, including the
+  // raw command: those literals are unusual inside a normal message, so a quoted
+  // mention tripping is the accepted fail-closed trade.
+  for (const text of [command, unwrapped, noExpansion, ...phraseFree]) {
     const hit = matchBypassPatterns(text)
+    if (hit) return hit
+  }
+  // The -n short-form and hook-manager rules run ONLY on the phrase-free views,
+  // because a bare `-n` and the string `HUSKY=0` are both things that can appear
+  // as ordinary WORDS inside a commit message. git confirms a `-n` inside a
+  // message is the message, not the flag; the same reasoning applies to a message
+  // that mentions a kill-switch. Dropping the quoted phrases removes that text
+  // first, so only a real flag/assignment token remains.
+  for (const text of phraseFree) {
+    const hit = matchDashN(text) || matchHookManager(text)
     if (hit) return hit
   }
   return null

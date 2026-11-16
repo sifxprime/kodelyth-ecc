@@ -2,6 +2,54 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.31.10 — adversarial sweep: close expansion-splice, clustered -n, and hook-manager bypasses (November 2026)
+
+A maintainer-run "be-the-reporter" adversarial sweep of the shipped
+`scripts/hooks/block-no-verify.js`, each vector reproduced in live git (a commit
+landing past a `pre-commit` that exits 1) before any code changed. Three classes
+of real bypass closed; the structural ceiling named and left pinned.
+
+**Closed:**
+
+10. **Empty-expansion splices.** `--no-ver$()ify`, `` --no-ver``ify `` (empty
+    backticks), `--no-ver${UNSET}ify`, `--no-ver$(:)ify`, and the same inside the
+    config key (`core.hooks$()Path`) all reassemble the bare flag/key — the shell
+    removes a command substitution or parameter expansion before git parses.
+    Closed by checking a view with `$(...)`, `` `...` ``, `${...}`, and `$name`
+    collapsed away, in addition to the raw command (so a substitution that
+    literally contains the flag is still caught by the raw pass).
+
+11. **Clustered short flags.** git unbundles a single-dash run, so `-n` hides in
+    `-nm` / `-vn` / `-qn` / `-sn`. Closed by matching a bundle whose pre-`n`
+    characters are all no-argument flags — arg-takers (`m c C F t`) are excluded,
+    so `-mn` (= `-m "n"`) and `-am` (= `-a -m`) correctly do NOT match. This rule
+    runs only on views with multi-word quoted phrases removed: a bare `-n` is a
+    common word in commit messages, and live git confirms a `-n` inside a message
+    is the message, not the flag, so matching it there would be a false positive.
+
+12. **Hook-manager kill-switches.** husky and lefthook install their hooks as
+    git's pre-commit/commit-msg/pre-push and no-op on `HUSKY=0` /
+    `HUSKY_SKIP_HOOKS=<any>` / `LEFTHOOK=0|false|off`. In those repos (the JS/TS
+    ones this toolkit most runs in) that skips hooks exactly like `--no-verify`.
+    Verified as real bypasses. Matched when such an assignment shares a command
+    with a git commit/push; runs on phrase-free views (a message mentioning the
+    string does not trip), and the names are unambiguous (`HUSKY=1`, `MY_HUSKY=0`,
+    `husky install` do not match).
+
+**Ceiling, named not faked:** the shell-variable / assembled-flag forms
+(`f=--no-verif; git commit $f`, `$(printf -- '--no-ver'; printf 'ify')`) put the
+literal in no view of the text — unclosable by a text guard, pinned by tests. The
+only real fix is enforcement that observes whether the hook RAN (committer-side
+wrapper or server-side pre-receive).
+
+**Also out of scope, documented:** pre-commit framework's `SKIP=<id>` /
+`PRE_COMMIT_ALLOW_NO_CONFIG` — real bypasses in pre-commit-framework repos, but
+`SKIP` is a collision-prone name; documented, not matched, pending a request.
+
+`tests/hooks/block-no-verify.test.js`: 27 → 32. A false-positive sweep confirms
+no legitimate command (incl. `-am`, `$(git rev-parse …)` in a message, `HUSKY=1`)
+is blocked. Full suite green.
+
 ## v2.31.9 — close the shell line-continuation bypass (November 2026)
 
 Fourth report from the same reporter (`daisy-49@ilands.app`), against the

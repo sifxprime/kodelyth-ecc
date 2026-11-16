@@ -48,11 +48,44 @@
  *      "git" and "core.hooksPath" — the key has no benign use alongside
  *      git invocations.
  *
- * Still out of scope, documented so the gap is explicit rather than
- * silent: GIT_CONFIG_SYSTEM=/dev/null git commit (points system config
- * at a dead file; no core.hooksPath string appears), and
- * attacker-controlled edits to .git/hooks/* before commit (not a flag
- * class — a file-tamper class).
+ * v2.31.8 — same reporter, four more, three closed:
+ *
+ *   5. Case. git config keys are case-insensitive, so core.hookspath and
+ *      core.HooksPath are the same key as core.hooksPath. The hooksPath
+ *      pattern is now matched case-insensitively.
+ *
+ *   6. Quoted flag. `git commit "--no-verif"` parses identically to the
+ *      bare flag, but the quote sat outside the pattern's boundary class.
+ *
+ *   7. Concatenated / escaped flag. The shell splices `--no-ver''ify`,
+ *      `--no-ver""ify`, and `--no-\verify` back into --no-verify before git
+ *      ever sees them, so the literal word is absent from the raw text.
+ *
+ *   5-7 are closed together: every pattern is now run against the raw
+ *   command AND a copy with shell quote/escape characters (' " \) removed,
+ *   which collapses the quoted and spliced forms back to what the patterns
+ *   expect. The word-boundary classes still gate, so a flag merged into the
+ *   middle of another token is not a boundary match and does not trip.
+ *
+ *   8. Variable. `f=--no-verif; git commit $f` passes the flag through a
+ *      shell variable, so the literal never appears in the command text at
+ *      all. This is NOT closable by any text pattern — it is the honest
+ *      ceiling of a guard that reads the command string. Closing it needs a
+ *      check that observes whether the hook actually RAN (a committer-side
+ *      wrapper, or a server-side pre-receive hook), which is a different
+ *      enforcement surface than a PreToolUse text guard. Left documented,
+ *      not half-built. For the agent use case this guard exists for, an
+ *      agent does not assemble a bypass flag from a variable by accident;
+ *      the common, accidental forms (5-7) are what matter and are closed.
+ *
+ * Still out of scope, documented so the gap is explicit rather than silent:
+ *   - GIT_CONFIG_SYSTEM=/dev/null git commit. Verified by the reporter NOT
+ *     to bypass in a normal repo: with core.hooksPath in the repo's local
+ *     config, blanking the system or global config file still runs the hook.
+ *     It only bypasses in the narrow case where hooksPath itself lives in the
+ *     file being blanked — not worth a pattern.
+ *   - attacker-controlled edits to .git/hooks/* before commit — a file-tamper
+ *     class, not a flag class.
  */
 
 const fs = require('node:fs')
@@ -96,11 +129,16 @@ function readPayload () {
  *
  * False positives we knowingly accept: shell comments (`# --no-verify`) and
  * string literals that mention the flag (`echo "do not use --no-verify"`).
- * The cost of a spurious block is one edited command; the cost of a silent
- * allow is why this hook exists.
+ * Since v2.31.8 the quote-stripping pass means such mentions are matched more
+ * often than before (a quoted `--no-verify` in an echo now trips). That is the
+ * intended trade: the cost of a spurious block is one edited command; the cost
+ * of a silent allow is why this hook exists.
  */
-function detectBypass (command) {
-  if (typeof command !== 'string' || command.length === 0) return null
+
+// Apply the three bypass patterns to one already-normalized command string.
+// Returns the matched label or null. detectBypass() runs this against both the
+// raw command and a quote/escape-stripped copy.
+function matchBypassPatterns (command) {
   // --no-verify and its two unambiguous prefixes (--no-verif, --no-veri).
   // The optional (f(y)?)? makes --no-veri match on its own; the terminator
   // set excludes '-' so --no-verify-signatures (push/merge sig verify) and
@@ -115,13 +153,34 @@ function detectBypass (command) {
   if (/\bgit\b[^;&|`\n]*?\bcommit\b[^;&|`\n]*?\s-n\b/.test(command)) {
     return 'git commit -n'
   }
-  // core.hooksPath override, any form. Match when both `git` and the
-  // literal config key appear in the same command segment (no shell
-  // boundary between them), in either order — `git -c core.hooksPath=...`
-  // has git first; `GIT_CONFIG_PARAMETERS='core.hooksPath=...' git ...`
-  // has the key first. One pattern covers both.
-  if (/\bgit\b[^;&|`\n]*?\bcore\.hooksPath\b|\bcore\.hooksPath\b[^;&|`\n]*?\bgit\b/.test(command)) {
+  // core.hooksPath override, any form. Match when both `git` and the config
+  // key appear in the same command segment (no shell boundary between them),
+  // in either order — `git -c core.hooksPath=...` has git first;
+  // `GIT_CONFIG_PARAMETERS='core.hooksPath=...' git ...` has the key first.
+  // Case-insensitive: git config keys are case-insensitive, so core.hookspath
+  // and core.HooksPath are the same key.
+  if (/\bgit\b[^;&|`\n]*?\bcore\.hooksPath\b|\bcore\.hooksPath\b[^;&|`\n]*?\bgit\b/i.test(command)) {
     return 'core.hooksPath override'
+  }
+  return null
+}
+
+function detectBypass (command) {
+  if (typeof command !== 'string' || command.length === 0) return null
+  // Run the patterns against the raw command AND a copy with shell quote and
+  // escape characters (' " \) removed. git and the shell treat `"--no-verif"`,
+  // `--no-ver''ify`, and `--no-\verify` identically to the bare flag, but the
+  // raw text hides the literal word behind quotes or an escape. Stripping those
+  // characters from a match-only copy collapses the forms back to what the
+  // patterns expect. The boundary classes in matchBypassPatterns still gate, so
+  // a flag merged into the middle of another token (`x"--no-verify"y` becomes
+  // `x--no-verifyy`) is not a boundary match and does not trip. A flag passed
+  // through a shell variable (`f=--no-verif; git commit $f`) still slips — the
+  // literal is not in the text at all; see rule 8 in the header.
+  const variants = [command, command.replace(/['"\\]/g, '')]
+  for (const text of variants) {
+    const hit = matchBypassPatterns(text)
+    if (hit) return hit
   }
   return null
 }

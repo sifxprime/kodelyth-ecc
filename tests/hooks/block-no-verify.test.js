@@ -146,6 +146,64 @@ test('detectBypass blocks core.hooksPath override in every form', () => {
   }
 })
 
+// v2.31.8 case 5: git config keys are case-insensitive, so core.hookspath and
+// core.HooksPath are the same key as core.hooksPath. Verified a real bypass in
+// live git (lowercase hookspath lands a commit past a failing pre-commit hook).
+test('detectBypass blocks case-variant core.hooksPath', () => {
+  for (const cmd of [
+    'git -c core.hookspath=/dev/null commit -m x',
+    'git -c core.HooksPath=/dev/null commit -m x',
+    'git -c core.HOOKSPATH=/dev/null commit -m x',
+    'git config core.HOOKSPATH /dev/null',
+  ]) {
+    assert.equal(detectBypass(cmd), 'core.hooksPath override', `should block: ${cmd}`)
+  }
+})
+
+// v2.31.8 cases 6 & 7: the shell collapses quoted and spliced/escaped forms to
+// the bare flag before git parses them, so the literal word is hidden in the
+// raw text. The quote/escape-stripping pass catches all of these.
+test('detectBypass blocks quoted, concatenated, and escaped bypass flags', () => {
+  const noVerify = [
+    'git commit "--no-verif" -m x',      // double-quoted
+    "git commit '--no-verif' -m x",      // single-quoted
+    "git commit --no-ver''ify -m x",     // single-quote splice
+    'git commit --no-ver""ify -m x',     // double-quote splice
+    'git commit --no-\\verify -m x',     // backslash escape
+  ]
+  for (const cmd of noVerify) {
+    assert.match(detectBypass(cmd) || '', /^--no-verify/, `should block: ${cmd}`)
+  }
+  assert.equal(detectBypass('git commit "-n" -m x'), 'git commit -n', 'quoted -n')
+  assert.equal(
+    detectBypass('git -c "core.hooksPath=/dev/null" commit -m x'),
+    'core.hooksPath override',
+    'quoted hooksPath',
+  )
+})
+
+// v2.31.8 case 8: a flag passed through a shell variable is NOT in the command
+// text at all, so NO text pattern can catch it. This test PINS that known gap
+// so the ceiling is explicit — if a future change appears to close it, that
+// change is almost certainly over-matching and this test should be revisited,
+// not silently deleted.
+test('detectBypass does NOT catch a flag passed via a shell variable (documented ceiling)', () => {
+  assert.equal(detectBypass('f=--no-verif; git commit $f -m x'), null)
+  assert.equal(detectBypass('v=--no-verify && git commit $v'), null)
+})
+
+// The quote-stripping pass must not start matching a flag spliced into the
+// MIDDLE of another token — the word-boundary classes still gate.
+test('detectBypass does NOT trip on a flag embedded mid-token', () => {
+  for (const cmd of [
+    'echo x--no-verifyy',
+    'echo "prefix--no-verifysuffix"',
+    'grep -r "core.hooksPath" docs/',   // hooksPath but no git in segment
+  ]) {
+    assert.equal(detectBypass(cmd), null, `should allow: ${cmd}`)
+  }
+})
+
 test('detectBypass does NOT trip on core.hooksPath outside a git context', () => {
   // Reading/greping documentation that mentions the config key is not a
   // bypass unless `git` is also in the same segment.

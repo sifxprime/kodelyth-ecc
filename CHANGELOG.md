@@ -2,6 +2,65 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.31.8 — close the closable --no-verify bypasses; name the ceiling (November 2026)
+
+Third report from the same reporter, four more cases against the shipped
+`scripts/hooks/block-no-verify.js` from v2.31.7, each verified in live git
+before being touched. Three are closed; the fourth is the honest ceiling of a
+text-pattern guard and is now documented as such instead of pretended away.
+
+**Closed:**
+
+5. **Case.** git config keys are case-insensitive, so `core.hookspath` and
+   `core.HooksPath` are the same key as `core.hooksPath` — and `git -c
+   core.hookspath=/dev/null commit` was a *confirmed* live bypass (lowercase
+   key landed a commit past a failing pre-commit hook). The hooksPath pattern
+   is now matched case-insensitively.
+
+6. **Quoted flag.** `git commit "--no-verif"` parses identically to the bare
+   flag, but the quote sat outside the pattern's boundary class.
+
+7. **Concatenated / escaped flag.** The shell splices `--no-ver''ify`,
+   `--no-ver""ify`, and `--no-\verify` back into `--no-verify` before git sees
+   them, so the literal word is absent from the raw text.
+
+Cases 5–7 are closed together: every pattern now runs against the raw command
+**and** a copy with shell quote/escape characters (`'` `"` `\`) stripped, which
+collapses the hidden forms back to what the patterns expect. The word-boundary
+classes still gate, so a flag merged into the middle of another token
+(`x"--no-verify"y` → `x--no-verifyy`) is not a boundary match and does not trip
+— verified by negative tests.
+
+**Not closed, and why:**
+
+8. **Variable.** `f=--no-verif; git commit $f` passes the flag through a shell
+   variable, so the literal never appears in the command text at all. No text
+   pattern can catch this — it is the ceiling of any guard that reads the
+   command string. Closing it needs a check that observes whether the hook
+   actually *ran* (a committer-side wrapper, or a server-side pre-receive
+   hook), a different enforcement surface than a PreToolUse text guard. Left
+   documented, not half-built. A unit test pins the gap so it stays explicit:
+   for the agent use case this guard exists for, an agent does not assemble a
+   bypass flag from a variable by accident; the common, accidental forms (5–7)
+   are what matter and are closed.
+
+**Out of scope, corrected:** the reporter verified that
+`GIT_CONFIG_SYSTEM=/dev/null git commit` does **not** bypass in a normal repo —
+with `core.hooksPath` in the repo's local config, blanking the system or global
+config file still runs the hook. It only bypasses in the narrow case where
+hooksPath itself lives in the file being blanked. The header note is corrected
+to say so rather than implying it is a live vector.
+
+**Trade-off, stated honestly:** the quote-stripping pass means a quoted mention
+of the flag in an `echo` or a `git log --grep` now trips the guard where it
+didn't before. That is the intended direction for a fail-closed security hook —
+a spurious block costs one edited command; a silent allow is the whole reason
+the hook exists.
+
+Tests: `tests/hooks/block-no-verify.test.js` grew from 21 to 25 — case-variant
+hooksPath, quoted/spliced/escaped flags, the variable-form ceiling (pinned as a
+known gap), and a mid-token negative proving the boundary gate holds.
+
 ## v2.31.7 — doctor now detects stale installed config (November 2026)
 
 `doctor` gained a `config-drift` check. It answers a question nothing in the

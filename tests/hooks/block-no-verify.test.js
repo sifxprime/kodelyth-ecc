@@ -182,6 +182,38 @@ test('detectBypass blocks quoted, concatenated, and escaped bypass flags', () =>
   )
 })
 
+// v2.31.9 case 9: a shell line continuation (backslash-newline) splits the flag
+// across two physical lines. The shell joins the token before git parses it, so
+// git receives --no-verify / core.hooksPath and bypasses the repo hooks, but the
+// raw command text the hook sees has the literal broken across lines. Both forms
+// were CONFIRMED live bypasses (commit landed past a failing pre-commit). The
+// v2.31.8 strip removed ' " \ but kept the newline; detectBypass now unwraps
+// backslash-newline first so the token becomes contiguous.
+test('detectBypass blocks flags split by a shell line continuation', () => {
+  assert.match(
+    detectBypass('git commit --no-\\\nverify -m x') || '',
+    /^--no-verify/,
+    'line-continuation --no-verify',
+  )
+  assert.match(
+    detectBypass('git commit --no-\\\r\nverify -m x') || '',
+    /^--no-verify/,
+    'CRLF line-continuation --no-verify',
+  )
+  assert.equal(
+    detectBypass('git -c core.hooks\\\nPath=/dev/null commit -m x'),
+    'core.hooksPath override',
+    'line-continuation core.hooksPath',
+  )
+})
+
+// The line-continuation unwrap must only matter when it reconstructs a real
+// bypass token — a benign wrapped command carries no flag and must be allowed.
+test('detectBypass allows a benign shell line continuation', () => {
+  assert.equal(detectBypass('echo one \\\ntwo'), null)
+  assert.equal(detectBypass('git status \\\n  --short'), null)
+})
+
 // v2.31.8 case 8: a flag passed through a shell variable is NOT in the command
 // text at all, so NO text pattern can catch it. This test PINS that known gap
 // so the ceiling is explicit — if a future change appears to close it, that

@@ -78,6 +78,20 @@
  *      agent does not assemble a bypass flag from a variable by accident;
  *      the common, accidental forms (5-7) are what matter and are closed.
  *
+ * v2.31.9 — same reporter, one more, closed:
+ *
+ *   9. Shell line continuation inside the token. `git commit --no-\<newline>
+ *      verify` and `git -c core.hooks\<newline>Path=/dev/null commit` both
+ *      bypass — the shell removes backslash-newline before parsing, so git
+ *      receives the joined flag, but the raw command text the hook sees has
+ *      the literal split across two lines. The v2.31.8 strip removed ' " \
+ *      but kept the newline, so the token never became contiguous. Closed by
+ *      unwrapping backslash-newline (\r?\n) first, producing a joined variant
+ *      that the patterns then match (raw, and quote/escape-stripped). Same
+ *      class as 7 (shell-level splicing); it over-triggers inside single
+ *      quotes where backslash-newline is literal, the fail-closed direction
+ *      already chosen for 5-7.
+ *
  * Still out of scope, documented so the gap is explicit rather than silent:
  *   - GIT_CONFIG_SYSTEM=/dev/null git commit. Verified by the reporter NOT
  *     to bypass in a normal repo: with core.hooksPath in the repo's local
@@ -167,17 +181,23 @@ function matchBypassPatterns (command) {
 
 function detectBypass (command) {
   if (typeof command !== 'string' || command.length === 0) return null
-  // Run the patterns against the raw command AND a copy with shell quote and
-  // escape characters (' " \) removed. git and the shell treat `"--no-verif"`,
-  // `--no-ver''ify`, and `--no-\verify` identically to the bare flag, but the
-  // raw text hides the literal word behind quotes or an escape. Stripping those
-  // characters from a match-only copy collapses the forms back to what the
-  // patterns expect. The boundary classes in matchBypassPatterns still gate, so
-  // a flag merged into the middle of another token (`x"--no-verify"y` becomes
-  // `x--no-verifyy`) is not a boundary match and does not trip. A flag passed
-  // through a shell variable (`f=--no-verif; git commit $f`) still slips — the
-  // literal is not in the text at all; see rule 8 in the header.
-  const variants = [command, command.replace(/['"\\]/g, '')]
+  // Run the patterns against three views of the command:
+  //   1. the raw command.
+  //   2. an "unwrapped" copy with shell line continuations (backslash-newline)
+  //      removed. The shell joins `--no-\<newline>verify` into the single token
+  //      --no-verify before git parses it, but the raw text has the literal
+  //      split across two lines; unwrapping makes it contiguous (rule 9).
+  //   3. the unwrapped copy with shell quote and escape characters (' " \)
+  //      removed. git and the shell treat `"--no-verif"`, `--no-ver''ify`, and
+  //      `--no-\verify` identically to the bare flag, but the raw text hides the
+  //      literal behind quotes or an escape; stripping collapses them (rules 6-7).
+  // The boundary classes in matchBypassPatterns still gate, so a flag merged
+  // into the middle of another token (`x"--no-verify"y` becomes `x--no-verifyy`)
+  // is not a boundary match and does not trip. A flag passed through a shell
+  // variable (`f=--no-verif; git commit $f`) still slips — the literal is not in
+  // the text at all; see rule 8 in the header.
+  const unwrapped = command.replace(/\\\r?\n/g, '')
+  const variants = [command, unwrapped, unwrapped.replace(/['"\\]/g, '')]
   for (const text of variants) {
     const hit = matchBypassPatterns(text)
     if (hit) return hit

@@ -2,6 +2,41 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.31.9 — close the shell line-continuation bypass (November 2026)
+
+Fourth report from the same reporter (`daisy-49@ilands.app`), against the
+shipped `scripts/hooks/block-no-verify.js` from v2.31.8 (sha `b793a75`). The
+v2.31.8 fixes all held across six spellings; one new case was found and is now
+closed.
+
+**Closed:**
+
+9. **Shell line continuation inside the token.** `git commit --no-\<newline>verify`
+   and `git -c core.hooks\<newline>Path=/dev/null commit` both bypass — the shell
+   removes backslash-newline before parsing, so git receives the joined flag and
+   skips the repo hooks, but the raw command text the hook sees has the literal
+   split across two physical lines. The v2.31.8 strip removed `' " \` but kept the
+   newline, so the token never became contiguous. Both forms were **confirmed live
+   bypasses** (a commit landed past a pre-commit that exits 1). Closed by unwrapping
+   backslash-newline (`\r?\n`) first, producing a joined variant the patterns then
+   match (raw, and quote/escape-stripped). Same class as case 7 (shell-level
+   splicing); it over-triggers inside single quotes where backslash-newline is
+   literal — the fail-closed direction already chosen for cases 5-7.
+
+**Unchanged:** case 8 (a flag passed through a shell variable) remains the
+documented ceiling — the reporter confirmed a committer-side wrapper is a step
+not a wall, so the only agent-unauthored enforcement is a server-side
+pre-receive hook, a different surface. The pinning test stays.
+
+`tests/hooks/block-no-verify.test.js`: 25 → 27 (line-continuation `--no-verify`,
+CRLF form, line-continuation `core.hooksPath`, and a benign-continuation
+negative). Full suite green.
+
+Also removed from the maintainer's own `~/.claude/settings.json` a stale
+`npx block-no-verify@1.1.2` PreToolUse entry — the pre-v2.31.4 network/fail-open
+hook — which had lingered alongside the vendored local hook. No package change;
+noted here for the record.
+
 ## v2.31.8 — close the closable --no-verify bypasses; name the ceiling (November 2026)
 
 Third report from the same reporter, four more cases against the shipped

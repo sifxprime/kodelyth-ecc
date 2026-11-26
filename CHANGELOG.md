@@ -2,6 +2,27 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.31.12 — installer hardening + catalog crash-safety sweep (npm rollup) (November 2026)
+
+The single npm release that carries the installer fix from v2.31.11 (which was
+cut as a GitHub-only tag while the npm channel was unavailable) plus a full
+catalog verification pass.
+
+**Includes the v2.31.11 installer fix** (see below): the whole `scripts/` tree is
+installed so `run-with-flags.js`'s `require('../lib/safe-fs.js')` always resolves,
+and `ensure_real_dir` / `Ensure-RealDir` replace a stale symlinked destination
+(e.g. `~/.claude/scripts` left pointing at an old npx cache) with a real directory
+before copying — on both `install.sh` and `install.ps1`, which also gains the
+previously-missing `scripts/` copy on Windows.
+
+**Catalog crash-safety sweep.** Every shipped artifact was parsed/loaded/resolved,
+not just counted: 71 agents and 196 skills (frontmatter), 104 commands, 105 rule
+files, 13 JSON configs (parse), 184 scripts (`node --check`), all 35 `hooks.json`
+script references, and all 25 relative `require()`s inside hook scripts. One
+defect found and fixed: `skills/skill-stocktake/SKILL.md` was missing its `name:`
+field (the loader keys on `name`, so the skill would not register). Full test
+suite green; `kodelythecc doctor` 12/12.
+
 ## v2.31.11 — installer: stop writing through a symlinked scripts dir, install the whole lib tree (November 2026)
 
 A PreCompact hook crash (`Cannot find module '../lib/safe-fs.js'`, a stack trace

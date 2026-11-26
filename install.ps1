@@ -243,10 +243,26 @@ $SkillCount   = (Get-ChildItem -Path "$ScriptDir\skills"   -Recurse -Filter "SKI
 $CmdCount     = (Get-ChildItem -Path "$ScriptDir\commands" -Filter "*.md" -File).Count
 
 # -- Helpers -------------------------------------------------------------------
+
+# Ensure a destination is a REAL directory, not a symlink/junction (reparse
+# point). An older install could leave a managed directory as a link into an
+# npx cache; copying THROUGH it writes into the stale cache, not the intended
+# root, leaving a half-updated tree. Remove the link (never its target) first.
+function Ensure-RealDir {
+    param([string]$Dest)
+    if (-not $Dest) { return }
+    $item = Get-Item -LiteralPath $Dest -Force -ErrorAction SilentlyContinue
+    if ($item -and ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+        try { [System.IO.Directory]::Delete($Dest, $false) }
+        catch { Remove-Item -LiteralPath $Dest -Force -ErrorAction SilentlyContinue }
+    }
+    if (-not (Test-Path $Dest)) { New-Item -ItemType Directory -Path $Dest -Force | Out-Null }
+}
+
 function Install-Dir {
     param([string]$Src, [string]$Dest, [string]$Label)
     if (-not $Dest) { return }
-    if (-not (Test-Path $Dest)) { New-Item -ItemType Directory -Path $Dest -Force | Out-Null }
+    Ensure-RealDir $Dest
     Copy-Item -Path "$Src\*" -Destination $Dest -Recurse -Force
     Write-Host "  [OK] $Label -> $Dest" -ForegroundColor Green
 }
@@ -254,7 +270,7 @@ function Install-Dir {
 function Install-Flat {
     param([string]$Src, [string]$Dest, [string]$Label)
     if (-not $Dest) { return }
-    if (-not (Test-Path $Dest)) { New-Item -ItemType Directory -Path $Dest -Force | Out-Null }
+    Ensure-RealDir $Dest
     Get-ChildItem -Path $Src -Recurse -Filter "*.md" | ForEach-Object {
         Copy-Item -Path $_.FullName -Destination "$Dest\$($_.Name)" -Force
     }
@@ -282,10 +298,21 @@ switch ($Target) {
         # so Windows installs shipped 1 hook file and no settings.json at all
         # (measured on a windows-latest runner).
         if ($HooksDest) {
-            if (-not (Test-Path $HooksDest)) { New-Item -ItemType Directory -Path $HooksDest -Force | Out-Null }
+            Ensure-RealDir $HooksDest
             Copy-Item "$ScriptDir\hooks\*" $HooksDest -Recurse -Force
             $hookScripts = (Get-ChildItem -Path $HooksDest -Recurse -Filter "*.js" -ErrorAction SilentlyContinue).Count
             Write-Host "  [OK] Hooks -> $HooksDest ($hookScripts scripts)" -ForegroundColor Green
+
+            # Hook scripts tree. hooks.json commands point at
+            # ${CLAUDE_PLUGIN_ROOT}\scripts\{hooks,memory,lib}\*; this file never
+            # copied scripts\ at all, so every script-backed hook (incl. the
+            # PreCompact state saver and run-with-flags.js's require of
+            # lib\safe-fs.js) was missing on Windows. Copy the WHOLE tree.
+            $ScriptsDest = "$Dest\scripts"
+            Ensure-RealDir $ScriptsDest
+            Copy-Item "$ScriptDir\scripts\*" $ScriptsDest -Recurse -Force
+            $libCount = (Get-ChildItem -Path "$ScriptsDest\lib" -Filter "*.js" -ErrorAction SilentlyContinue).Count
+            Write-Host "  [OK] Scripts -> $ScriptsDest (lib: $libCount files)" -ForegroundColor Green
 
             $registrar = Join-Path $ScriptDir "scripts\install\register-hooks.js"
             if (Test-Path $registrar) {
@@ -306,7 +333,7 @@ switch ($Target) {
         }
 
         # Rules
-        if (-not (Test-Path $RulesDest)) { New-Item -ItemType Directory -Path $RulesDest -Force | Out-Null }
+        Ensure-RealDir $RulesDest
         if (Test-Path "$ScriptDir\rules\common") {
             Copy-Item -Path "$ScriptDir\rules\common\*" -Destination $RulesDest -Recurse -Force
             Write-Host "  [OK] Rules (common) -> $RulesDest" -ForegroundColor Green
@@ -314,7 +341,7 @@ switch ($Target) {
         foreach ($lang in $LangArray) {
             if (Test-Path "$ScriptDir\rules\$lang") {
                 $LangDest = "$RulesDest\$lang"
-                if (-not (Test-Path $LangDest)) { New-Item -ItemType Directory -Path $LangDest -Force | Out-Null }
+                Ensure-RealDir $LangDest
                 Copy-Item -Path "$ScriptDir\rules\$lang\*" -Destination $LangDest -Recurse -Force
                 Write-Host "  [OK] Rules ($lang) -> $LangDest" -ForegroundColor Green
             }

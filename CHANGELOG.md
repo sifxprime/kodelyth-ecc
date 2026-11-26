@@ -2,6 +2,38 @@
 
 All notable changes to Kodelyth ECC are documented here.
 
+## v2.31.11 — installer: stop writing through a symlinked scripts dir, install the whole lib tree (November 2026)
+
+A PreCompact hook crash (`Cannot find module '../lib/safe-fs.js'`, a stack trace
+on every auto-compaction) traced to two installer bugs, both fixed here.
+
+**Bug 1 — partial lib copy (the crash).** The `claude-home`/`claude-code` step
+copied `scripts/hooks`, `scripts/memory`, and *only* `scripts/lib/hook-flags.js`
+— never `scripts/lib/safe-fs.js`, which `run-with-flags.js` requires. Every clean
+install therefore shipped a hook whose dependency was absent. Now the **whole
+`scripts/` tree** is installed in one copy, so no hook can reference a lib file
+the installer forgot to place.
+
+**Bug 2 — write-through a stale symlink (what hid it).** An old
+`npx kodelyth-ecc` could leave `~/.claude/scripts` as a **symlink into its npx
+cache**. `mkdir -p`/`cp` then wrote *through* the link into that stale cache
+instead of `~/.claude`, so reinstalls half-updated an ancient tree (new hook
+scripts beside a v1.5.3 `lib/`). A new `ensure_real_dir` helper (bash) /
+`Ensure-RealDir` (PowerShell) replaces a symlinked destination with a real
+directory before copying, for every managed dir (`scripts`, `agents`, `skills`,
+`commands`, `hooks`, `rules`).
+
+**Windows parity.** `install.ps1`'s `claude-home` block never copied `scripts/`
+at all, so script-backed hooks (incl. the PreCompact state saver) were missing on
+Windows entirely. It now copies the full `scripts/` tree with the same
+reparse-point guard.
+
+Regression test `tests/install/scripts-symlink-guard.test.js` runs the real
+`install.sh` into a temp HOME seeded with a stale `scripts` symlink and asserts:
+the symlink is replaced by a real directory, `lib/safe-fs.js` is present, nothing
+is written through into the stale cache, and `run-with-flags.js` loads without a
+missing-module crash. Full suite green.
+
 ## v2.31.10 — adversarial sweep: close expansion-splice, clustered -n, and hook-manager bypasses (November 2026)
 
 A maintainer-run "be-the-reporter" adversarial sweep of the shipped

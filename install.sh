@@ -406,6 +406,24 @@ fi
 echo ""
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
+# Ensure a destination is a REAL directory we own, not a symlink.
+#
+# An older `npx kodelyth-ecc` could leave a managed directory (notably
+# ~/.claude/scripts) as a symlink into its own npx cache. Every later install
+# then ran `mkdir -p`/`cp` THROUGH that link, writing into the stale cache
+# instead of ~/.claude — producing a half-updated tree (new hook scripts next to
+# an old lib/ missing safe-fs.js) that crashed the PreCompact hook. Removing the
+# link first means we always lay down real files under the intended root.
+ensure_real_dir() {
+  local d="$1"
+  [[ -z "$d" ]] && return
+  if [[ -L "$d" ]]; then
+    rm -f "$d"
+  fi
+  mkdir -p "$d"
+}
+
 install_dir() {
   local src="$1"
   local dest="$2"
@@ -415,7 +433,7 @@ install_dir() {
     return
   fi
 
-  mkdir -p "$dest"
+  ensure_real_dir "$dest"
   local count=0
 
   if [[ -d "$src" ]]; then
@@ -436,7 +454,7 @@ install_flat() {
     return
   fi
 
-  mkdir -p "$dest"
+  ensure_real_dir "$dest"
   local count=0
 
   find "$src" -name "*.md" | while read -r f; do
@@ -456,7 +474,7 @@ install_hooks() {
     return
   fi
 
-  mkdir -p "$dest"
+  ensure_real_dir "$dest"
 
   # Copy the whole tree, not just hooks.json. Every command inside hooks.json
   # points at ${CLAUDE_PLUGIN_ROOT}/hooks/{memory,safety}/*.js — copying the
@@ -530,21 +548,22 @@ case "$TARGET" in
     install_dir  "$SCRIPT_DIR/skills"         "$SKILLS_DEST"            "Skills   ($SKILL_COUNT)"
     install_dir  "$SCRIPT_DIR/commands"       "$COMMANDS_DEST"          "Commands ($CMD_COUNT)"
     install_hooks                             "$HOOKS_DEST"
-    # Hook scripts: hooks/hooks.json references ${CLAUDE_PLUGIN_ROOT}/scripts/hooks and /scripts/memory
-    install_dir  "$SCRIPT_DIR/scripts/hooks"  "$SCRIPTS_DEST/hooks"     "Hook scripts"
-    install_dir  "$SCRIPT_DIR/scripts/memory" "$SCRIPTS_DEST/memory"    "Memory scripts"
-    mkdir -p "$SCRIPTS_DEST/lib"
-    cp "$SCRIPT_DIR/scripts/lib/hook-flags.js" "$SCRIPTS_DEST/lib/hook-flags.js" 2>/dev/null || true
-    echo -e "  ${GREEN}✓${RESET} Script libs ${BLUE}(→ $SCRIPTS_DEST/lib)${RESET}"
+    # Hook scripts: hooks/hooks.json references ${CLAUDE_PLUGIN_ROOT}/scripts/*.
+    # Copy the WHOLE scripts tree, not a hand-picked subset. A hook script such
+    # as run-with-flags.js requires ../lib/safe-fs.js, and the old subset copy
+    # (hooks + memory + only lib/hook-flags.js) left that dependency missing, so
+    # the PreCompact hook crashed with "Cannot find module '../lib/safe-fs.js'".
+    # install_dir replaces a stale symlink at $SCRIPTS_DEST before copying.
+    install_dir  "$SCRIPT_DIR/scripts"        "$SCRIPTS_DEST"          "Scripts (hooks, memory, lib)"
     # Rules: install common + selected languages
-    mkdir -p "$RULES_DEST"
+    ensure_real_dir "$RULES_DEST"
     if [[ -d "$SCRIPT_DIR/rules/common" ]]; then
       cp -r "$SCRIPT_DIR/rules/common"/. "$RULES_DEST/"
       echo -e "  ${GREEN}✓${RESET} Rules (common) ${BLUE}(→ $RULES_DEST)${RESET}"
     fi
     for lang in "${LANGUAGE_MODULES[@]+"${LANGUAGE_MODULES[@]}"}"; do
       if [[ -d "$SCRIPT_DIR/rules/$lang" ]]; then
-        mkdir -p "$RULES_DEST/$lang"
+        ensure_real_dir "$RULES_DEST/$lang"
         cp -r "$SCRIPT_DIR/rules/$lang"/. "$RULES_DEST/$lang/"
         echo -e "  ${GREEN}✓${RESET} Rules ($lang) ${BLUE}(→ $RULES_DEST/$lang)${RESET}"
       fi
